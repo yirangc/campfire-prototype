@@ -1,6 +1,6 @@
 # Campfire prototype and design system
 
-One private repository for the Campfire exercise. It holds the design system (tokens, icons, logo, components and a browsable showcase, built from the Campfire Figma file) and, once the PRD arrives, the reconciliation prototype that uses it. Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
+One private repository for the Campfire exercise. It holds the design system (tokens, icons, logo, components and a browsable showcase, built from the Campfire Figma file) and the reconciliation prototype that uses it ([prototype/README.md](prototype/README.md): demo steps, calculations, assumptions and design departures). Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
 
 This repository is the source of truth. Changes go through a branch and a pull request (see [Making changes](#making-changes)).
 
@@ -12,7 +12,7 @@ You need Node 22 (Node 20 works for everything except `npm run flags:doc`) and g
 git clone https://github.com/yirangc/campfire-prototype.git
 cd campfire-prototype
 npm ci
-npm run dev      # showcase at http://localhost:5173
+npm run dev      # showcase at http://localhost:5173, prototype at http://localhost:5173/prototype/
 ```
 
 Other commands:
@@ -32,7 +32,8 @@ The verification scripts in `scripts/` (measurements, screenshots, icon comparis
 | `src/tokens/` | Every color, spacing, radius, border, shadow, type and size value as CSS custom properties |
 | `src/assets/` | Logo PNGs and the generated icon SVGs, with their Figma node ids in `manifest.ts` |
 | `src/components/` | Shared React components, one folder each |
-| `src/showcase/` | The showcase app: one chapter per Figma reference, plus the flags |
+| `src/showcase/` | The showcase app: one chapter per Figma reference, the reconciliation components, and the flags |
+| `prototype/` | The reconciliation prototype (see its README) |
 | `docs/figma-and-decisions.md` | Figma references, icon reconstructions and intentional design changes, in one place |
 | `docs/design-flags.md` | Every conflict, undocumented choice, accessibility concern and unverified item |
 | `docs/prototype-decisions.md` | The flags that affect the prototype, with recommendations |
@@ -47,7 +48,7 @@ The showcase and the reconciliation prototype are separate apps in this reposito
 | --- | --- | --- |
 | Design system | `src/tokens`, `src/assets`, `src/components` | Shared by both apps. The only place tokens, icons and components are defined. |
 | Showcase | `index.html`, `src/showcase` | The existing design-system showcase, kept as it is |
-| Prototype | `prototype/` (added with the PRD) | The reconciliation prototype, a second Vite entry at `/prototype/` |
+| Prototype | `prototype/` | The reconciliation prototype, a second Vite entry at `/prototype/` |
 
 Rules:
 

@@ -10,6 +10,16 @@
   box-shadow: var(--shadow-card);
 }
 
+.balance {
+  min-height: 90px; /* Reconcile Balance metric (28:8871) */
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
 .label {
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
@@ -27,6 +37,10 @@
 .value {
   white-space: nowrap;
   color: var(--color-text-primary);
+}
+
+.success {
+  color: var(--color-success-ink);
 }
 
 .badge {

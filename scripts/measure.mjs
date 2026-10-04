@@ -21,7 +21,7 @@ const checks = [
   ['Button icon-only save', controls.getByRole('button', { name: 'Save report' }), 36, 36, '12:12179'],
   ['Button "Expand All"', controls.getByRole('button', { name: 'Expand All' }), 109, 36, '12:12182'],
   ['Button "Download"', reporting.getByRole('button', { name: 'Download' }), 82, 36, '12:12142'],
-  ['Field labelled (Number)', controls.locator('div:has(> input[value="12345"])').first(), 280, 62, '12:12183'],
+  ['Field labelled (Number)', controls.locator('div:has(> div > input[value="12345"])').first(), 280, 62, '12:12183'],
   ['Dropdown Cadence trigger', controls.getByRole('button', { name: /Cadence/ }).first(), 160, 36, '12:12133'],
   ['Dropdown Date Range trigger', controls.getByRole('button', { name: /Date Range \/ reporting/ }), 300, 36, '12:12136'],
   ['Metric card', controls.locator('section[aria-labelledby]').first(), 252, 100, '12:12191'],
@@ -38,7 +38,7 @@ const checks = [
   ['Allocation header row', allocation.locator('thead tr').first(), null, 36, '12:11798'],
   ['Allocation body row', allocation.locator('tbody tr').first(), null, 44, '12:11810'],
   ['Allocation total row', allocation.locator('tfoot tr').first(), null, 38, '12:11894'],
-  ['Dropdown cell specimen', allocation.getByRole('button', { name: 'Tag', exact: true }).locator('xpath=../..'), 300, 44, '12:12188'],
+  ['Dropdown cell specimen', allocation.getByRole('button', { name: 'Tag', exact: true }).locator('xpath=../../..'), 300, 44, '12:12188'],
 ]
 
 let failures = 0

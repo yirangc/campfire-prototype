@@ -1,0 +1,302 @@
+/* Page context (49:633): 24 px top, 32 px sides, 20 px between heading, selectors and balances. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+  padding: var(--spacing-24) var(--spacing-32) var(--spacing-32);
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  min-height: 34px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+/* Reconciliation status (49:637, 28:8845): 24 px, 8 px inset, 4 px radius, 11/16 semibold. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  height: 24px;
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-4);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badgeDone {
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.badgeIcon {
+  color: var(--color-success-ink);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.saved,
+.saveFailed {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.saveFailed {
+  color: var(--color-warning-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.accountRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-16);
+}
+
+/* Account and period labels are 11/16 regular secondary in this frame (49:642), not the 12/18 control label. */
+.contextSelect > span:first-child {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+}
+
+.source {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-2);
+}
+
+.opening {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+/* Context selectors (49:640): 280 and 300 px, never wider than the page. */
+.accountSelect {
+  width: 280px;
+  max-width: 100%;
+}
+
+.periodSelect {
+  width: 300px;
+  max-width: 100%;
+}
+
+/* A signed amount never breaks between its sign, currency symbol and digits. */
+.num {
+  white-space: nowrap;
+}
+
+.balances {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--spacing-16);
+}
+
+.adjustment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-24);
+  margin-top: calc(-1 * var(--spacing-8));
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.adjustment strong {
+  margin-left: var(--spacing-4);
+  font-size: var(--text-body-size);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  margin-top: var(--spacing-4);
+}
+
+.blockers {
+  margin: var(--spacing-2) 0 0;
+  padding-left: var(--spacing-16);
+}
+
+.transactions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.workspaceHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+.sectionTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-semibold);
+}
+
+.periodNote {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+/* Search field (49:675): 36 px, 12 px inset, 8 px gap, 16 px search icon. */
+.searchField {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: var(--size-control);
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+}
+
+.searchField:focus-within {
+  border: var(--border-width-focus) solid var(--color-focus);
+  padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.searchField input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.searchField input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.searchField input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+
+.tabScroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.tabs {
+  gap: var(--spacing-12);
+  min-width: max-content;
+}
+
+.register {
+  container: register / inline-size;
+}
+
+.registerFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+.movement {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.raw {
+  font-size: var(--text-caption-size);
+  color: var(--color-text-secondary);
+}
+
+.raw pre {
+  overflow: auto;
+  max-height: 200px;
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-12);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-sidebar);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ----- Narrower pages: fewer balance columns, tighter gutters, stacked header and selectors ----- */
+
+@container page (max-width: 959px) {
+  .balances {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 767px) {
+  .page {
+    padding: var(--spacing-20) var(--spacing-24) var(--spacing-24);
+  }
+}
+
+@container page (max-width: 599px) {
+  .page {
+    padding: var(--spacing-20) var(--spacing-16) var(--spacing-24);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions > p {
+    flex-basis: 100%;
+  }
+
+  .accountRow > * {
+    flex-basis: 100%;
+  }
+
+  .accountSelect,
+  .periodSelect {
+    width: 100%;
+  }
+}
+
+@container page (max-width: 479px) {
+  .balances {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+}

@@ -14,7 +14,7 @@ page.on('pageerror', (e) => errors.push(String(e)))
 await page.goto(url, { waitUntil: 'networkidle' })
 await page.evaluate(() => document.fonts.ready)
 
-for (const id of ['foundations', 'assets', 'navigation', 'controls', 'reporting', 'allocation', 'flags']) {
+for (const id of ['foundations', 'assets', 'navigation', 'controls', 'reporting', 'allocation', 'reconciliation', 'flags']) {
   await page.locator(`#${id}`).screenshot({ path: `${out}/${id}.png` })
 }
 console.log(errors.length ? `console errors:\n${errors.join('\n')}` : 'no console errors')

@@ -1,0 +1,472 @@
+/* Expanded detail (51:1040): 20 px top and bottom, 16 px sides, 20 px between blocks. */
+.detail {
+  container: detail / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+  padding: var(--spacing-20) var(--spacing-16);
+  text-align: left;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* Auto-matched intro (Yirang's design, 2026-10-04): 12/18 semibold title over a 12/18 secondary line. */
+.autoIntro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.autoTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.autoDetail {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+/* Transaction comparison (51:1049): two cards 12 px apart. Figma's 32 px arrow column between them is removed at
+   Yirang's request (2026-10-04). Stacked by default; side by side from 760 px (see the end of this file). */
+.comparison {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* Action footer (51:1102): right-aligned, 12 px gap. */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+}
+
+.footerHint {
+  margin-right: auto;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Bank transaction / ledger entry card (51:1050): 16 px inset inside a 1 px stroke, 12 px gap. */
+.card {
+  container: card / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  min-width: 0;
+  padding: calc(var(--spacing-16) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  box-shadow: var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  min-height: 20px;
+}
+
+.cardTitleGroup {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  gap: var(--spacing-12);
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.cardTitleStrong {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.cardSubtitle {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Account chip (51:1053) and Draft chip (38:7838): 20 px, 6 px inset, 4 px radius, 11/16. */
+.chip,
+.chipAi {
+  flex: none;
+  padding: var(--spacing-2) var(--spacing-6);
+  border-radius: var(--radius-4);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+}
+
+.chipAi {
+  background: var(--color-ai-pill);
+  color: var(--color-ai-ink);
+}
+
+.chipEnd {
+  margin-left: auto;
+}
+
+.rule {
+  height: var(--border-width);
+  margin: 0;
+  border: 0;
+  background: var(--color-border-default);
+}
+
+.amount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.fieldLabel {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Equal columns with 24 px gaps (51:1059). A card as wide as Figma's fits every field in one row; narrower cards
+   wrap to fewer columns instead of squeezing words into single letters. */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: var(--spacing-16) var(--spacing-24);
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.fieldValue {
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+  overflow-wrap: break-word;
+}
+
+.fieldNote {
+  display: block;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Record cards keep empty columns (auto-fill), so stacked cards also put Date and Description in the same columns. */
+.recordCard > .fields:first-of-type {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+}
+
+/* Header links (Search existing entries 38:7842, Dismiss selection) sit in the 20 px header row. */
+.headerLink {
+  height: 20px;
+}
+
+/* Create ledger entry rows (38:7860, 38:7870): 206 / 150 / 200 and 180 / 388, 12 px gaps. */
+.formRowTop,
+.formRowBottom,
+.formRowHalf {
+  display: grid;
+  gap: var(--spacing-12);
+  align-items: start;
+}
+
+.formRowTop {
+  grid-template-columns: 206fr 150fr 200fr;
+}
+
+.formRowBottom {
+  grid-template-columns: 180fr 388fr;
+}
+
+.formRowHalf {
+  grid-template-columns: 1fr 1fr;
+}
+
+.formRowTop > *,
+.formRowBottom > *,
+.formRowHalf > * {
+  width: 100%;
+  min-width: 0;
+}
+
+.summary {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+.ack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.ack label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.ack input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-text-primary);
+}
+
+.fieldHint,
+.fieldError {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.fieldError {
+  color: var(--color-warning-ink);
+}
+
+/* ----- Search card (38:6512) and results menu (38:7275, 38:7320): 8 px menu inset, 4/8 px option inset,
+   6 px option radius, 12/20 semibold title, 11/16 meta, 12/18 amount ----- */
+
+.combo {
+  position: relative;
+}
+
+/* Search field (38:7288): 36 px, 12 px inset, 8 px gap, 16 px icon, focus as Field/Focus. */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: var(--size-control);
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+}
+
+.searchBox:focus-within {
+  padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
+  border: var(--border-width-focus) solid var(--color-focus);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.searchBox input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.searchBox input:focus,
+.searchBox input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.clearQuery {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  cursor: pointer;
+}
+
+.popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow: auto;
+  margin: 0;
+  padding: calc(var(--spacing-8) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  box-shadow: var(--shadow-card);
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-6);
+  cursor: pointer;
+}
+
+.optionActive {
+  background: var(--color-surface-subtle);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.optionTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-semibold);
+}
+
+.optionMeta {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.optionAmount {
+  flex: none;
+  white-space: nowrap;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.noResults {
+  padding: var(--spacing-4) var(--spacing-8);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+
+/* ----- Comparison widths: stacked below 760 px (source transaction first), side by side above ----- */
+
+@container detail (min-width: 760px) {
+  /* Side by side, both cards span the same row tracks: header, rule, amount, two rows of fields, then anything
+     extra. Record cards take those tracks as a subgrid, so the amount and each shared field (date, description)
+     start at the same height in both cards. Forms and search span all the tracks without a subgrid. */
+  .comparison {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, auto) 1fr;
+    gap: 0 var(--spacing-12);
+  }
+
+  .comparison > * {
+    grid-row: 1 / -1;
+  }
+
+  /* Margins instead of a row gap, so an empty track adds no space. A size container can't be a subgrid, and
+     record cards hold no form rows, so they drop the card container here. */
+  .recordCard {
+    container-type: normal;
+    display: grid;
+    grid-template-rows: subgrid;
+    gap: 0;
+  }
+
+  .recordCard > * + * {
+    margin-top: var(--spacing-12);
+  }
+
+  /* Fixed columns, so the same field sits in the same column in both cards. */
+  .recordCard > .fields:first-of-type {
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Wide enough for four 104 px fields per card: one row of fields. */
+@container detail (min-width: 1052px) {
+  .comparison {
+    grid-template-rows: repeat(4, auto) 1fr;
+  }
+
+  .recordCard > .fields:first-of-type {
+    grid-row: span 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Small screens: the actions stack full width, the primary action first, each at least 40 px tall. */
+@container detail (max-width: 479px) {
+  .detail {
+    padding: var(--spacing-16) var(--spacing-12);
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .footer > button {
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  .footerHint {
+    margin-right: 0;
+    text-align: center;
+  }
+}
+
+/* Narrow cards: form rows drop to one column. */
+@container card (max-width: 479px) {
+  .formRowTop,
+  .formRowBottom,
+  .formRowHalf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container card (min-width: 480px) and (max-width: 599px) {
+  .formRowTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formRowTop > :first-child {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,0 +1,87 @@
+.app {
+  display: grid;
+  grid-template-columns: var(--size-sidebar) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-surface-white);
+  color: var(--color-text-primary);
+}
+
+/* The column carries the sidebar fill so it runs the full page height while the sticky nav scrolls with the view. */
+.sidebar {
+  background: var(--color-surface-sidebar);
+  box-shadow: inset calc(-1 * var(--border-width)) 0 0 var(--color-border-default);
+}
+
+/* Layout inside the page responds to the width it actually has (including inside an artifact frame), not the viewport. */
+.content {
+  min-width: 0;
+  container: page / inline-size;
+}
+
+/* Top navigation (49:631): 64 px, breadcrumbs at 32 × 16, 1 px rule below. */
+.topNav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  height: 64px;
+  padding: 0 var(--spacing-32);
+  border-bottom: var(--border-width) solid var(--color-border-default);
+}
+
+.menuButton,
+.scrim {
+  display: none;
+}
+
+/* Below 1100 px the sidebar no longer leaves the page enough room, so it becomes a menu drawer over the page
+   (design addition, no Figma frame). Keep the width in sync with SIDEBAR_MIN in App.tsx. */
+@media (max-width: 1099px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebarOpen {
+    position: fixed;
+    z-index: 40;
+    inset: 0 auto 0 0;
+    display: block;
+    width: var(--size-sidebar);
+    max-width: calc(100vw - var(--spacing-48));
+    box-shadow: var(--shadow-card);
+  }
+
+  .scrim {
+    position: fixed;
+    z-index: 39;
+    inset: 0;
+    display: block;
+    background: var(--color-scrim);
+  }
+
+  .menuButton {
+    display: inline-flex;
+    flex: none;
+  }
+}
+
+@container page (max-width: 599px) {
+  .topNav {
+    padding: 0 var(--spacing-16);
+  }
+}
+
+/* The narrowest screens keep the icon and drop the visible word so the breadcrumbs fit; the name stays for assistive tech. */
+@container page (max-width: 359px) {
+  .menuLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

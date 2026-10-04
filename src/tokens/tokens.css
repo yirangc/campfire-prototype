@@ -30,6 +30,24 @@
   --color-chart-green: #287d60;      /* Revenue line */
   --color-shell-purple: #1d1046;     /* Outer dashboard surround */
 
+  /* ---- Color / reconciliation status (Reconcile frames 28:7859, 49:617, 38:6512, 28:8442, 28:8761) ----
+   * Raw hex fills in the Reconcile mockups, not bound to Figma variables. Transcribed as drawn. */
+  --color-ai-surface: #f5f0ff;        /* Suggestion rationale fill, ledger id chip */
+  --color-ai-border: #ddd0ff;         /* Suggestion rationale stroke */
+  --color-ai-pill: #eee6ff;           /* Suggested status pill */
+  --color-ai-ink: #7c3aed;            /* Suggested pill label, sparkle glyph, rationale detail */
+  --color-ai-ink-strong: #5b21b6;     /* Suggestion rationale title */
+  --color-warning-surface: #fff8ec;   /* "No matching ledger entry" fill */
+  --color-warning-border: #f5d88a;    /* "No matching ledger entry" stroke */
+  --color-warning-pill: #fff1c9;      /* Unmatched status pill */
+  --color-warning-ink: #b45309;       /* Unmatched pill label, warning detail */
+  --color-warning-ink-strong: #92400e;/* Warning title */
+  --color-info-surface: #f5f6f7;      /* "Suggestion dismissed" notice fill */
+  --color-info-border: #e2e5e7;       /* "Suggestion dismissed" notice stroke */
+  --color-link: #1a65f8;              /* Text actions: Leave Unresolved, Search existing entries, Dismiss selection */
+  --color-link-surface: #e3ecfc;      /* Auto-matched pill fill, from Yirang's design (2026-10-04); not in Figma */
+  --color-surface-expanded: #fafbfa;  /* Expanded transaction detail */
+
   /* ---- Color / suggested grayscale (Figma: "suggestions, not extracted product colors") ---- */
   --color-gray-100: #f4f5f4;
   --color-gray-300: #d1d5d1;

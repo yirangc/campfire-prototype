@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { IconName } from '../../assets/manifest'
 import { Icon } from '../Icon/Icon'
+import { useMenuPlacement } from '../Overlay/useMenuPlacement'
 import styles from './Select.module.css'
 
 export interface SelectOption {
@@ -28,6 +29,13 @@ export interface SelectProps {
   disabled?: boolean
   id?: string
   className?: string
+  /**
+   * "compact": the 34 px dropdown inside the Reconcile expense form (38:7885), labelled like a field
+   * (12/18 medium primary, 6 px gap). Control variant only.
+   */
+  size?: 'default' | 'compact'
+  /** Field error (proposed, as on TextField): warning-ink border and message, linked with aria-describedby. */
+  error?: string
 }
 
 /**
@@ -50,6 +58,8 @@ export function Select({
   disabled,
   id,
   className,
+  size = 'default',
+  error,
 }: SelectProps) {
   const autoId = useId()
   const baseId = id ?? autoId
@@ -60,6 +70,8 @@ export function Select({
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const placement = useMenuPlacement(open, anchorRef, listRef)
 
   const selectedIndex = options.findIndex((o) => o.value === value)
   const selected = selectedIndex >= 0 ? options[selectedIndex] : null
@@ -132,7 +144,9 @@ export function Select({
   }
 
   const isCell = variant === 'cell'
-  const rootCls = [styles.root, isCell && styles.rootCell, className].filter(Boolean).join(' ')
+  const compact = !isCell && size === 'compact'
+  const rootCls = [styles.root, isCell && styles.rootCell, compact && styles.rootCompact, className].filter(Boolean).join(' ')
+  const errorId = `${baseId}-error`
 
   return (
     <div ref={rootRef} className={rootCls} style={{ width }}>
@@ -141,56 +155,69 @@ export function Select({
           {label}
         </span>
       )}
-      <button
-        ref={triggerRef}
-        id={baseId}
-        type="button"
-        className={`${styles.trigger} ${isCell ? styles.cell : styles.control}`}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? listId : undefined}
-        aria-labelledby={label ? `${labelId} ${baseId}` : undefined}
-        aria-label={label ? undefined : ariaLabel}
-        disabled={disabled}
-        onClick={() => (open ? close(false) : openMenu())}
-        onKeyDown={onTriggerKeyDown}
-      >
-        {icon && <Icon name={icon} size={16} />}
-        <span className={`${styles.value} ${selected ? '' : styles.placeholder}`}>
-          {selected ? selected.label : placeholder}
-        </span>
-        {isCell ? <Icon name="chevrons-up-down" size={12} /> : <Icon name="chevron-down" size={14} />}
-      </button>
-      {open && (
-        <ul
-          ref={listRef}
-          id={listId}
-          role="listbox"
-          tabIndex={-1}
-          className={styles.menu}
-          aria-labelledby={label ? labelId : undefined}
+      <div ref={anchorRef} className={styles.anchor}>
+        <button
+          ref={triggerRef}
+          id={baseId}
+          type="button"
+          className={[styles.trigger, isCell ? styles.cell : styles.control, compact && styles.compact, error && styles.invalid]
+            .filter(Boolean)
+            .join(' ')}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-controls={open ? listId : undefined}
+          aria-labelledby={label ? `${labelId} ${baseId}` : undefined}
           aria-label={label ? undefined : ariaLabel}
-          aria-activedescendant={`${baseId}-opt-${active}`}
-          onKeyDown={onListKeyDown}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          disabled={disabled}
+          onClick={() => (open ? close(false) : openMenu())}
+          onKeyDown={onTriggerKeyDown}
         >
-          {options.map((option, i) => {
-            const isSelected = i === selectedIndex
-            return (
-              <li
-                key={option.value}
-                id={`${baseId}-opt-${i}`}
-                role="option"
-                aria-selected={isSelected}
-                className={`${styles.option} ${i === active ? styles.active : ''}`}
-                onPointerMove={() => setActive(i)}
-                onClick={() => choose(i)}
-              >
-                <span>{option.label}</span>
-                {isSelected && <Icon name="check" size={14} />}
-              </li>
-            )
-          })}
-        </ul>
+          {icon && <Icon name={icon} size={16} />}
+          <span className={`${styles.value} ${selected ? '' : styles.placeholder}`}>
+            {selected ? selected.label : placeholder}
+          </span>
+          {isCell ? <Icon name="chevrons-up-down" size={12} /> : <Icon name="chevron-down" size={14} />}
+        </button>
+        {open && (
+          <ul
+            ref={listRef}
+            id={listId}
+            role="listbox"
+            tabIndex={-1}
+            className={styles.menu}
+            style={placement.style}
+            data-side={placement.side}
+            aria-labelledby={label ? labelId : undefined}
+            aria-label={label ? undefined : ariaLabel}
+            aria-activedescendant={`${baseId}-opt-${active}`}
+            onKeyDown={onListKeyDown}
+          >
+            {options.map((option, i) => {
+              const isSelected = i === selectedIndex
+              return (
+                <li
+                  key={option.value}
+                  id={`${baseId}-opt-${i}`}
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`${styles.option} ${i === active ? styles.active : ''}`}
+                  onPointerMove={() => setActive(i)}
+                  onClick={() => choose(i)}
+                >
+                  <span>{option.label}</span>
+                  {isSelected && <Icon name="check" size={14} />}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </div>
+      {error && (
+        <p id={errorId} className={styles.error}>
+          {error}
+        </p>
       )}
     </div>
   )

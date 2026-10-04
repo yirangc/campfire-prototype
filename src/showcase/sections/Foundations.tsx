@@ -7,6 +7,7 @@ import {
   GRAYS,
   OBSERVED_COLORS,
   RADII,
+  RECONCILE_COLORS,
   SHADOWS,
   SPACING,
   TYPE_STYLES,
@@ -31,6 +32,7 @@ export function Foundations() {
   const allVars = [
     ...OBSERVED_COLORS.map((c) => c.variable),
     ...EXTRA_COLORS.map((c) => c.variable),
+    ...RECONCILE_COLORS.map((c) => c.variable),
     ...GRAYS.map((g) => g.variable),
     ...DIMENSIONS.map(([v]) => v),
   ]
@@ -72,6 +74,18 @@ export function Foundations() {
               <Swatch token={c} value={values[c.variable]} />
               <Tag kind={c.evidence === 'proposed' ? 'proposed' : 'observed'} />
             </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section
+        title="Reconciliation status colors"
+        note="Raw hex fills drawn in the Reconcile mockups (28:7859, 49:617, 38:6512, 28:8442). They are not Figma variables; they are transcribed as drawn for the status pills, notices and text actions."
+        tags={<Tag kind="observed" />}
+      >
+        <div className={styles.grid4}>
+          {RECONCILE_COLORS.map((c) => (
+            <Swatch key={c.variable} token={c} value={values[c.variable]} />
           ))}
         </div>
       </Section>

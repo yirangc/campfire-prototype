@@ -61,4 +61,4 @@ GitHub (`yirangc/campfire-prototype`, private; renamed from `campfire-design-sys
 - Refresh `docs/screenshots/` (`node scripts/screenshot.mjs http://localhost:4173/ docs/screenshots`) in pull requests that change visuals.
 - Track open tasks as GitHub issues.
 - Don't deploy, make anything public or add paid services without Yirang's approval. `pages.yml` is manual only and not approved.
-- The repository holds both the design-system showcase and the reconciliation prototype. The prototype is a separate Vite entry in `prototype/` that imports the shared components, icons and tokens from `src/`; it never copies them. Keep the showcase intact. The prototype waits for the PRD and its Figma links.
+- The repository holds both the design-system showcase and the reconciliation prototype. The prototype is a separate Vite entry in `prototype/` that imports the shared components, icons and tokens from `src/`; it never copies them. Keep the showcase intact. See `prototype/README.md` for its demo steps, calculations and design departures.

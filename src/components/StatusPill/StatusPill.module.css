@@ -1,0 +1,45 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-6);
+  width: 100px;
+  height: var(--size-badge);
+  padding: 0 var(--spacing-8);
+  border-radius: var(--radius-4);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* Yirang's design (2026-10-04): reserved for automatic matches awaiting review; green stays for user-approved matches. */
+.autoMatched {
+  background: var(--color-link-surface);
+  color: var(--color-link);
+}
+
+.confirmed {
+  background: var(--color-success-surface);
+  color: var(--color-success-ink);
+}
+
+.suggested {
+  background: var(--color-ai-pill);
+  color: var(--color-ai-ink);
+}
+
+.unmatched {
+  background: var(--color-warning-pill);
+  color: var(--color-warning-ink);
+}
+
+/* Proposed (no Figma design): neutral subtle surface so it reads as settled but not matched. */
+.outstanding {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+
+.outstandingIcon {
+  color: var(--color-text-primary);
+}
