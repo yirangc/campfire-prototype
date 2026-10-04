@@ -60,5 +60,5 @@ GitHub (`yirangc/campfire-prototype`, private; renamed from `campfire-design-sys
 - CI (`.github/workflows/ci.yml`) runs lint, tests, build and the flags-doc sync check. Get it green before asking for review. Yirang reviews and merges.
 - Refresh `docs/screenshots/` (`node scripts/screenshot.mjs http://localhost:4173/ docs/screenshots`) in pull requests that change visuals.
 - Track open tasks as GitHub issues.
-- Don't deploy, make anything public or add paid services without Yirang's approval. `pages.yml` is manual only and not approved.
+- Don't deploy, make anything public or add paid services without Yirang's approval. `pages.yml` (both apps: showcase at the site root, prototype at `/prototype/`) is manual only and not approved. `e2e.yml` runs `scripts/e2e-pages.mjs` in Chromium, Firefox and WebKit on every pull request.
 - The repository holds both the design-system showcase and the reconciliation prototype. The prototype is a separate Vite entry in `prototype/` that imports the shared components, icons and tokens from `src/`; it never copies them. Keep the showcase intact. See `prototype/README.md` for its demo steps, calculations and design departures.

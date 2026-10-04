@@ -1,0 +1,40 @@
+name: Pages build in Chromium, Firefox and WebKit
+
+# Builds the static site, serves it under /campfire-prototype/ as GitHub Pages does, and runs scripts/e2e-pages.mjs:
+# both apps open, refresh and load their assets, and the reconciliation flow ends at 21 Confirmed, 3 Outstanding, $0.00.
+# WebKit is Safari's engine on Linux, not Safari itself.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Install ${{ matrix.browser }}
+        run: npx playwright-core install --with-deps ${{ matrix.browser }}
+      - name: Reconciliation flow in ${{ matrix.browser }}
+        run: |
+          node scripts/serve-pages.mjs 4174 /campfire-prototype/ &
+          for i in $(seq 20); do curl -sf http://localhost:4174/campfire-prototype/ >/dev/null && break; sleep 0.5; done
+          node scripts/e2e-pages.mjs ${{ matrix.browser }} http://localhost:4174/campfire-prototype/
+        env:
+          CI: true

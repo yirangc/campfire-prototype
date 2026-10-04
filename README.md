@@ -67,9 +67,36 @@ Rules:
 
 Before-and-after screenshots are captured with `node scripts/compare-sections.mjs <url> <outDir> "Section title" ...` against the `main` build and the branch build. They're stored on the `pr-screenshots` branch so they don't add weight to `main`.
 
-## Deploying (not set up)
+## Deploying to GitHub Pages (not approved yet)
 
-Nothing is deployed or public. `.github/workflows/pages.yml` can publish the showcase to GitHub Pages, but it only runs when started by hand, and it must not be run without Yirang's approval. A Pages site is public, and GitHub Pages on a private repository needs a paid plan. Netlify is the alternative if the prototype needs client-side routes, pull request previews or functions.
+Nothing is deployed or public. `.github/workflows/pages.yml` ("Deploy showcase and reconciliation prototype to GitHub Pages") builds both apps into one static site:
+
+| App | URL once deployed |
+| --- | --- |
+| Design-system showcase | `https://yirangc.github.io/campfire-prototype/` |
+| Reconciliation prototype | `https://yirangc.github.io/campfire-prototype/prototype/` |
+
+It runs only when started by hand from `main`, and it must not be run without Yirang's approval.
+
+Before the first run:
+
+- **Plan.** GitHub Pages on a private repository needs GitHub Pro, Team or Enterprise. On GitHub Free the Pages settings page offers an upgrade instead of a source.
+- **Visibility.** The site is public on the internet even though the repository is private. Only GitHub Enterprise Cloud can restrict a Pages site to signed-in members. The prototype holds fictional sample data only.
+- **Source.** In Settings → Pages, set "Build and deployment → Source" to **GitHub Actions**. The workflow creates the `github-pages` environment on its first run; by default that environment only accepts deployments from `main`.
+
+Both apps are static files with relative asset paths (`base: './'`), so they work under the `/campfire-prototype/` subpath without a 404 fallback. The prototype keeps its progress in each visitor's browser (localStorage); nothing is sent anywhere.
+
+Checks before deploying:
+
+```sh
+npm run build
+node scripts/serve-pages.mjs &                 # dist/ at http://localhost:4174/campfire-prototype/, served like Pages
+node scripts/e2e-pages.mjs chromium            # both apps open, refresh and load assets; full reconciliation flow
+```
+
+The "Pages build in Chromium, Firefox and WebKit" workflow (`e2e.yml`) runs the same script in all three engines on every pull request. WebKit is Safari's engine on Linux, not Safari itself.
+
+**Rollback.** Pages keeps serving the last successful deployment, so a failed run changes nothing. To undo a bad deployment, revert the merge on `main` in a pull request (`git revert -m 1 <merge commit>`), merge it and run the workflow again. To take the site offline, choose **Unpublish site** in Settings → Pages.
 
 ## Open an offline copy
 
