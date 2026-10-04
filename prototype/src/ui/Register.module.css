@@ -61,7 +61,7 @@
 }
 
 .rowOpen > * {
-  background: var(--color-surface-subtle);
+  background: var(--color-selection-neutral); /* Neutral selection, as Yirang asked */
   border-bottom: 0;
 }
 
