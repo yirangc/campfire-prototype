@@ -152,7 +152,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
         </div>
         <div className={styles.actions}>
           <SaveIndicator recon={recon} />
-          <Button variant="ghost" onClick={() => setConfirmReset(true)}>
+          <Button variant="secondary" onClick={() => setConfirmReset(true)}>
             Reset demo
           </Button>
           {completed ? (

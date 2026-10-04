@@ -101,6 +101,23 @@ describe('Reconciliation prototype', () => {
     expect(button).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('resets the demo to the original data and clears saved actions', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Nov 04 · ACH NORTH/))
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Reset demo' }))
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Reset demo' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(metric('Cleared balance')).toContain('$109,870.00')
+    expect(screen.getByRole('button', { name: /History \(0\)/ })).toBeInTheDocument()
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
+    const state = saved?.state ?? saved
+    expect(state?.matches ?? []).toHaveLength(0)
+  })
+
   it('blocks completion and lists the reasons', async () => {
     const user = userEvent.setup()
     render(<App />)
