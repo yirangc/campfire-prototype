@@ -28,12 +28,12 @@
   color: var(--color-text-muted);
 }
 
-/* 2 px border; padding drops to match so the text does not move. */
+/* 2 px focus border (Figma draws it lime; see --color-focus); padding drops to match so the text does not move. */
 .input:focus,
 .input:focus-visible,
 .input[data-visual-state='focus'] {
   outline: none;
-  border: var(--border-width-focus) solid var(--color-focus-lime);
+  border: var(--border-width-focus) solid var(--color-focus);
   padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
   box-shadow: var(--shadow-focus-ring);
 }

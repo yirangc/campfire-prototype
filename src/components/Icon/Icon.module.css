@@ -2,6 +2,14 @@
   display: inline-block;
   flex: none;
   vertical-align: middle;
+  color: var(--color-text-secondary); /* color/text/secondary, bound on every Figma icon stroke */
+}
+
+.icon > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* Placeholder for an icon whose Figma export is missing. Deliberately not a glyph. */

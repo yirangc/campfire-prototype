@@ -47,7 +47,7 @@ a {
   color: inherit;
 }
 
-/* Default keyboard focus treatment (Figma: 2 px lime outline + 2 px soft ring, proposed). */
+/* Default keyboard focus treatment: 2 px green outline + soft lime ring (Figma's proposal, recolored for contrast). */
 :focus-visible {
   outline: var(--focus-outline);
   outline-offset: 0;

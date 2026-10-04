@@ -26,6 +26,7 @@ The scripts use playwright-core with a local Chromium. Set `CHROMIUM_PATH` if it
 - `src/components/<Name>/`: one folder per component (`.tsx` + `.module.css`), re-exported from `src/components/index.ts`. Tests are in `src/components/components.test.tsx`.
 - `src/showcase/`: the browsable showcase. `sampleData.ts` holds all transcribed and sample data, `flags.ts` the design flags, `sections/` one file per chapter.
 - `docs/design-flags.md`: the flags as Markdown. Keep it in sync with `src/showcase/flags.ts`.
+- `docs/prototype-decisions.md`: the flags that affect the prototype, with recommendations.
 
 ## Figma references
 
@@ -37,17 +38,15 @@ File `M4alZ0UMg6muqKn7l2WaXW`. Foundations `12:10929`, identity and icons `12:11
 - Do not redraw the logo or substitute icons. A missing asset renders a dashed placeholder at its Figma size.
 - Figma strokes sit inside the frame and take no space. Emulate this by subtracting `--border-width` from padding, or by drawing the rule as an inset outline or `::after` overlay, so outer sizes match Figma.
 - Match Figma sizes to within 1 px. Run `scripts/measure.mjs` after layout changes.
-- Accessibility: semantic elements (`table`, `nav`, `dialog`, `button`), keyboard support, visible focus, an accessible name on every icon-only control.
+- Accessibility: semantic elements (`table`, `nav`, `dialog`, `button`), keyboard support, visible focus, an accessible name on every icon-only control. Focus uses `--color-focus` (chart green), not Figma's lime, which is 1.31:1 on white.
 - Keep the build static: `base: './'` in `vite.config.ts`, no server code, no absolute asset paths.
 
 ## Assets
 
-Logo and icons are not in the repo yet. The network policy blocked downloads from figma.com. To add them, allow `www.figma.com` in the environment, then export each node listed in `src/assets/manifest.ts` through the Figma MCP `download_assets` tool:
-
-- Icons go in `src/assets/icons/<name>.svg`. An optional per-size file `<name>-<size>.svg` overrides it at that size.
-- The logo goes in `src/assets/brand/campfire-logo.png` and the mark in `src/assets/brand/campfire-mark.png`. Figma supplies the logo only as a PNG.
-
-Files are picked up automatically through `import.meta.glob`.
+- Icons: `src/assets/icons/*.svg` are generated. Don't edit them by hand. `scripts/figma/icon-geometry.json` holds the vector paths, offsets and fill regions read from the Figma components 12:12143 to 12:12167 through the Plugin API. `node scripts/figma/build-icons.mjs` rebuilds the 24 px files and the per-size files (`{name}-{16,14,12,10}.svg`), which keep the 1.5 px stroke. Figma calls these icons screenshot-derived reconstructions, and the showcase labels them that way.
+- Figma's own SVG export drops open sub-paths from these vectors, which is why the files are rebuilt from the paths. `node scripts/figma/compare-icons.mjs` checks the files against Figma's 4x renders in `scripts/figma/reference/`. `compare-instances.mjs` checks the small instances.
+- Icons render inline and use `currentColor`. The Icon component sets color/text/secondary.
+- Logo: the supplied transparent PNGs go in `src/assets/brand/campfire-logo.png` and `campfire-mark.png`. Export layers 12:12168 and 12:12169 as PNG at 4x. Use them as supplied; don't redraw them as SVG. Until the files are there, a dashed placeholder shows.
 
 ## Git and deploy
 

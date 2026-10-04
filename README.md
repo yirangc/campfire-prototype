@@ -2,6 +2,23 @@
 
 Design tokens, assets, components and a browsable showcase for the Campfire exercise, built from the Campfire Figma references. All data in the showcase is labelled as either transcribed from Figma or sample data.
 
+## Open a saved copy
+
+The project is saved two ways. Either one restores everything, including the git history.
+
+From the git bundle:
+
+```sh
+git clone campfire.bundle campfire
+cd campfire
+npm install
+npm run dev      # then open http://localhost:5173
+```
+
+From the ZIP (`campfire.zip`): unzip it, then run the same `npm install` and `npm run dev` inside the `campfire` folder. The ZIP includes the `.git` folder but not `node_modules`.
+
+Both need Node 20 or newer. To view the built showcase without a dev server, run `npm run build && npm run preview` and open http://localhost:4173.
+
 ## Run locally
 
 ```sh

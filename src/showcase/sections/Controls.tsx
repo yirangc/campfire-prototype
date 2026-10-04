@@ -18,7 +18,7 @@ export function Controls() {
       index="04"
       title="Controls, fields and metric cards"
       nodeId="12:11464"
-      description="Compact controls, low-contrast outlines and soft card elevation. Lime focus and positive trend tints are used sparingly, as in the references."
+      description="Compact controls, low-contrast outlines and soft card elevation. Positive trend tints are used sparingly, as in the references. Keyboard focus uses a green outline with a soft lime ring."
     >
       <Section
         title="Buttons"
@@ -54,7 +54,7 @@ export function Controls() {
         </p>
       </Section>
 
-      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus follows Figma's proposed lime outline; hover and disabled reuse existing tokens." tags={<Tag kind="proposed" />}>
+      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus is Figma's proposed outline and ring, with the outline recolored from lime (1.31:1 on white) to chart green (5.0:1) for contrast. Hover and disabled reuse existing tokens." tags={<Tag kind="proposed" />}>
         <div className={styles.row}>
           {(['primary', 'secondary', 'ghost'] as const).map((variant) => (
             <div key={variant} className={styles.specimen}>
@@ -78,7 +78,7 @@ export function Controls() {
 
       <Section
         title="Labelled inputs"
-        note="Name / IT Allocation and Number / 12345 are transcribed. Focus lime is observed; the extra soft ring is proposed. Label gap 6 px · input inset 12 px · 1 px border, 2 px on focus · 38 px height."
+        note="Name / IT Allocation and Number / 12345 are transcribed. Figma draws the focused border in lime; it uses the focus green here for contrast, with Figma's proposed soft lime ring outside it. Label gap 6 px · input inset 12 px · 1 px border, 2 px on focus · 38 px height."
         tags={<Tag kind="transcribed" />}
       >
         <div className={styles.row}>

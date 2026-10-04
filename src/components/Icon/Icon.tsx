@@ -1,4 +1,4 @@
-import { iconUrl, type IconName, type IconSize } from '../../assets/manifest'
+import { iconSvg, type IconName, type IconSize } from '../../assets/manifest'
 import styles from './Icon.module.css'
 
 export interface IconProps {
@@ -11,39 +11,26 @@ export interface IconProps {
 }
 
 /**
- * Renders an exported Figma icon file unmodified (as an <img>), so geometry and stroke weight stay exactly
- * as drawn. When the file has not been exported yet, it renders a dashed placeholder at the same size.
+ * Renders the icon's SVG inline so strokes can draw past the frame where Figma's do (download) and take
+ * their color from CSS (color/text/secondary by default). When the file is missing, it renders a dashed
+ * placeholder at the same size.
  */
 export function Icon({ name, size = 24, label, className }: IconProps) {
-  const src = iconUrl(name, size)
-  const cls = [styles.icon, className].filter(Boolean).join(' ')
-  const box = { width: size, height: size }
-
-  if (!src) {
-    return (
-      <span
-        className={`${cls} ${styles.pending}`}
-        style={box}
-        data-icon={name}
-        data-asset-status="pending"
-        title={`${name} icon: Figma export pending`}
-        role={label ? 'img' : undefined}
-        aria-label={label}
-        aria-hidden={label ? undefined : true}
-      />
-    )
-  }
+  const svg = iconSvg(name, size)
+  const cls = [styles.icon, !svg && styles.pending, className].filter(Boolean).join(' ')
 
   return (
-    <img
+    <span
       className={cls}
-      src={src}
-      width={size}
-      height={size}
-      alt={label ?? ''}
-      aria-hidden={label ? undefined : true}
+      style={{ width: size, height: size }}
       data-icon={name}
-      draggable={false}
+      data-asset-status={svg ? undefined : 'pending'}
+      title={svg ? undefined : `${name} icon: Figma export pending`}
+      role={label ? 'img' : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+      // Static files generated from Figma geometry by scripts/figma/build-icons.mjs, not user content.
+      dangerouslySetInnerHTML={svg ? { __html: svg } : undefined}
     />
   )
 }

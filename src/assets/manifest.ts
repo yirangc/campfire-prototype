@@ -2,8 +2,10 @@
  * Asset manifest. Every logo and icon used by the system is listed here with its Figma source node,
  * so files can be exported 1:1 and checked against their intended dimensions.
  *
- * Files live in src/assets/icons and src/assets/brand. A missing file renders a labelled placeholder
- * at the exact Figma size instead of a substitute glyph (see components/Icon and components/Logo).
+ * Files live in src/assets/icons and src/assets/brand. Icons are generated from the Figma vector data by
+ * scripts/figma/build-icons.mjs; Figma labels every icon a screenshot-derived reconstruction, not original
+ * Campfire artwork. A missing file renders a labelled placeholder at the exact Figma size instead of a
+ * substitute glyph (see components/Icon and components/Logo).
  */
 
 export const FIGMA_FILE_KEY = 'M4alZ0UMg6muqKn7l2WaXW'
@@ -74,14 +76,14 @@ export const BRAND = {
   },
 } as const
 
-const iconFiles = import.meta.glob<string>('./icons/*.svg', { eager: true, query: '?url', import: 'default' })
+const iconFiles = import.meta.glob<string>('./icons/*.svg', { eager: true, query: '?raw', import: 'default' })
 const brandFiles = import.meta.glob<string>('./brand/*.png', { eager: true, query: '?url', import: 'default' })
 
 /**
- * Resolve an icon file. A size-specific export (e.g. chevron-down-12.svg) wins over the 24 px canvas,
- * so per-size Figma exports keep their own stroke weights.
+ * Resolve an icon's SVG markup. A size-specific file (e.g. chevron-down-12.svg) wins over the 24 px canvas,
+ * so each size keeps Figma's 1.5 px stroke instead of scaling it down.
  */
-export function iconUrl(name: IconName, size: IconSize): string | undefined {
+export function iconSvg(name: IconName, size: IconSize): string | undefined {
   return iconFiles[`./icons/${name}-${size}.svg`] ?? iconFiles[`./icons/${name}.svg`]
 }
 

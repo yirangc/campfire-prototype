@@ -401,3 +401,30 @@
 .grow {
   flex: 1 1 320px;
 }
+
+.iconCompare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) var(--spacing-20);
+  background: var(--color-surface-white);
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+}
+
+.iconStrip {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-24);
+  min-height: 24px;
+}
+
+.iconStripLabel {
+  width: 40px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
