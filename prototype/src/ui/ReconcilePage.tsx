@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Button, Icon, InfoTip, MetricCard, Modal, Notice, Select, Tabs, type TabItem } from '../../../src/components'
+import { Button, Icon, MetricCard, Modal, Notice, Select, Tabs, type TabItem } from '../../../src/components'
 import { ACCOUNT, BANK_EXCEPTIONS, LEDGER_EXCEPTIONS, OPENING_BALANCE, PERIOD, STATEMENT_IMPORTED } from '../domain/fixture'
 import { longDate, money, signed, timestamp } from '../domain/format'
 import {
@@ -216,9 +216,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           <p className="cf-text-caption cf-text-secondary">Statement imported · {longDate(STATEMENT_IMPORTED)}</p>
           <p className={styles.opening}>
             Opening balance • Nov 1, 2025&nbsp;&nbsp;{money(OPENING_BALANCE)}
-            <InfoTip topic="Opening balance">
-              Bank balance at the start of Nov 1, 2025. Ledger cash opens at the same amount, so the period starts reconciled.
-            </InfoTip>
           </p>
         </div>
       </div>
