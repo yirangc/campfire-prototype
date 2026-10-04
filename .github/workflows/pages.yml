@@ -1,6 +1,7 @@
-name: Deploy showcase to GitHub Pages
+name: Deploy showcase and reconciliation prototype to GitHub Pages
 
-# Manual only, so nothing deploys until someone starts it.
+# Manual only, so nothing deploys until someone starts it. Publishes one static site with both apps:
+# the design-system showcase at /campfire-prototype/ and the reconciliation prototype at /campfire-prototype/prototype/.
 on:
   workflow_dispatch:
 
@@ -15,6 +16,8 @@ concurrency:
 
 jobs:
   build:
+    # Deploy only what has been reviewed and merged.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +29,12 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Design flags doc is in sync with src/showcase/flags.ts
+        run: |
+          npm run flags:doc
+          git diff --exit-code docs/design-flags.md
+      - name: Both apps are in the site
+        run: test -f dist/index.html && test -f dist/prototype/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

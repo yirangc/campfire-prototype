@@ -74,7 +74,7 @@ The UI imports every component, icon and token from `../../src` (the shared desi
 - No real AI, bank feed, statement import, authentication or server. Data lives in localStorage only.
 - Account and period selectors show the single demo account and period.
 - Navigation outside Reconcile is decorative.
-- Figma draws desktop only (1440 px). Narrower layouts are checked from 320 to 1440 px in Chromium only.
+- Figma draws desktop only (1440 px). Narrower layouts are checked from 320 to 1440 px in Chromium. The main flow is also checked at 1440 px in Firefox and WebKit (`scripts/e2e-pages.mjs`).
 
 ## Design departures
 
