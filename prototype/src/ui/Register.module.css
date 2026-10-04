@@ -60,6 +60,19 @@
   cursor: pointer;
 }
 
+/* The last row opened or closed, and any row whose disclosure has keyboard focus, carries the shared
+   Field/Focus ring on the whole row instead of around the label only. */
+.rowLast,
+.row:has(.disclosure:focus-visible) {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+}
+
+.row .disclosure:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .rowOpen > * {
   background: var(--color-selection-neutral); /* Neutral selection, as Yirang asked */
   border-bottom: 0;

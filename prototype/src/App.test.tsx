@@ -116,6 +116,7 @@ describe('Reconciliation prototype', () => {
     expect(button).toHaveAttribute('aria-expanded', 'true')
     await user.click(within(button.closest('tr')!).getByText('Suggested'))
     expect(button).toHaveAttribute('aria-expanded', 'false')
+    expect(button).toHaveFocus()
   })
 
   it('resets the demo to the original data and clears saved actions', async () => {
@@ -141,6 +142,7 @@ describe('Reconciliation prototype', () => {
     await user.click(row(/Outgoing wire fee/))
     await user.click(within(detail()).getByRole('button', { name: 'Leave Unresolved' }))
     expect(row(/Outgoing wire fee/)).toHaveAttribute('aria-expanded', 'false')
+    expect(row(/Outgoing wire fee/)).toHaveFocus()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()

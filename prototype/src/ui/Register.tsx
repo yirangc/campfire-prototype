@@ -1,4 +1,4 @@
-import { Fragment, type MouseEvent } from 'react'
+import { Fragment, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Button, Icon, StatusPill } from '../../../src/components'
 import { shortDate, signed } from '../domain/format'
 import type { ReviewCase } from '../domain/selectors'
@@ -26,6 +26,28 @@ export interface RegisterProps {
  */
 export function Register({ recon, cases, expanded, onToggle, onCollapse, announce, lastUndoIds, onUndo, emptyLabel }: RegisterProps) {
   const completed = recon.state.completion.status === 'completed'
+  // The row Maya last opened or closed keeps focus and the focus ring after it collapses, so she can see where she was.
+  const [lastRow, setLastRow] = useState<string | null>(null)
+  const refocus = useRef(false)
+  const buttons = useRef(new Map<string, HTMLButtonElement>())
+
+  const toggle = (key: string) => {
+    setLastRow(key)
+    refocus.current = expanded === key
+    onToggle(key)
+  }
+  const collapse = () => {
+    setLastRow(expanded)
+    refocus.current = true
+    onCollapse()
+  }
+
+  useEffect(() => {
+    if (expanded !== null || !refocus.current || !lastRow) return
+    refocus.current = false
+    buttons.current.get(lastRow)?.focus({ preventScroll: true })
+  }, [expanded, lastRow])
+
   return (
     <table className={styles.table}>
       <caption className="cf-visually-hidden">Exception review cases. Expand a row to review its records.</caption>
@@ -64,14 +86,21 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           const showUndo = !completed && lastUndoIds.length > 0 && lastUndoIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId)
           return (
             <Fragment key={c.key}>
-              <tr className={open ? styles.rowOpen : styles.row} onClick={(e) => rowClick(e, () => onToggle(c.key))}>
+              <tr
+                className={open ? styles.rowOpen : `${styles.row} ${lastRow === c.key ? styles.rowLast : ''}`}
+                onClick={(e) => rowClick(e, () => toggle(c.key))}
+              >
                 <th scope="row" className={styles.transaction}>
                   <button
                     type="button"
                     className={styles.disclosure}
                     aria-expanded={open}
                     aria-controls={open ? detailId : undefined}
-                    onClick={() => onToggle(c.key)}
+                    ref={(el) => {
+                      if (el) buttons.current.set(c.key, el)
+                      else buttons.current.delete(c.key)
+                    }}
+                    onClick={() => toggle(c.key)}
                   >
                     <Icon name={open ? 'chevron-down' : 'chevron-right'} size={12} />
                     <span className={styles.label}>
@@ -105,7 +134,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
               {open && (
                 <tr className={styles.detailRow}>
                   <td colSpan={6} id={detailId}>
-                    <CaseDetail recon={recon} reviewCase={c} onCollapse={onCollapse} announce={announce} />
+                    <CaseDetail recon={recon} reviewCase={c} onCollapse={collapse} announce={announce} />
                   </td>
                 </tr>
               )}
