@@ -19,12 +19,15 @@ Component frames carry their own node ids in code comments, in `src/assets/manif
 
 ## Reconstructions
 
-- **Icons.** All 25 icons are reconstructions. Figma itself labels them "screenshot-derived reconstruction; geometry is estimated". The SVGs are generated from the Figma vector data by `scripts/figma/build-icons.mjs` and match Figma's renders within 1% (`scripts/figma/compare-icons.mjs`). Yirang approved using them for this exercise on 2026-10-04.
-- **Logo and mark.** Not in the build yet. Exports of layers 12:12168 and 12:12169 as PNG at 4x are needed (tracked in an issue).
+- **Icons.** All 26 icons are reconstructions. Figma itself labels them "screenshot-derived reconstruction; geometry is estimated" (lock, added later, has no description). The SVGs are generated from the Figma vector data by `scripts/figma/build-icons.mjs`, re-read after the 2026-10-04 icon update, and match Figma's renders within 1% (`scripts/figma/compare-icons.mjs`). Yirang approved using them for this exercise on 2026-10-04.
+- **Logo and mark.** Not reconstructions: the 4x PNG exports of layers 12:12168 and 12:12169 that Yirang supplied, used as supplied.
 
 ## Intentional changes from Figma
 
-- **Focus color.** Figma's focus lime (#BCEFA3, 1.31:1 on white) is replaced with chart green #287D60 (5.0:1) for the outline, at Yirang's request on 2026-10-04. The soft lime ring stays.
+- **Focus everywhere.** Figma draws focus only on the text field. Its Field/Focus recipe (2 px focus lime inside, 2 px lime ring at 50% outside) is applied to buttons, tabs and every focusable control, as Yirang asked on 2026-10-04. This replaced a chart-green outline from earlier that day. Lime fails the 3:1 contrast WCAG asks of focus indicators; see the accessibility flags.
+- **Primary button.** Follows the component (accent lime fill) rather than the Foundations note that calls primary "neutral ink".
+- **Undrawn states.** Button and tab hover reuse surface/subtle (the Tab hover variant), disabled uses muted ink, and there is no primary hover because Figma has no token for one. All are labelled proposed in the showcase.
+- **Tab row gap.** The shared Tabs component uses the 16 px gap from the Tab specimen; the Reconcile screens use 12 and 20 px.
 - **Dropdown menu width.** At least as wide as its trigger instead of a fixed 260 px.
 - **Hit areas.** Allocation row actions get 20 px hit areas around 12 px icons.
 
