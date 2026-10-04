@@ -1,6 +1,7 @@
 /*
  * Canonical November 2025 dataset from the PRD (section 5). All names, references and evidence are fictional.
- * Journal numbers (GL-…) and statement descriptions not given in the PRD are sample values.
+ * Journal numbers (GL-…) and statement descriptions not given in the PRD are sample values. The GL-1101 and GL-1105
+ * memos are closer to the bank text than the PRD's ("Northstar hosting", "Delta receipt"), at Yirang's request.
  */
 import type { Account, BankRecord, EvidenceItem, LedgerEntry, Suggestion } from './types'
 
@@ -83,8 +84,8 @@ export const BANK_EXCEPTIONS: BankRecord[] = [
 
 /** Seven ledger exceptions. */
 export const LEDGER_EXCEPTIONS: LedgerEntry[] = [
-  ledger('L01', 'GL-1101', '2025-11-03', 'Northstar hosting', 'Northstar Hosting', -240_000, 'NS-1103'),
-  ledger('L02', 'GL-1105', '2025-11-11', 'Delta receipt', 'Delta Corp', 320_000, 'DEL-1111'),
+  ledger('L01', 'GL-1101', '2025-11-03', 'ACH Northstar Hosting', 'Northstar Hosting', -240_000, 'NS-1103'),
+  ledger('L02', 'GL-1105', '2025-11-11', 'DELTA PAY receipt', 'Delta Corp', 320_000, 'DEL-1111'),
   ledger('L03', 'GL-1108', '2025-11-19', 'Birch Studio design invoice', 'Birch Studio', -45_000, 'BIR-19'),
   ledger('L04', 'GL-1107', '2025-11-17', 'Alder Supply office supplies', 'Alder Supply', -45_000, 'ALD-17'),
   ledger('L05', 'GL-1112', '2025-11-28', 'Check 1042 · Riverside Janitorial', 'Riverside Janitorial', -60_000, 'CHK-1042'),
@@ -99,12 +100,12 @@ export const SUGGESTIONS: Suggestion[] = [
     bankId: 'B01',
     ledgerId: 'L01',
     headline: 'Suggested match: 3 signals found',
-    detail: 'Same amount and shared reference NS-1103. Bank description and ledger memo are similar, not identical.',
+    detail: 'Same amount and shared reference NS-1103, posted 1 day apart. The bank shortened the payee to “ACH NORTH”.',
     signals: [
       { label: 'Same amount', tone: 'match' },
       { label: 'Shared reference NS-1103', tone: 'match' },
       { label: 'Dates 1 day apart', tone: 'match' },
-      { label: 'Description differs: “ACH NORTH” vs “Northstar hosting”', tone: 'differs' },
+      { label: 'Description differs: “ACH NORTH” vs “ACH Northstar Hosting”', tone: 'differs' },
     ],
   },
   {
@@ -112,12 +113,12 @@ export const SUGGESTIONS: Suggestion[] = [
     bankId: 'B02',
     ledgerId: 'L02',
     headline: 'Suggested match: 3 signals found',
-    detail: 'Same amount and shared reference DEL-1111. Bank description and ledger memo are similar, not identical.',
+    detail: 'Same amount and shared reference DEL-1111, posted 1 day apart. The ledger memo only adds “receipt”.',
     signals: [
       { label: 'Same amount', tone: 'match' },
       { label: 'Shared reference DEL-1111', tone: 'match' },
       { label: 'Dates 1 day apart', tone: 'match' },
-      { label: 'Description differs: “DELTA PAY” vs “Delta receipt”', tone: 'differs' },
+      { label: 'Description differs: “DELTA PAY” vs “DELTA PAY receipt”', tone: 'differs' },
     ],
   },
   {

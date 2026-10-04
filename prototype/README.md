@@ -80,6 +80,7 @@ The UI imports every component, icon and token from `../../src` (the shared desi
 The PRD wins where it conflicts with Figma. The main departures, all listed in `docs/design-flags.md` and `docs/figma-and-decisions.md`:
 
 - The Figma frames' eight-row November and "John Glasgow" are replaced by the PRD dataset and Maya. Tabs count records (14), not rows. Unmatched counts every transaction not yet confirmed or documented, so it starts at 14 and includes the 6 records in suggested pairs (Suggested is a subset, listed in both tabs). The PRD splits them 6 / 8; this follows Yirang's request.
+- The GL-1101 and GL-1105 memos read "ACH Northstar Hosting" and "DELTA PAY receipt" (PRD: "Northstar hosting", "Delta receipt") so the two correct suggestions look like close matches, at Yirang's request.
 - The register heading is "Exceptions to review", and the five matched pairs sit in a separate section.
 - Outstanding status, the outstanding form, search popover details, the note panel, history, save errors, blocked completion, reopen and recovery are PRD design additions with no Figma frame. They reuse existing tokens and components and are marked in the flags.
 - The expense form says "Paid from" (PRD) where Figma says "Payment account".
