@@ -211,7 +211,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
   if (c.status === 'suggested' && c.suggestion) {
     notices.push(
       <Notice key="ai" tone="ai" title={c.suggestion.headline}>
-        <p>Simulated AI suggestion. {c.suggestion.detail}</p>
+        <p>{c.suggestion.detail}</p>
       </Notice>,
     )
   } else if (showDismissed && dismissed) {
