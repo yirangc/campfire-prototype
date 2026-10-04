@@ -248,6 +248,7 @@ export function searchCandidates(state: ReconState, recordId: string, search: Se
       candidate.reference ?? '',
       candidate.id,
       candidate.kind === 'ledger' ? candidate.entryId : '',
+      dateTokens(candidate.date),
     ]
       .join(' ')
       .toLowerCase()
@@ -256,6 +257,18 @@ export function searchCandidates(state: ReconState, recordId: string, search: Se
     if (search.counterpartyFilter && recordCounterparty(candidate) !== search.counterpartyFilter) return false
     return true
   })
+}
+
+const MONTH_NAMES = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
+
+/**
+ * Ways a date can be typed into the single search field: "Nov 17", "November 17", "Nov 17, 2025", "11/17",
+ * "11/17/2025" and "2025-11-17". Each word of the query must appear, so "Nov 17" matches only the 17th.
+ */
+export function dateTokens(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  const month = MONTH_NAMES[m - 1]
+  return [`${month.slice(0, 3)} ${d}, ${y}`, `${month} ${d}`, `${m}/${d}`, `${m}/${d}/${y}`, `${String(m).padStart(2, '0')}/${String(d).padStart(2, '0')}`, iso].join(' ')
 }
 
 /** Keyword suggestions taken from the origin record's description and reference. */

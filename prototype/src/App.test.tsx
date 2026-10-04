@@ -68,6 +68,23 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
   })
 
+  it('finds entries by date in the single search field', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Nov 18 · ALDER SUPPLY/))
+    await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
+    expect(within(detail()).queryByText(/Required for a match/)).not.toBeInTheDocument()
+    expect(within(detail()).queryByRole('button', { name: /Add a date filter/ })).not.toBeInTheDocument()
+    const combo = within(detail()).getByPlaceholderText('Search by keywords or date')
+    await user.click(combo)
+    expect(within(detail()).getAllByRole('option')).toHaveLength(2)
+    await user.type(combo, 'Nov 19')
+    expect(within(detail()).getAllByRole('option').map((o) => o.textContent)).toEqual([expect.stringContaining('GL-1108')])
+    await user.clear(combo)
+    await user.type(combo, '11/17')
+    expect(within(detail()).getAllByRole('option').map((o) => o.textContent)).toEqual([expect.stringContaining('GL-1107')])
+  })
+
   it('keeps expense input after a rejected submit and creates the entry once', async () => {
     const user = userEvent.setup()
     render(<App />)

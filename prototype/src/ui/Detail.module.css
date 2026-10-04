@@ -252,18 +252,8 @@
   gap: var(--spacing-12);
 }
 
-/* ----- Search card (38:6696) and proposed results menu (38:7275, 38:7320) ----- */
-
-.criteria {
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line);
-  color: var(--color-text-secondary);
-}
-
-.criteria strong {
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-primary);
-}
+/* ----- Search card (38:6512) and results menu (38:7275, 38:7320): 8 px menu inset, 4/8 px option inset,
+   6 px option radius, 12/20 semibold title, 11/16 meta, 12/18 amount ----- */
 
 .combo {
   position: relative;
@@ -329,7 +319,7 @@
   max-height: 280px;
   overflow: auto;
   margin: 0;
-  padding: calc(var(--spacing-4) - var(--border-width));
+  padding: calc(var(--spacing-8) - var(--border-width));
   border: var(--border-width) solid var(--color-border-default);
   border-radius: var(--radius-6);
   background: var(--color-surface-white);
@@ -337,32 +327,13 @@
   list-style: none;
 }
 
-.groupLabel {
-  padding: var(--spacing-6) var(--spacing-10) var(--spacing-2);
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line);
-  color: var(--color-text-secondary);
-}
-
-.keyword {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-  height: 32px;
-  padding: 0 var(--spacing-10);
-  border-radius: var(--radius-4);
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
-  cursor: pointer;
-}
-
 .option {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-12);
-  padding: var(--spacing-6) var(--spacing-10);
-  border-radius: var(--radius-4);
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-6);
   cursor: pointer;
 }
 
@@ -373,12 +344,14 @@
 .optionText {
   display: flex;
   flex-direction: column;
+  gap: var(--spacing-2);
   min-width: 0;
 }
 
 .optionTitle {
   font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-semibold);
 }
 
 .optionMeta {
@@ -391,62 +364,12 @@
   flex: none;
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
-  font-weight: var(--font-weight-medium);
 }
 
 .noResults {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-6);
-  padding: var(--spacing-8) var(--spacing-10);
+  padding: var(--spacing-4) var(--spacing-8);
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
   color: var(--color-text-secondary);
 }
 
-.noResultsActions {
-  display: flex;
-  gap: var(--spacing-16);
-}
-
-.noResultsActions button {
-  height: 24px;
-}
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
-.chipFilter {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  height: 28px;
-  padding: 0 var(--spacing-4) 0 var(--spacing-10);
-  border-radius: var(--radius-4);
-  background: var(--color-surface-subtle);
-  font-size: var(--text-body-size);
-  line-height: var(--text-body-line);
-}
-
-.chipFilter button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-4);
-  background: transparent;
-  cursor: pointer;
-}
-
-.resultSummary {
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line);
-  color: var(--color-text-secondary);
-}
