@@ -7,7 +7,9 @@
 // - a vector with a fill region clips all of its strokes to that region. Segments on the region's edge
 //   get a double-width stroke, so the visible half sits inside; segments that run through the interior
 //   keep the normal width, centred. Anything outside the region is clipped away.
-// - a vector without a fill region (chevrons, x, plus, check, arrows, download) draws centred strokes.
+// - a vector without a fill region (chevrons, x, plus, check, arrows, download) draws centred strokes,
+//   and so does a vector whose strokeAlign is CENTER (wallet, calendar, trash, lock).
+// - a filled vector (settings) is drawn from its fill geometry.
 // - the component frame clips its content when clipsContent is true.
 // Smaller sizes scale the geometry and keep the stroke weight, which is how Figma's own 16, 14 and 12 px
 // instances of these components are drawn (they keep a 1.5 px stroke). Panel at 16 px is the exception:
@@ -131,19 +133,50 @@ const segPath = (s, k) => {
   return s.c1 ? `M${p(s.from)} C${p(s.c1)} ${p(s.c2)} ${p(s.to)}` : `M${p(s.from)} L${p(s.to)}`
 }
 
-const regionPath = (d, dx, dy, k) =>
-  segments(d, dx, dy).map((s, i) => (i === 0 ? segPath(s, k) : segPath(s, k).replace(/^M\S+ \S+ /, ''))).join(' ') + ' Z'
+/** The path as drawn, moved and scaled, with its sub-paths and joins intact. */
+function placePath(d, dx, dy, k) {
+  const t = d.match(/[MLCZ]|-?[\d.]+(?:e-?\d+)?/g)
+  let axis = 0
+  return t
+    .map((v) => {
+      if (/[MLCZ]/.test(v)) {
+        axis = 0
+        return v
+      }
+      const n = (Number(v) + (axis++ % 2 === 0 ? dx : dy)) * k
+      return fmt(n)
+    })
+    .join(' ')
+}
+
+/** Region path, keeping each sub-path (a fill with a hole, like settings, has two). */
+function regionPath(d, dx, dy, k) {
+  return d
+    .split(/(?=M)/)
+    .filter((sub) => sub.trim())
+    .map((sub) => segments(sub, dx, dy).map((s, i) => (i === 0 ? segPath(s, k) : segPath(s, k).replace(/^M\S+ \S+ /, ''))).join(' ') + ' Z')
+    .join(' ')
+}
 
 function build(name, icon, size, nodeId) {
   const k = size / 24
   const w = STROKE_OVERRIDES[`${name}@${size}`] ?? 1.5
+  const filled = icon.parts.every((p) => p.paint === 'FILL')
   const defs = []
   const groups = []
   icon.parts.forEach((part, pi) => {
     const segs = segments(part.d, part.dx, part.dy)
-    const attrs = `stroke="${COLOR}" stroke-linecap="round" stroke-linejoin="miter" fill="none"`
-    if (!part.fill) {
-      groups.push(`<path d="${segs.map((s) => segPath(s, k)).join(' ')}" stroke-width="${fmt(w)}" ${attrs}/>`)
+    if (part.paint === 'FILL') {
+      // Filled vector (settings): scale the fill geometry; there is no stroke to keep.
+      groups.push(`<path d="${regionPath(part.d, part.dx, part.dy, k)}" fill="${COLOR}" fill-rule="nonzero"/>`)
+      return
+    }
+    const cap = part.cap === 'NONE' ? 'butt' : 'round'
+    const join = (part.join ?? 'MITER').toLowerCase()
+    const attrs = `stroke="${COLOR}" stroke-linecap="${cap}" stroke-linejoin="${join}" fill="none"`
+    // CENTER-aligned strokes are not clipped to the fill region.
+    if (!part.fill || part.align === 'CENTER') {
+      groups.push(`<path d="${placePath(part.d, part.dx, part.dy, k)}" stroke-width="${fmt(w)}" ${attrs}/>`)
       return
     }
     const poly = polygon(part.fill, part.dx, part.dy)
@@ -162,7 +195,7 @@ function build(name, icon, size, nodeId) {
   }
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none">` +
-    `<!-- Campfire/Icon/${name} (Figma ${nodeId}), screenshot-derived reconstruction, ${size}px, ${fmt(w)}px stroke -->` +
+    `<!-- Campfire/Icon/${name} (Figma ${nodeId}), reconstruction, ${size}px, ${filled ? 'filled' : `${fmt(w)}px stroke`} -->` +
     (defs.length ? `<defs>${defs.join('')}</defs>` : '') +
     content +
     `</svg>\n`
@@ -171,8 +204,8 @@ function build(name, icon, size, nodeId) {
 
 mkdirSync(out, { recursive: true })
 let n = 0
-for (const [index, [name, icon]] of Object.entries(icons).entries()) {
-  const nodeId = `12:${12143 + index}` // components are numbered in manifest order
+for (const [name, icon] of Object.entries(icons)) {
+  const nodeId = icon.nodeId
   for (const size of SIZES) {
     const file = size === 24 ? `${name}.svg` : `${name}-${size}.svg`
     writeFileSync(join(out, file), build(name, icon, size, nodeId))

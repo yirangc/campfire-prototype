@@ -15,9 +15,10 @@
   color: var(--color-text-primary);
 }
 
+/* Figma Campfire/Button/Primary/Save (12:12176): color/accent/lime fill, color/text/primary label. */
 .primary {
-  background: var(--color-text-primary);
-  color: var(--color-surface-white);
+  background: var(--color-accent-lime);
+  color: var(--color-text-primary);
 }
 
 .secondary {
@@ -31,17 +32,14 @@
   padding: 0;
 }
 
-/* Hover and disabled are not documented in Figma. Proposed: reuse existing tokens only. */
+/* Hover and disabled are not documented in Figma. Proposed: reuse existing tokens only. Secondary and ghost
+   hover use surface/subtle, the same treatment as the Tab hover variant. Figma has no lighter or darker lime
+   token for a primary hover, so primary hover is left undefined (flagged) rather than inventing one. */
 .secondary:hover:not(:disabled),
 .ghost:hover:not(:disabled),
 .secondary[data-visual-state='hover'],
 .ghost[data-visual-state='hover'] {
   background: var(--color-surface-subtle);
-}
-
-.primary:hover:not(:disabled),
-.primary[data-visual-state='hover'] {
-  background: var(--color-gray-700);
 }
 
 .button:disabled {
@@ -56,5 +54,6 @@
 /* Static focus specimen for the showcase; live focus uses the global :focus-visible rule. */
 .button[data-visual-state='focus'] {
   outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
   box-shadow: var(--shadow-focus-ring);
 }

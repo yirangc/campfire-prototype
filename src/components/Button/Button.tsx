@@ -28,7 +28,7 @@ export type ButtonProps = TextButtonProps | IconButtonProps
 
 /**
  * Figma: Campfire/Button/*. 36 px high, 12/18 medium, 6 px radius, 12 px inset, 8 px icon gap.
- * Primary = neutral ink fill. Secondary = white with 1 px border. Ghost = white, no visible border.
+ * Primary = accent lime fill with primary ink. Secondary = white with 1 px border. Ghost = white, no visible border.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant = 'secondary', icon, iconOnly, className, children, type = 'button', ...rest },

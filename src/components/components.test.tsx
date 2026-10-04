@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { AllocationTable, FinancialTable, Modal, Select, SideNav, Button, type AllocationLine } from '.'
+import { AllocationTable, FinancialTable, Modal, Select, SideNav, Button, Tabs, type AllocationLine } from '.'
 
 // All data in this file is test fixture data, not product data.
 const OPTIONS = [
@@ -173,5 +173,42 @@ describe('Modal', () => {
     await user.click(screen.getByRole('button', { name: 'Close' }))
     expect(dialog).not.toHaveAttribute('open')
     expect(opener).toHaveFocus()
+  })
+})
+
+function ControlledTabs() {
+  const [value, setValue] = useState('pending')
+  return (
+    <Tabs
+      aria-label="Review status"
+      value={value}
+      onChange={setValue}
+      items={[
+        { value: 'pending', label: 'PENDING' },
+        { value: 'approved', label: 'APPROVED', disabled: true },
+        { value: 'rejected', label: 'REJECTED' },
+      ]}
+    />
+  )
+}
+
+describe('Tabs', () => {
+  it('selects with arrow keys, skips disabled tabs and keeps one tab in the tab order', async () => {
+    const user = userEvent.setup()
+    render(<ControlledTabs />)
+    const pending = screen.getByRole('tab', { name: 'PENDING' })
+    const rejected = screen.getByRole('tab', { name: 'REJECTED' })
+    expect(screen.getByRole('tablist', { name: 'Review status' })).toBeInTheDocument()
+    expect(pending).toHaveAttribute('aria-selected', 'true')
+    expect(rejected).toHaveAttribute('tabindex', '-1')
+    pending.focus()
+    await user.keyboard('{ArrowRight}')
+    expect(rejected).toHaveFocus()
+    expect(rejected).toHaveAttribute('aria-selected', 'true')
+    expect(pending).toHaveAttribute('tabindex', '-1')
+    await user.keyboard('{Home}')
+    expect(pending).toHaveAttribute('aria-selected', 'true')
+    await user.click(screen.getByRole('tab', { name: 'APPROVED' }))
+    expect(pending).toHaveAttribute('aria-selected', 'true')
   })
 })

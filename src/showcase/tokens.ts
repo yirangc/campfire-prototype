@@ -22,7 +22,7 @@ export const OBSERVED_COLORS: ColorToken[] = [
   { variable: '--color-surface-subtle', name: 'Surface / subtle', role: 'Headers, breadcrumb', evidence: 'observed' },
   { variable: '--color-selection-neutral', name: 'Neutral selection', role: 'Reporting navigation', evidence: 'observed' },
   { variable: '--color-accent-lime', name: 'Accent / lime', role: 'Dashboard selection', evidence: 'observed' },
-  { variable: '--color-focus-lime', name: 'Focus / lime', role: 'Allocation input outline in Figma; soft focus ring here', evidence: 'observed' },
+  { variable: '--color-focus-lime', name: 'Focus / lime', role: 'Focus stroke and soft ring (Field/Focus)', evidence: 'observed' },
   { variable: '--color-success-ink', name: 'Success / ink', role: 'Positive trend', evidence: 'observed' },
   { variable: '--color-success-surface', name: 'Success / tint', role: 'Trend badge background', evidence: 'observed' },
   { variable: '--color-brand-orange', name: 'Brand / orange', role: 'Campfire rays', evidence: 'observed' },
@@ -32,7 +32,7 @@ export const OBSERVED_COLORS: ColorToken[] = [
 ]
 
 export const EXTRA_COLORS: ColorToken[] = [
-  { variable: '--color-focus', name: 'Focus / outline', role: 'Keyboard focus outline and focused input border. Uses chart green (5.0:1 on white) in place of Figma\'s lime (1.31:1)', evidence: 'proposed' },
+  { variable: '--color-focus', name: 'Focus / outline', role: 'Alias of focus lime, used by every focus outline and focused input border', evidence: 'observed' },
   { variable: '--color-surface-canvas', name: 'Surface / canvas', role: 'Documentation canvas (bound variable, not in the palette)', evidence: 'observed' },
   { variable: '--color-brand-wordmark', name: 'Brand / wordmark', role: 'Logo wordmark (stated in Figma copy)', evidence: 'observed' },
   { variable: '--color-scrim', name: 'Scrim', role: 'Modal backdrop', evidence: 'proposed' },
@@ -65,7 +65,7 @@ export const RADII = [
 export const SHADOWS = [
   { variable: '--shadow-card', label: 'Card · 0 2 5 · 5%', evidence: 'inferred' as Evidence },
   { variable: '--shadow-modal', label: 'Modal · 0 12 32 · 15%', evidence: 'inferred' as Evidence },
-  { variable: '--shadow-focus-ring', label: 'Focus ring · lime 50%, 2 px outside the green outline', evidence: 'proposed' as Evidence },
+  { variable: '--shadow-focus-ring', label: 'Focus ring · lime 50%, 2 px spread outside the control', evidence: 'proposed' as Evidence },
 ]
 
 export const DIMENSIONS = [

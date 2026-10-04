@@ -20,3 +20,4 @@ export {
   type AllocationField,
 } from './AllocationTable/AllocationTable'
 export { Modal, type ModalProps } from './Modal/Modal'
+export { Tabs, type TabsProps, type TabItem } from './Tabs/Tabs'
