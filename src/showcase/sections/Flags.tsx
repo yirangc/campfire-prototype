@@ -16,7 +16,7 @@ export function Flags() {
   return (
     <Chapter
       id="flags"
-      index="07"
+      index="08"
       title="Flags"
       description="Conflicts between references, choices Figma does not document, accessibility concerns in the supplied designs, and what could not be verified."
     >

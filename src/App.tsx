@@ -5,6 +5,7 @@ import { Controls } from './showcase/sections/Controls'
 import { Flags } from './showcase/sections/Flags'
 import { Foundations } from './showcase/sections/Foundations'
 import { NavigationSection } from './showcase/sections/NavigationSection'
+import { Reconciliation } from './showcase/sections/Reconciliation'
 import { Reporting } from './showcase/sections/Reporting'
 import styles from './showcase/Showcase.module.css'
 
@@ -15,6 +16,7 @@ const CHAPTERS = [
   ['controls', 'Controls and metrics'],
   ['reporting', 'Financial reporting'],
   ['allocation', 'Cost allocation'],
+  ['reconciliation', 'Reconciliation'],
   ['flags', 'Flags'],
 ] as const
 
@@ -39,8 +41,8 @@ export default function App() {
           <p className="cf-text-overline cf-text-secondary">Campfire / design system / phase 1</p>
           <h1 className={styles.docTitle}>Campfire design system</h1>
           <p className={styles.docBody}>
-            Tokens, assets and reusable components built from the six Campfire Figma references. Sample data is labelled; product
-            screens wait for the PRD.
+            Tokens, assets and reusable components built from the six Campfire Figma references. Sample data is labelled. The
+            reconciliation prototype is a separate entry at <a href="./prototype/">prototype/</a> built from these components.
           </p>
         </header>
         <Foundations />
@@ -49,6 +51,7 @@ export default function App() {
         <Controls />
         <Reporting />
         <Allocation />
+        <Reconciliation />
         <Flags />
       </main>
     </div>
