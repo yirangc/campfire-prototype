@@ -89,6 +89,15 @@ const pick = async (scope, label, option) => {
   await page.getByRole('option', { name: option }).click()
 }
 
+// Ledger cards show the counterparty, not a match status (suggested and auto-matched pairs).
+const ledgerCardShowsCounterparty = async (name, counterparty) => {
+  await open(name)
+  const text = await detail().textContent()
+  return text.includes(`Counterparty${counterparty}`) && !text.includes('Match status')
+}
+check(await ledgerCardShowsCounterparty('Nov 03 · Stripe payout', 'Stripe'), 'Auto-matched ledger card shows Counterparty: Stripe, no Match status')
+check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hosting'), 'Suggested ledger card shows Counterparty: Northstar Hosting, no Match status')
+
 // Confirm a suggestion, Undo it, confirm it again.
 await open('Nov 04 · ACH NORTH')
 await detail().getByRole('button', { name: 'Confirm match' }).click()
