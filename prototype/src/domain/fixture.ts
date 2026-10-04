@@ -144,7 +144,7 @@ export const AUTO_MATCHES: Suggestion[] = (
   bankId,
   ledgerId,
   headline: 'Automatically matched · Awaiting your review',
-  detail: 'Review the bank transaction and ledger entry, then confirm the match.',
+  detail: 'The amount, date, and description match. Review the details below, then confirm.',
   signals: [],
 }))
 
