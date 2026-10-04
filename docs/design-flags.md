@@ -1,6 +1,6 @@
 # Design flags
 
-Conflicts in the Figma references, choices Figma does not document, accessibility concerns, and what could not be verified. The showcase renders the same list from src/showcase/flags.ts; keep the two in sync. For the subset that affects the prototype, with recommendations, see prototype-decisions.md.
+Conflicts in the Figma references, choices Figma does not document, accessibility concerns, and what could not be verified. The showcase renders the same list from src/showcase/flags.ts; regenerate this file with `npm run flags:doc` after editing it. For the subset that affects the prototype, with recommendations, see prototype-decisions.md.
 
 ## Conflicts between references
 

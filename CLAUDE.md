@@ -12,7 +12,8 @@ npm run lint      # oxlint
 npm run build     # typecheck + static build to dist/
 npm run preview   # serve dist/ at http://localhost:4173
 node scripts/measure.mjs      # compare rendered boxes with Figma sizes (needs preview running)
-node scripts/screenshot.mjs   # one PNG per showcase chapter into screenshots/ (gitignored)
+node scripts/screenshot.mjs   # one PNG per showcase chapter into screenshots/ (gitignored); pass <url> docs/screenshots to refresh the committed set
+npm run flags:doc             # regenerate docs/design-flags.md from src/showcase/flags.ts (Node 22)
 ```
 
 The scripts use playwright-core with a local Chromium. Set `CHROMIUM_PATH` if it is not at `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`.
@@ -27,6 +28,8 @@ The scripts use playwright-core with a local Chromium. Set `CHROMIUM_PATH` if it
 - `src/showcase/`: the browsable showcase. `sampleData.ts` holds all transcribed and sample data, `flags.ts` the design flags, `sections/` one file per chapter.
 - `docs/design-flags.md`: the flags as Markdown. Keep it in sync with `src/showcase/flags.ts`.
 - `docs/prototype-decisions.md`: the flags that affect the prototype, with recommendations.
+- `docs/figma-and-decisions.md`: Figma references, reconstructions and intentional changes in one place.
+- `docs/screenshots/`: chapter screenshots, committed.
 
 ## Figma references
 
@@ -48,6 +51,14 @@ File `M4alZ0UMg6muqKn7l2WaXW`. Foundations `12:10929`, identity and icons `12:11
 - Icons render inline and use `currentColor`. The Icon component sets color/text/secondary.
 - Logo: the supplied transparent PNGs go in `src/assets/brand/campfire-logo.png` and `campfire-mark.png`. Export layers 12:12168 and 12:12169 as PNG at 4x. Use them as supplied; don't redraw them as SVG. Until the files are there, a dashed placeholder shows.
 
-## Git and deploy
+## Git, review and deploy
 
-Local git only. Do not add a remote, push or deploy until Yirang provides the GitHub destination. Deploy steps are in README.md.
+GitHub (`yirangc/campfire-design-system`, private) is the source of truth.
+
+- One branch per update, from `main`. Never commit to `main` directly.
+- Open a pull request with `.github/pull_request_template.md`: short description, Figma nodes, before-and-after screenshots for visual changes (`scripts/compare-sections.mjs`, images pushed to the `pr-screenshots` branch), design decisions, and checks run.
+- CI (`.github/workflows/ci.yml`) runs lint, tests, build and the flags-doc sync check. Get it green before asking for review. Yirang reviews and merges.
+- Refresh `docs/screenshots/` (`node scripts/screenshot.mjs http://localhost:4173/ docs/screenshots`) in pull requests that change visuals.
+- Track open tasks as GitHub issues.
+- Don't deploy, make anything public or add paid services without Yirang's approval. `pages.yml` is manual only and not approved.
+- The reconciliation prototype will be a separate entry (`prototype/`) that imports the shared components and tokens. It waits for the PRD.

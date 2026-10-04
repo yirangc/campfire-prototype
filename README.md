@@ -1,44 +1,67 @@
 # Campfire design system
 
-Design tokens, assets, components and a browsable showcase for the Campfire exercise, built from the Campfire Figma references. All data in the showcase is labelled as either transcribed from Figma or sample data.
+Design tokens, assets, components and a browsable showcase for the Campfire exercise, built from the Campfire Figma file. Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
 
-## Open a saved copy
+This repository is the source of truth. Changes go through a branch and a pull request (see [Making changes](#making-changes)).
 
-The project is saved two ways. Either one restores everything, including the git history.
+## Run it locally
 
-From the git bundle:
-
-```sh
-git clone campfire.bundle campfire
-cd campfire
-npm install
-npm run dev      # then open http://localhost:5173
-```
-
-From the ZIP (`campfire.zip`): unzip it, then run the same `npm install` and `npm run dev` inside the `campfire` folder. The ZIP includes the `.git` folder but not `node_modules`.
-
-Both need Node 20 or newer. To view the built showcase without a dev server, run `npm run build && npm run preview` and open http://localhost:4173.
-
-## Run locally
+You need Node 22 (Node 20 works for everything except `npm run flags:doc`) and git.
 
 ```sh
-npm install
-npm run dev      # http://localhost:5173
-npm test
-npm run build && npm run preview
+git clone https://github.com/yirangc/campfire-design-system.git
+cd campfire-design-system
+npm ci
+npm run dev      # showcase at http://localhost:5173
 ```
 
-See [CLAUDE.md](CLAUDE.md) for structure and design rules, and [docs/design-flags.md](docs/design-flags.md) for conflicts, undocumented choices, accessibility concerns and unverified items.
+Other commands:
 
-## Deploy to GitHub Pages (not done yet)
+```sh
+npm test                          # interaction tests (vitest)
+npm run lint                      # oxlint
+npm run build && npm run preview  # static build, served at http://localhost:4173
+```
 
-The build is static and uses relative asset paths, so it works from a project subpath such as `https://<user>.github.io/<repo>/`.
+The verification scripts in `scripts/` (measurements, screenshots, icon comparisons) use playwright-core with a local Chromium; see [CLAUDE.md](CLAUDE.md).
 
-1. Create the GitHub repository and push `main`.
-2. In the repository, open Settings, then Pages, and set Source to "GitHub Actions".
-3. Open Actions, choose "Deploy showcase to GitHub Pages", and click "Run workflow". The workflow (`.github/workflows/pages.yml`) runs tests, builds and publishes `dist/`. It runs only when started by hand.
-4. To deploy on every push instead, add `push: branches: [main]` under `on:` in the workflow.
+## What's here
 
-### When to use Netlify instead
+| Path | What it holds |
+| --- | --- |
+| `src/tokens/` | Every color, spacing, radius, border, shadow, type and size value as CSS custom properties |
+| `src/assets/` | Logo PNGs and the generated icon SVGs, with their Figma node ids in `manifest.ts` |
+| `src/components/` | Shared React components, one folder each |
+| `src/showcase/` | The showcase app: one chapter per Figma reference, plus the flags |
+| `docs/figma-and-decisions.md` | Figma references, icon reconstructions and intentional design changes, in one place |
+| `docs/design-flags.md` | Every conflict, undocumented choice, accessibility concern and unverified item |
+| `docs/prototype-decisions.md` | The flags that affect the prototype, with recommendations |
+| `docs/screenshots/` | One screenshot per showcase chapter, refreshed with visual changes |
+| `scripts/` | Measurement, screenshot and Figma comparison tooling |
 
-GitHub Pages stays suitable while the app is a static single page. Switch to Netlify if the prototype needs any of these: client-side routes that must work on refresh or direct links (Pages has no rewrite rules, only a 404.html workaround), a private repository on a plan without private Pages, deploy previews for pull requests, or serverless functions and environment secrets. On Netlify, set the build command to `npm run build`, the publish directory to `dist`, and add a `/* /index.html 200` rewrite if routing is added.
+## Showcase and prototype
+
+The showcase and the reconciliation prototype stay separate apps that share one set of components and tokens:
+
+- `src/components`, `src/tokens` and `src/assets` are shared.
+- The showcase lives in `src/showcase` and is the current build.
+- The prototype will live in its own folder (`prototype/`) as a second Vite entry that imports the shared components and tokens. It never copies or restyles them; anything it needs that the design system lacks is added to the shared components first, in its own pull request.
+- The prototype waits for the PRD.
+
+## Making changes
+
+1. Each update gets its own branch from `main`, named for the change, for example `update/tabs` or `fix/focus-color`.
+2. Open a pull request into `main` using the template. It asks for a short description, the Figma nodes followed, before-and-after screenshots for visual changes, any design decisions, and the checks that were run.
+3. CI runs lint, tests, the typecheck and build, and checks that `docs/design-flags.md` matches `src/showcase/flags.ts`. A pull request should be green before review.
+4. Yirang reviews and merges. Nothing merges into `main` without that review.
+5. Open tasks and blockers are tracked as GitHub issues.
+
+Before-and-after screenshots are captured with `node scripts/compare-sections.mjs <url> <outDir> "Section title" ...` against the `main` build and the branch build. They're stored on the `pr-screenshots` branch so they don't add weight to `main`.
+
+## Deploying (not set up)
+
+Nothing is deployed or public. `.github/workflows/pages.yml` can publish the showcase to GitHub Pages, but it only runs when started by hand, and it must not be run without Yirang's approval. A Pages site is public, and GitHub Pages on a private repository needs a paid plan. Netlify is the alternative if the prototype needs client-side routes, pull request previews or functions.
+
+## Open an offline copy
+
+If you have the `campfire.bundle` file instead of repository access, run `git clone campfire.bundle campfire`, then `npm ci` and `npm run dev` inside the folder.

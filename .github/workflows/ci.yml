@@ -1,0 +1,35 @@
+name: CI
+
+# Runs on every pull request and on pushes to main. Uses GitHub-hosted runners only (free minutes on private repos).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Tests
+        run: npm test
+      - name: Typecheck and build
+        run: npm run build
+      - name: Design flags doc is in sync with src/showcase/flags.ts
+        run: |
+          npm run flags:doc
+          git diff --exit-code docs/design-flags.md || (echo "Run npm run flags:doc and commit docs/design-flags.md" && exit 1)
