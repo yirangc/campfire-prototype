@@ -53,7 +53,9 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const cases = useMemo(() => reviewCases(state), [state])
   const blockers = completionBlockers(state)
   const completed = state.completion.status === 'completed'
-  const visible = cases.filter((c) => (tab === 'all' || c.status === tab) && caseMatchesQuery(c, query))
+  // Suggested pairs are still unmatched transactions, so the Unmatched tab lists them too.
+  const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab || (tab === 'unmatched' && c.status === 'suggested')
+  const visible = cases.filter((c) => inTab(c) && caseMatchesQuery(c, query))
   const lastUndo = state.undoStack.at(-1)
 
   const tabs: TabItem[] = [
@@ -104,7 +106,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
       `Remaining difference,${(totals.difference / 100).toFixed(2)}`,
       `Confirmed records,${counts.confirmed}`,
       `Outstanding records,${counts.outstanding}`,
-      `Unresolved records,${counts.unresolved}`,
+      `Unmatched records,${counts.unmatched}`,
       '',
       'History',
       ...state.history.map((h) => `${h.at},"${h.summary.replace(/"/g, '""')}",${h.recordIds.join(' ')}`),
@@ -121,14 +123,15 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
     if (counts.unresolved === 0 && totals.difference === 0)
       return { title: 'Ready to complete', detail: `All ${counts.all} exception records are explained and the remaining difference is $0.00.` }
     const suggestedPairs = cases.filter((c) => c.status === 'suggested').length
+    const noSuggestion = counts.unmatched - counts.suggested
     const parts = [
       suggestedPairs ? `review ${suggestedPairs} suggested ${suggestedPairs === 1 ? 'match' : 'matches'}` : '',
-      counts.unmatched ? `resolve ${counts.unmatched} unmatched ${counts.unmatched === 1 ? 'record' : 'records'}` : '',
+      noSuggestion ? `resolve ${noSuggestion} unmatched ${noSuggestion === 1 ? 'record' : 'records'} with no suggestion` : '',
     ].filter(Boolean)
     const detail = parts.length
       ? `${parts.join(', then ').replace(/^./, (c) => c.toUpperCase())}. ${counts.explained} of ${counts.all} explained.`
       : `All records are explained, but the remaining difference is ${money(totals.difference)}.`
-    return { title: `${counts.unresolved} ${counts.unresolved === 1 ? 'record needs' : 'records need'} attention`, detail }
+    return { title: `${counts.unmatched} unmatched ${counts.unmatched === 1 ? 'record needs' : 'records need'} attention`, detail }
   }
   const step = nextStep()
 

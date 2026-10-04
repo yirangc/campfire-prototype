@@ -47,8 +47,8 @@ export function Reconciliation() {
 
       <Section title="Notices" note="6 px radius, 1 px stroke. Page size for the Next step banner, inline size inside an expanded row." tags={<Tag kind="observed" />}>
         <div className={styles.stack}>
-          <Notice tone="info" size="page" title="14 records need attention">
-            Review 3 suggested matches, then resolve 8 unmatched records.
+          <Notice tone="info" size="page" title="14 unmatched records need attention">
+            Review 3 suggested matches, then resolve 8 unmatched records with no suggestion.
           </Notice>
           <Notice tone="ai" title="Suggested match: 3 signals found">
             AI found an existing ledger entry that may match this bank transaction.

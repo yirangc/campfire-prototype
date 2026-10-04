@@ -13,13 +13,15 @@ beforeEach(() => {
 })
 
 describe('Reconciliation prototype', () => {
-  it('starts with 14 exception records in 11 cases and the background pairs kept apart', () => {
+  it('starts with 14 exception records in 11 cases and the background pairs kept apart', async () => {
     render(<App />)
     expect(screen.getByRole('tab', { name: 'All (14)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
     expect(screen.getByText(/7 bank transactions \/ 7 ledger entries · 11 review cases/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Already matched: 5 pairs/ })).toBeInTheDocument()
+    await userEvent.setup().click(screen.getByRole('tab', { name: 'Unmatched (14)' }))
+    expect(screen.getByText(/Showing 11 of 11 review cases/)).toBeInTheDocument()
     expect(metric('Remaining difference')).toContain('$320.00')
   })
 
@@ -30,6 +32,7 @@ describe('Reconciliation prototype', () => {
     await user.keyboard('{Enter}')
     await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
     expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (12)' })).toBeInTheDocument()
     expect(metric('Book balance')).toContain('$109,970.00')
     expect(metric('Cleared balance')).toContain('$107,470.00')
     await user.click(screen.getByRole('button', { name: /Undo the last action on B01/ }))
@@ -42,7 +45,8 @@ describe('Reconciliation prototype', () => {
     render(<App />)
     await user.click(row(/Nov 18 · ALDER SUPPLY/))
     await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
-    expect(screen.getByRole('tab', { name: 'Unmatched (10)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Suggested (4)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
     expect(screen.getByText('Suggestion dismissed')).toBeInTheDocument()
     expect(metric('Remaining difference')).toContain('$320.00')
     await user.click(screen.getByRole('button', { name: /Undo dismissing GL-1108/ }))
@@ -92,7 +96,7 @@ describe('Reconciliation prototype', () => {
     render(<App />)
     await user.click(screen.getByRole('button', { name: /Complete reconciliation/ }))
     const alert = screen.getByRole('alert')
-    expect(alert).toHaveTextContent('14 of 14 exception records are still unresolved')
+    expect(alert).toHaveTextContent('14 of 14 exception records are still unmatched (6 of them have a suggested match)')
     expect(alert).toHaveTextContent('The remaining difference is $320.00')
   })
 

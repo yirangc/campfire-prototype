@@ -51,7 +51,7 @@ describe('initial fixture', () => {
   const state = initialState()
 
   it('counts 14 exception records in 11 review cases, separate from the 5 background pairs', () => {
-    expect(statusCounts(state)).toMatchObject({ all: 14, suggested: 6, unmatched: 8, confirmed: 0, outstanding: 0, unresolved: 14 })
+    expect(statusCounts(state)).toMatchObject({ all: 14, suggested: 6, unmatched: 14, confirmed: 0, outstanding: 0, unresolved: 14 })
     const cases = reviewCases(state)
     expect(cases).toHaveLength(11)
     expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(3)
@@ -179,7 +179,7 @@ describe('match rules', () => {
     const s = run(initialState(), { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
     expect(activeSuggestions(s).map((x) => x.id)).toEqual(['S1', 'S2'])
     expect(recordStatus(s, 'B03')).toBe('unmatched')
-    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 8, confirmed: 2 })
+    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 12, confirmed: 2 })
   })
 })
 

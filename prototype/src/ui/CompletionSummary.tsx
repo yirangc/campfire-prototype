@@ -24,7 +24,7 @@ export function CompletionSummary({ state }: { state: ReconState }) {
         <Column title="Reconciled activity">
           <Row label="Confirmed" value={`${counts.confirmed} of ${counts.all} records`} />
           <Row label="Outstanding" value={`${counts.outstanding} of ${counts.all} records`} />
-          <Row label="Suggested / unmatched" value={`${counts.suggested} / ${counts.unmatched}`} />
+          <Row label="Unmatched" value={`${counts.unmatched} of ${counts.all} records`} />
           <Row label="Remaining difference" value={money(totals.difference)} />
         </Column>
         <Column title="Recorded adjustments">

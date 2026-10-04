@@ -66,7 +66,9 @@ export function recordStatus(state: ReconState, id: string): RecordStatus {
 }
 
 export interface StatusCounts {
+  /** Unmatched records that have an active suggested match (a subset of `unmatched`). */
   suggested: number
+  /** Every record not yet confirmed or documented as outstanding, suggested pairs included. */
   unmatched: number
   confirmed: number
   outstanding: number
@@ -75,12 +77,16 @@ export interface StatusCounts {
   explained: number
 }
 
-/** Record-based counts over the 14 original exception records. Generated entries are never counted. */
+/**
+ * Record-based counts over the 14 original exception records. Generated entries are never counted.
+ * Each transaction counts once: a suggested pair is two unmatched records until it is confirmed,
+ * so `unmatched` includes the suggested records (Yirang's request; the PRD splits them 6 / 8).
+ */
 export function statusCounts(state: ReconState): StatusCounts {
   const counts = { suggested: 0, unmatched: 0, confirmed: 0, outstanding: 0 }
   for (const id of ORIGINAL_EXCEPTION_IDS) counts[recordStatus(state, id)] += 1
   const unresolved = counts.suggested + counts.unmatched
-  return { ...counts, all: ORIGINAL_EXCEPTION_IDS.length, unresolved, explained: ORIGINAL_EXCEPTION_IDS.length - unresolved }
+  return { ...counts, unmatched: unresolved, all: ORIGINAL_EXCEPTION_IDS.length, unresolved, explained: ORIGINAL_EXCEPTION_IDS.length - unresolved }
 }
 
 export type CaseStatus = RecordStatus
@@ -176,12 +182,9 @@ export function completionBlockers(state: ReconState): string[] {
   const { difference } = balances(state)
   const blockers: string[] = []
   if (counts.unresolved > 0) {
-    const parts = [
-      counts.suggested ? `${counts.suggested} suggested` : '',
-      counts.unmatched ? `${counts.unmatched} unmatched` : '',
-    ].filter(Boolean)
+    const suggested = counts.suggested ? ` (${counts.suggested} of them ${counts.suggested === 1 ? 'has' : 'have'} a suggested match)` : ''
     blockers.push(
-      `${counts.unresolved} of ${counts.all} exception records are still unresolved (${parts.join(', ')}). Every record needs a match or documented outstanding evidence.`,
+      `${counts.unresolved} of ${counts.all} exception records are still unmatched${suggested}. Every record needs a match or documented outstanding evidence.`,
     )
   }
   if (difference !== 0) {
