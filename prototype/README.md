@@ -26,11 +26,11 @@ Start from a reset. The page opens with a $320.00 difference and 24 records in 1
 5. **Document outstanding items.** Expand *Check 1042 · Riverside Janitorial*. Choose *Outstanding check* and, as evidence, the unrelated *CHECK 1047 PAID*: the claim is rejected and the entry stays unresolved. Pick *CHECK 1042 PAID* (Dec 2), add an explanation and **Document as outstanding**. Repeat for the deposit DEP-1130 (deposit in transit, Dec 1) and the transfer TR-1130 (Dec 3). The outstanding line under the balance cards reaches +$1,000.00 / −$800.00 / net +$200.00.
 6. **Review the auto-matched pairs.** Open the **Auto-matched** tab. Each pair (Stripe payout, Acme payment, AWS, Gusto payroll, Figma subscription) opens with the bank transaction and ledger entry side by side and the same three actions as a suggestion. **Confirm match** moves both records to Confirmed and clears the bank amount; **Dismiss suggestion** makes both Unmatched (with Undo); **Leave Unresolved** just collapses the row. Completion stays blocked until every pair is confirmed or dismissed and resolved.
 7. **Complete.** The difference is $0.00 and 24 of 24 records are reviewed (21 Confirmed, 3 Outstanding). **Complete reconciliation** locks the actions and shows the summary with the created entries and outstanding evidence. **Download summary** saves a CSV.
-8. **Reopen.** **Reopen reconciliation** restores editing and keeps every resolution. Refresh the page at any point: the state, drafts and history come back.
+8. **Reopen.** **Reopen reconciliation** restores editing and keeps every resolution. Refresh the page at any point: the state, drafts and recorded actions come back.
 
 Other paths worth trying:
 
-- **Undo in reverse order.** Use the row's Undo link or the History section. Undoing a created expense removes the entry and its match together.
+- **Undo in reverse order.** Use the row's Undo link (the latest action) or the Undo in a confirmed or outstanding row's details. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).
 - **Leave unresolved.** Choose **Leave Unresolved** in any open case: the row collapses in place and keeps its status (Unmatched, Suggested or Auto-matched). Nothing else changes, and it still needs a resolution before you can complete. Click the row to continue.
 - **Unreadable save.** In the browser console run `localStorage.setItem('campfire.reconciliation.chase-4821.2025-11.v1', '{')` and reload. A recovery screen explains the problem, shows the raw data, and offers Try again or Reset demo. Nothing is overwritten until you choose.
@@ -57,7 +57,7 @@ Matches change the cleared balance only. Created expenses change the book balanc
 | `src/domain/selectors.ts` | Statuses, review cases, balances, blockers and search |
 | `src/domain/persistence.ts` | Versioned localStorage save and load with structural checks |
 | `src/useRecon.ts` | React state, saving after each change, save errors and recovery |
-| `src/ui/` | The page, register, expanded case detail, forms, summary and history |
+| `src/ui/` | The page, register, expanded case detail, forms and summary |
 
 The UI imports every component, icon and token from `../../src` (the shared design system). New shared pieces (status pills, notices, info tips, field errors, compact fields, the link button, balance cards and the app sidebar) were added there and are shown in the showcase's Reconciliation chapter.
 
@@ -83,7 +83,7 @@ The PRD wins where it conflicts with Figma. The main departures, all listed in `
 - The Figma frames' eight-row November and "John Glasgow" are replaced by the PRD dataset and Maya. Tabs count records (24), not rows. The PRD's five background pairs are Auto-matched items in the main table that still need review (Yirang's design), so the cleared balance starts at $100,000.00. Unmatched counts every transaction not yet confirmed or documented, so it starts at 14 and includes the 6 records in suggested pairs (Suggested is a subset, listed in both tabs). The PRD splits them 6 / 8; this follows Yirang's request.
 - The GL-1101 and GL-1105 memos read "ACH Northstar Hosting" and "DELTA PAY receipt" (PRD: "Northstar hosting", "Delta receipt") so the two correct suggestions look like close matches, at Yirang's request.
 - The register heading is "Exceptions to review", and the five matched pairs sit in a separate section.
-- Outstanding status, the outstanding form, search popover details, the note panel, history, save errors, blocked completion, reopen and recovery are PRD design additions with no Figma frame. They reuse existing tokens and components and are marked in the flags.
+- Outstanding status, the outstanding form, search popover details, save errors, blocked completion, reopen and recovery are PRD design additions with no Figma frame. They reuse existing tokens and components and are marked in the flags.
 - The expense form says "Paid from" (PRD) where Figma says "Payment account".
 - Field errors use warning ink (proposed; Figma has no error state).
 - Narrower screens are a design addition: below 1100 px the sidebar becomes a menu drawer, and the balance cards, register rows, expanded-row cards, forms and actions reflow by the width the page has (container queries). Dropdowns open upward when there is no room below. At 1440 px nothing changes.

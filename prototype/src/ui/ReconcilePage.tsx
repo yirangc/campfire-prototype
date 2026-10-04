@@ -13,7 +13,6 @@ import {
 } from '../domain/selectors'
 import type { Recon } from '../useRecon'
 import { CompletionSummary } from './CompletionSummary'
-import { HistoryPanel } from './HistoryPanel'
 import { Register } from './Register'
 import styles from './Page.module.css'
 
@@ -334,8 +333,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
             />
           </div>
         </section>
-
-        <HistoryPanel state={state} onUndo={undo} />
       </div>
 
       <Modal

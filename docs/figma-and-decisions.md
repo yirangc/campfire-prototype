@@ -48,7 +48,7 @@ The PRD sets behavior, data and calculations; Figma sets the visual design. Wher
 - **Action column.** Kept in every state (it appears only in 28:8442) so the Undo link has a fixed place.
 - **Expense form.** "Paid from" (PRD) instead of "Payment account". Fields are the 34 px compact size drawn in that frame.
 - **Completed summary.** Records out of 24, created entries, and the outstanding adjustment with evidence, instead of "8 of 8 transactions".
-- **Design additions** (PRD, no Figma frame): Outstanding pill, tab and form; search empty results; separate-expense acknowledgement; history; save-failure, blocked-completion and recovery notices; reopen; demo reset. They reuse existing tokens and components.
+- **Design additions** (PRD, no Figma frame): Outstanding pill, tab and form; search empty results; separate-expense acknowledgement; save-failure, blocked-completion and recovery notices; reopen; demo reset. They reuse existing tokens and components.
 - **Field errors** use warning ink (proposed). No new color was added.
 
 Everything else follows Figma. Where two frames conflict, each screen follows its own frame (see the conflicts in design-flags.md).

@@ -140,7 +140,6 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Auto-matched (10)' })).toBeInTheDocument()
     expect(metric('Cleared balance')).toContain('$100,000.00')
-    expect(screen.getByRole('button', { name: /History \(0\)/ })).toBeInTheDocument()
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
     const state = saved?.state ?? saved
     expect(state?.matches ?? []).toHaveLength(0)
@@ -156,7 +155,7 @@ describe('Reconciliation prototype', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /History \(0\)/ })).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{"history":[]}').history).toHaveLength(0)
     expect(metric('Remaining difference')).toContain('$320.00')
     await user.click(row(/Outgoing wire fee/))
     expect(row(/Outgoing wire fee/)).toHaveAttribute('aria-expanded', 'true')
