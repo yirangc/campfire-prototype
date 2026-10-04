@@ -315,14 +315,14 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     rightCard = (
       <Card record labelledBy={`${idPrefix}-auto`} title="Ledger entry" chip={c.ledger.entryId}>
         <Amount value={c.ledger.amount} />
-        <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Match status', value: 'Auto-matched · not confirmed' }])} />
+        <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Counterparty', value: c.ledger.counterparty }])} />
       </Card>
     )
   } else if (c.status === 'suggested' && c.ledger) {
     rightCard = (
       <Card record labelledBy={`${idPrefix}-suggested`} title="Suggested ledger entry" chip={c.ledger.entryId} chipTone="ai">
         <Amount value={c.ledger.amount} />
-        <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Match status', value: 'Suggested · not confirmed' }])} />
+        <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Counterparty', value: c.ledger.counterparty }])} />
       </Card>
     )
   } else if (c.status === 'confirmed' && c.ledger) {
@@ -511,7 +511,7 @@ function MatchedCard({ idPrefix, ledger, bank }: { idPrefix: string; ledger: Led
   return (
     <Card record labelledBy={`${idPrefix}-matched`} title={created ? 'Created ledger entry' : 'Matched ledger entry'} chip={ledger.entryId}>
       <Amount value={ledger.amount} />
-      <Fields fields={recordFields(ledger, bank, created ? [] : [{ label: 'Match status', value: 'Confirmed' }])} />
+      <Fields fields={recordFields(ledger, bank, created ? [] : [{ label: 'Counterparty', value: ledger.counterparty }])} />
       {created && (
         <Fields
           fields={[
