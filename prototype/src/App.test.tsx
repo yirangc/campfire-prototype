@@ -114,6 +114,19 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
   })
 
+  it('shows outstanding errors on the fields without a "Nothing was changed" banner', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Check 1042/))
+    const open = within(detail()).getAllByRole('button', { name: 'Document as outstanding' })
+    if (open.length > 1) await user.click(open[0])
+    const submit = within(detail()).getAllByRole('button', { name: 'Document as outstanding' })
+    await user.click(submit[submit.length - 1])
+    expect(within(detail()).queryByText('Nothing was changed')).not.toBeInTheDocument()
+    expect(within(detail()).getByText('Not on the November statement')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Outstanding (0)' })).toBeInTheDocument()
+  })
+
   it('keeps expense input after a rejected submit and creates the entry once', async () => {
     const user = userEvent.setup()
     render(<App />)
