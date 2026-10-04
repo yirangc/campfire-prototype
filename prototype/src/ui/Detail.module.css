@@ -168,31 +168,6 @@
   height: 20px;
 }
 
-/* Signals in the AI rationale (design addition): 11/16 chips in the AI or warning tint. */
-.signals {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-6);
-  margin: var(--spacing-6) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.signal,
-.signalDiffers {
-  padding: 0 var(--spacing-6);
-  border-radius: var(--radius-4);
-  background: var(--color-ai-pill);
-  color: var(--color-ai-ink-strong);
-  font-size: var(--text-caption-size);
-  line-height: var(--text-caption-line-loose);
-}
-
-.signalDiffers {
-  background: var(--color-warning-pill);
-  color: var(--color-warning-ink-strong);
-}
-
 /* Create ledger entry rows (38:7860, 38:7870): 206 / 150 / 200 and 180 / 388, 12 px gaps. */
 .formRowTop,
 .formRowBottom,

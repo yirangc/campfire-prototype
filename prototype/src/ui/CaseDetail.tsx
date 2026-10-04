@@ -212,13 +212,6 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     notices.push(
       <Notice key="ai" tone="ai" title={c.suggestion.headline}>
         <p>Simulated AI suggestion. {c.suggestion.detail}</p>
-        <ul className={styles.signals} aria-label="Signals">
-          {c.suggestion.signals.map((signal) => (
-            <li key={signal.label} className={signal.tone === 'match' ? styles.signal : styles.signalDiffers}>
-              {signal.label}
-            </li>
-          ))}
-        </ul>
       </Notice>,
     )
   } else if (showDismissed && dismissed) {
