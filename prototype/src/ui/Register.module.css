@@ -55,6 +55,11 @@
   border-bottom: var(--border-width) solid var(--color-border-default);
 }
 
+.row,
+.rowOpen {
+  cursor: pointer;
+}
+
 .rowOpen > * {
   background: var(--color-surface-subtle);
   border-bottom: 0;

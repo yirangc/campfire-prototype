@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, type MouseEvent } from 'react'
 import { Button, Icon, StatusPill } from '../../../src/components'
 import { shortDate, signed } from '../domain/format'
 import type { ReviewCase } from '../domain/selectors'
@@ -65,7 +65,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           const note = recon.state.notes[c.key]
           return (
             <Fragment key={c.key}>
-              <tr className={open ? styles.rowOpen : styles.row}>
+              <tr className={open ? styles.rowOpen : styles.row} onClick={(e) => rowClick(e, () => onToggle(c.key))}>
                 <th scope="row" className={styles.transaction}>
                   <button
                     type="button"
@@ -120,6 +120,16 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
       </tbody>
     </table>
   )
+}
+
+/**
+ * A click anywhere on a case row toggles its detail. The disclosure button stays the keyboard and
+ * screen-reader control; clicks on buttons or links in the row, and text selections, are left alone.
+ */
+function rowClick(e: MouseEvent<HTMLTableRowElement>, toggle: () => void) {
+  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return
+  if (window.getSelection()?.toString()) return
+  toggle()
 }
 
 function Dash() {

@@ -91,6 +91,16 @@ describe('Reconciliation prototype', () => {
     expect(saved.state?.generated ?? saved.generated).toHaveLength(1)
   })
 
+  it('expands and collapses a case when any part of its row is clicked', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const button = row(/Nov 04 · ACH NORTH/)
+    await user.click(within(button.closest('tr')!).getByText('GL-1101 · Nov 03'))
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+  })
+
   it('blocks completion and lists the reasons', async () => {
     const user = userEvent.setup()
     render(<App />)
