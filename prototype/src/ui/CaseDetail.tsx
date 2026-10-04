@@ -373,7 +373,10 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
           idPrefix={idPrefix}
           bank={c.bank}
           draft={draft.expense ?? expenseDefaults(c)}
-          onChange={(expense) => update({ expense })}
+          onChange={(expense) => {
+            setFieldErrors(clearChanged(fieldErrors, draft.expense ?? expenseDefaults(c), expense))
+            update({ expense })
+          }}
           errors={fieldErrors}
           others={candidates}
           headerAction={backToSearch}
@@ -385,7 +388,10 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
           idPrefix={idPrefix}
           ledger={c.ledger}
           draft={draft.outstanding ?? outstandingDefaults()}
-          onChange={(outstanding) => update({ outstanding })}
+          onChange={(outstanding) => {
+            setFieldErrors(clearChanged(fieldErrors, draft.outstanding ?? outstandingDefaults(), outstanding))
+            update({ outstanding })
+          }}
           errors={fieldErrors}
           headerAction={backToSearch}
         />
@@ -505,6 +511,13 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       )}
     </div>
   )
+}
+
+/** Drops the error of every field Maya has just edited, so a corrected field stops reading as wrong. */
+function clearChanged<T extends object>(errors: FieldErrors, before: T, after: T): FieldErrors {
+  const next = { ...errors }
+  for (const key of Object.keys(after) as (keyof T & string)[]) if (before[key] !== after[key]) delete next[key]
+  return next
 }
 
 function MatchedCard({ idPrefix, ledger, bank }: { idPrefix: string; ledger: LedgerEntry; bank: FinancialRecord }) {
