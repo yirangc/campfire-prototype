@@ -1,6 +1,6 @@
 # Campfire prototype and design system
 
-One private repository for the Campfire exercise. It holds the design system (tokens, icons, logo, components and a browsable showcase, built from the Campfire Figma file) and the reconciliation prototype that uses it ([prototype/README.md](prototype/README.md): demo steps, calculations, assumptions and design departures). Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
+One public repository for the Campfire exercise. It holds the design system (tokens, icons, logo, components and a browsable showcase, built from the Campfire Figma file) and the reconciliation prototype that uses it ([prototype/README.md](prototype/README.md): demo steps, calculations, assumptions and design departures). Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
 
 This repository is the source of truth. Changes go through a branch and a pull request (see [Making changes](#making-changes)).
 
@@ -67,22 +67,18 @@ Rules:
 
 Before-and-after screenshots are captured with `node scripts/compare-sections.mjs <url> <outDir> "Section title" ...` against the `main` build and the branch build. They're stored on the `pr-screenshots` branch so they don't add weight to `main`.
 
-## Deploying to GitHub Pages (not approved yet)
+## Deploying to GitHub Pages
 
-Nothing is deployed or public. `.github/workflows/pages.yml` ("Deploy showcase and reconciliation prototype to GitHub Pages") builds both apps into one static site:
+The repository and the site are public (Yirang approved both on 2026-10-04). `.github/workflows/pages.yml` ("Deploy showcase and reconciliation prototype to GitHub Pages") builds both apps into one static site:
 
-| App | URL once deployed |
+| App | URL |
 | --- | --- |
 | Design-system showcase | `https://yirangc.github.io/campfire-prototype/` |
 | Reconciliation prototype | `https://yirangc.github.io/campfire-prototype/prototype/` |
 
-It runs only when started by hand from `main`, and it must not be run without Yirang's approval.
+It runs only when started by hand from `main` (Actions → the workflow → Run workflow). Each deployment needs Yirang's go-ahead.
 
-Before the first run:
-
-- **Plan.** GitHub Pages on a private repository needs GitHub Pro, Team or Enterprise. On GitHub Free the Pages settings page offers an upgrade instead of a source.
-- **Visibility.** The site is public on the internet even though the repository is private. Only GitHub Enterprise Cloud can restrict a Pages site to signed-in members. The prototype holds fictional sample data only.
-- **Source.** In Settings → Pages, set "Build and deployment → Source" to **GitHub Actions**. The workflow creates the `github-pages` environment on its first run; by default that environment only accepts deployments from `main`.
+Setup (done): the repository is public, so Pages is free on GitHub Free, and Settings → Pages → "Build and deployment → Source" is **GitHub Actions**. The `github-pages` environment only accepts deployments from `main`. The prototype holds fictional sample data only. If the repository is made private again, Pages needs a paid plan and the site stops updating.
 
 Both apps are static files with relative asset paths (`base: './'`), so they work under the `/campfire-prototype/` subpath without a 404 fallback. The prototype keeps its progress in each visitor's browser (localStorage); nothing is sent anywhere.
 
