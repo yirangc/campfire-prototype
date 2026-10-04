@@ -53,7 +53,7 @@ File `M4alZ0UMg6muqKn7l2WaXW`. Foundations `12:10929`, identity and icons `12:11
 
 ## Git, review and deploy
 
-GitHub (`yirangc/campfire-design-system`, private) is the source of truth.
+GitHub (`yirangc/campfire-prototype`, private; renamed from `campfire-design-system`) is the source of truth.
 
 - One branch per update, from `main`. Never commit to `main` directly.
 - Open a pull request with `.github/pull_request_template.md`: short description, Figma nodes, before-and-after screenshots for visual changes (`scripts/compare-sections.mjs`, images pushed to the `pr-screenshots` branch), design decisions, and checks run.
@@ -61,4 +61,4 @@ GitHub (`yirangc/campfire-design-system`, private) is the source of truth.
 - Refresh `docs/screenshots/` (`node scripts/screenshot.mjs http://localhost:4173/ docs/screenshots`) in pull requests that change visuals.
 - Track open tasks as GitHub issues.
 - Don't deploy, make anything public or add paid services without Yirang's approval. `pages.yml` is manual only and not approved.
-- The reconciliation prototype will be a separate entry (`prototype/`) that imports the shared components and tokens. It waits for the PRD.
+- The repository holds both the design-system showcase and the reconciliation prototype. The prototype is a separate Vite entry in `prototype/` that imports the shared components, icons and tokens from `src/`; it never copies them. Keep the showcase intact. The prototype waits for the PRD and its Figma links.

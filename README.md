@@ -1,6 +1,6 @@
-# Campfire design system
+# Campfire prototype and design system
 
-Design tokens, assets, components and a browsable showcase for the Campfire exercise, built from the Campfire Figma file. Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
+One private repository for the Campfire exercise. It holds the design system (tokens, icons, logo, components and a browsable showcase, built from the Campfire Figma file) and, once the PRD arrives, the reconciliation prototype that uses it. Everything in the showcase is labelled as transcribed from Figma, proposed, or sample data.
 
 This repository is the source of truth. Changes go through a branch and a pull request (see [Making changes](#making-changes)).
 
@@ -9,8 +9,8 @@ This repository is the source of truth. Changes go through a branch and a pull r
 You need Node 22 (Node 20 works for everything except `npm run flags:doc`) and git.
 
 ```sh
-git clone https://github.com/yirangc/campfire-design-system.git
-cd campfire-design-system
+git clone https://github.com/yirangc/campfire-prototype.git
+cd campfire-prototype
 npm ci
 npm run dev      # showcase at http://localhost:5173
 ```
@@ -41,12 +41,20 @@ The verification scripts in `scripts/` (measurements, screenshots, icon comparis
 
 ## Showcase and prototype
 
-The showcase and the reconciliation prototype stay separate apps that share one set of components and tokens:
+The showcase and the reconciliation prototype are separate apps in this repository. They share one set of components, icons and tokens, so a change to the design system shows up in both.
 
-- `src/components`, `src/tokens` and `src/assets` are shared.
-- The showcase lives in `src/showcase` and is the current build.
-- The prototype will live in its own folder (`prototype/`) as a second Vite entry that imports the shared components and tokens. It never copies or restyles them; anything it needs that the design system lacks is added to the shared components first, in its own pull request.
-- The prototype waits for the PRD.
+| Part | Where | Role |
+| --- | --- | --- |
+| Design system | `src/tokens`, `src/assets`, `src/components` | Shared by both apps. The only place tokens, icons and components are defined. |
+| Showcase | `index.html`, `src/showcase` | The existing design-system showcase, kept as it is |
+| Prototype | `prototype/` (added with the PRD) | The reconciliation prototype, a second Vite entry at `/prototype/` |
+
+Rules:
+
+- The prototype imports from `src/components`, `src/tokens` and `src/assets`. It never copies or restyles them.
+- If the prototype needs something the design system lacks, it's added to the shared components first and shown in the showcase, then used in the prototype.
+- One `npm run build` builds both apps into `dist/`, and CI checks both.
+- Product screens, flows and data live only in `prototype/`. The showcase keeps sample data labelled as such.
 
 ## Making changes
 
