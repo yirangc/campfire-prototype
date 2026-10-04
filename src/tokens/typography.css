@@ -1,0 +1,54 @@
+/* Shared text styles. Each class maps to one Figma text style; use these instead of ad hoc font declarations. */
+
+.cf-text-page-title {
+  font-size: var(--text-page-title-size);
+  line-height: var(--text-page-title-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.cf-text-metric {
+  font-size: var(--text-metric-size);
+  line-height: var(--text-metric-line);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--text-metric-tracking);
+}
+
+.cf-text-body {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-regular);
+}
+
+.cf-text-body-medium {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.cf-text-caption {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-regular);
+}
+
+.cf-text-overline {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  letter-spacing: var(--text-overline-tracking);
+  text-transform: uppercase;
+}
+
+.cf-text-secondary { color: var(--color-text-secondary); }
+.cf-text-muted { color: var(--color-text-muted); }
+
+.cf-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,60 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  height: var(--size-control);
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-6);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  background: var(--color-surface-white);
+  color: var(--color-text-primary);
+}
+
+.primary {
+  background: var(--color-text-primary);
+  color: var(--color-surface-white);
+}
+
+.secondary {
+  border-color: var(--color-border-default);
+}
+
+/* ghost: white fill, transparent border (Figma "Button / ghost / icon only") */
+
+.iconOnly {
+  width: var(--size-control);
+  padding: 0;
+}
+
+/* Hover and disabled are not documented in Figma. Proposed: reuse existing tokens only. */
+.secondary:hover:not(:disabled),
+.ghost:hover:not(:disabled),
+.secondary[data-visual-state='hover'],
+.ghost[data-visual-state='hover'] {
+  background: var(--color-surface-subtle);
+}
+
+.primary:hover:not(:disabled),
+.primary[data-visual-state='hover'] {
+  background: var(--color-gray-700);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+}
+
+.primary:disabled {
+  background: var(--color-surface-subtle);
+}
+
+/* Static focus specimen for the showcase; live focus uses the global :focus-visible rule. */
+.button[data-visual-state='focus'] {
+  outline: var(--focus-outline);
+  box-shadow: var(--shadow-focus-ring);
+}

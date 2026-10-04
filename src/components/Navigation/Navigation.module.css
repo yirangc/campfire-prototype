@@ -1,0 +1,135 @@
+/* ---- Side panel ---- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  width: var(--size-sidebar);
+  padding: var(--spacing-20) var(--spacing-14);
+  background: var(--color-surface-sidebar);
+  border-right: var(--border-width) solid var(--color-border-default);
+}
+
+.brand {
+  display: flex;
+  align-items: flex-start;
+  height: 48px; /* Figma brand header; not on the spacing scale */
+  padding: 0 var(--spacing-8);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.list .list {
+  margin-top: var(--spacing-2);
+}
+
+/* ---- Item ---- */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-10);
+  width: var(--size-nav-item);
+  height: var(--size-nav-row);
+  padding: 0 var(--spacing-10);
+  border: 0;
+  border-radius: var(--radius-4);
+  background: var(--color-surface-sidebar);
+  color: var(--color-text-primary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-regular);
+  text-align: left;
+  text-decoration: none;
+}
+
+.child {
+  padding-left: var(--spacing-20);
+}
+
+.label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hover is not documented in Figma. Proposed: the neutral selection fill at rest. */
+.item:hover {
+  background: var(--color-surface-subtle);
+}
+
+.selectedLime,
+.selectedLime:hover {
+  background: var(--color-accent-lime);
+  font-weight: var(--font-weight-medium);
+}
+
+.selectedNeutral,
+.selectedNeutral:hover {
+  background: var(--color-selection-neutral);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ---- Breadcrumbs ---- */
+.breadcrumbs ol {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  height: 32px;
+  gap: var(--crumb-gap);
+}
+
+.breadcrumbs li {
+  display: flex;
+  align-items: center;
+  gap: var(--crumb-gap);
+  white-space: nowrap;
+}
+
+.crumbPill {
+  --crumb-gap: var(--spacing-14);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+}
+
+.crumbPlain {
+  --crumb-gap: var(--spacing-10);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  color: var(--color-text-secondary);
+}
+
+/* Reporting page header uses a smaller trail: 11/20, 10 px chevron, 8 px gap. */
+.crumbCompact {
+  --crumb-gap: var(--spacing-8);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-loose);
+}
+
+.crumbCompact ol {
+  height: 24px;
+}
+
+.crumbLink {
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-4);
+}
+
+.crumbLink:hover {
+  text-decoration: underline;
+}
+
+.crumbCurrentPill {
+  padding: var(--spacing-4) var(--spacing-8);
+  border-radius: var(--radius-4);
+  background: var(--color-surface-subtle);
+  font-weight: var(--font-weight-medium);
+}

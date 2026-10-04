@@ -1,0 +1,124 @@
+/*
+ * Campfire design tokens.
+ *
+ * Source of truth: Figma file M4alZ0UMg6muqKn7l2WaXW, "Campfire foundations" (node 12:10929)
+ * plus the variables and effect styles bound in the five specialised frames.
+ * Names mirror the Figma variable paths (color/text/primary -> --color-text-primary).
+ *
+ * Figma labels every value here as screenshot-derived or inferred, not as an official
+ * Campfire specification. Values marked "proposed" or "suggested" are labelled that way in Figma.
+ */
+
+:root {
+  /* ---- Color / observed roles (Figma: "Color roles / observed appearance") ---- */
+  --color-text-primary: #292929;     /* Primary / ink: text, primary actions */
+  --color-text-secondary: #727572;   /* Labels, navigation, icons */
+  --color-text-muted: #999d99;       /* Supporting copy, placeholders */
+  --color-border-default: #e7e9e7;   /* Controls, table rules */
+  --color-surface-white: #ffffff;    /* Cards, inputs, modal */
+  --color-surface-canvas: #fafafa;   /* Documentation canvas */
+  --color-surface-sidebar: #f8f9f8;  /* Navigation background, subtotal rows */
+  --color-surface-subtle: #f2f3f2;   /* Headers, breadcrumb current page, menu highlight */
+  --color-selection-neutral: #ebedeb;/* Reporting navigation selection */
+  --color-accent-lime: #b3ed92;      /* Dashboard selection */
+  --color-focus-lime: #bcefa3;       /* Allocation input outline */
+  --color-success-ink: #3e7461;      /* Positive trend */
+  --color-success-surface: #eaf5ef;  /* Trend badge background */
+  --color-brand-orange: #ff852f;     /* Campfire rays (logo only) */
+  --color-brand-wordmark: #142e25;   /* Logo wordmark (stated in Figma copy, not a variable) */
+  --color-chart-lime: #bcf49a;       /* Revenue area */
+  --color-chart-green: #287d60;      /* Revenue line */
+  --color-shell-purple: #1d1046;     /* Outer dashboard surround */
+
+  /* ---- Color / suggested grayscale (Figma: "suggestions, not extracted product colors") ---- */
+  --color-gray-100: #f4f5f4;
+  --color-gray-300: #d1d5d1;
+  --color-gray-400: #a7ada7;
+  --color-gray-600: #626862;
+  --color-gray-700: #484e48;
+  --color-gray-900: #1c211c;
+
+  /* ---- Overlay (Figma modal guidance: "proposed #000000B8 scrim") ---- */
+  --color-scrim: #000000b8;
+
+  /* ---- Spacing ----
+   * Documented scale: 4 8 12 16 24 32 48.
+   * 2 6 10 14 20 are bound as variables inside components but are not on the documented scale. */
+  --spacing-2: 2px;
+  --spacing-4: 4px;
+  --spacing-6: 6px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-12: 12px;
+  --spacing-14: 14px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-48: 48px;
+
+  /* ---- Radius ---- */
+  --radius-2: 2px;     /* Scroll thumb */
+  --radius-4: 4px;     /* Small: nav items, breadcrumb pill, menu options */
+  --radius-6: 6px;     /* Control: buttons, inputs, dropdowns */
+  --radius-8: 8px;     /* Card */
+  --radius-10: 10px;   /* Modal */
+  --radius-pill: 100px;/* Trend badge */
+
+  /* ---- Border ----
+   * Figma strokes are drawn inside a frame and do not take layout space. Where a CSS border would add width,
+   * components subtract --border-width from their inset (or draw the rule as an inset outline) so outer sizes
+   * and text positions match Figma. */
+  --border-width: 1px;
+  --border-width-focus: 2px;
+
+  /* ---- Elevation ---- */
+  --shadow-card: 0 2px 5px 0 rgb(0 0 0 / 0.05);   /* Campfire/Elevation/Card */
+  --shadow-modal: 0 12px 32px 0 rgb(0 0 0 / 0.15);/* Campfire/Elevation/Modal */
+  --shadow-focus-ring: 0 0 0 2px rgb(188 239 163 / 0.5); /* Campfire/Focus/Proposed ring */
+
+  /* ---- Typography ---- */
+  --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; /* Inter: medium-confidence match */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* UI text styles: size / line-height */
+  --text-page-title-size: 20px;   --text-page-title-line: 28px;   /* Page and modal title, 600 */
+  --text-metric-size: 28px;       --text-metric-line: 34px;       /* Metric value, 600 */
+  --text-metric-tracking: -0.8px;                                  /* Metric card only; see CLAUDE.md conflicts */
+  --text-body-size: 12px;         --text-body-line: 18px;         /* Body and control */
+  --text-body-line-loose: 20px;                                    /* Body and control 12/20 */
+  --text-caption-size: 11px;      --text-caption-line: 16px;      /* Caption and account */
+  --text-caption-line-loose: 20px;                                 /* Caption 11/20 */
+  --text-overline-tracking: 1.2px;
+
+  /* Documentation text styles (used by the showcase chrome) */
+  --text-doc-title-size: 28px;    --text-doc-title-line: 36px;
+  --text-doc-section-size: 18px;  --text-doc-section-line: 24px;
+  --text-doc-body-size: 14px;     --text-doc-body-line: 20px;
+
+  /* ---- Component dimensions (Figma geometry guidance; all marked inferred) ---- */
+  --size-control: 36px;          /* Buttons, dropdowns */
+  --size-field: 38px;            /* Text inputs */
+  --size-table-row: 40px;        /* Financial table body rows */
+  --size-table-header: 42px;     /* Financial table header */
+  --size-allocation-row: 44px;   /* Editable allocation rows */
+  --size-allocation-header: 36px;
+  --size-allocation-total: 38px;
+  --size-nav-row: 36px;
+  --size-sidebar: 224px;
+  --size-nav-item: 196px;
+  --size-badge: 22px;
+  --size-modal: 1040px;
+
+  /* Icon boxes as used inside components */
+  --icon-24: 24px; /* Canonical icon canvas */
+  --icon-16: 16px; /* Navigation glyphs, button icons, calendar */
+  --icon-14: 14px; /* Dropdown chevron, menu check */
+  --icon-12: 12px; /* Navigation chevrons, row chevrons, table actions, select indicator */
+  --icon-10: 10px; /* Trend arrow, reporting breadcrumb chevron */
+
+  /* ---- Focus (Figma: "2 px lime outline + 2 px soft ring (proposed)") ---- */
+  --focus-outline: var(--border-width-focus) solid var(--color-focus-lime);
+}

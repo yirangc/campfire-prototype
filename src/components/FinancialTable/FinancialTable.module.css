@@ -1,0 +1,115 @@
+.wrap {
+  overflow-x: auto;
+  background: var(--color-surface-white);
+  /* Inside stroke, as in Figma: drawn over the content, adds no size. */
+  outline: var(--border-width) solid var(--color-border-default);
+  outline-offset: calc(-1 * var(--border-width));
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.head {
+  height: var(--size-table-header);
+  background: var(--color-surface-subtle);
+}
+
+.row {
+  height: var(--size-table-row);
+  background: var(--color-surface-white);
+}
+
+.head > *,
+.row > * {
+  border-bottom: var(--border-width) solid var(--color-border-default);
+}
+
+.subtotal {
+  background: var(--color-surface-sidebar);
+}
+
+/* 16 px outer insets, 24 px between columns */
+.table th,
+.table td {
+  padding: 0 0 0 var(--spacing-24);
+  vertical-align: middle;
+}
+
+.table th:first-child {
+  padding-left: var(--spacing-16);
+  width: calc(230px + var(--spacing-16)); /* Figma account column: 230 px */
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: var(--spacing-16);
+}
+
+.account {
+  text-align: left;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+}
+
+.subtotal .account {
+  font-weight: var(--font-weight-semibold);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.toggle span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevronSpace {
+  flex: none;
+  width: var(--icon-12);
+  height: var(--icon-12);
+}
+
+.amountHead {
+  text-align: right;
+  font-size: var(--text-body-size);
+  line-height: normal;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.amount {
+  text-align: right;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.subtotal .amount {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Proposed (not in Figma): child rows align their label with the parent label text. */
+.childRow .account {
+  padding-left: calc(var(--spacing-16) + var(--icon-12) + var(--spacing-8));
+}

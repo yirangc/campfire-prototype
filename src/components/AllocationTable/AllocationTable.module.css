@@ -1,0 +1,205 @@
+.wrap {
+  position: relative;
+  background: var(--color-surface-white);
+}
+
+/* Inside stroke, as in Figma: drawn over the content (and scroll track), adds no size. */
+.wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: var(--border-width) solid var(--color-border-default);
+  pointer-events: none;
+}
+
+/* Native horizontal scroll, styled to the Figma track: 8 px sidebar-fill track, 4 px gray-300 thumb. */
+.scroller {
+  overflow-x: scroll; /* Figma draws the 8 px track permanently */
+}
+
+/* Chromium ignores ::-webkit-scrollbar styling when scrollbar-color is set, so it is Firefox-only. */
+@supports not selector(::-webkit-scrollbar) {
+  .scroller {
+    scrollbar-color: var(--color-gray-300) var(--color-surface-sidebar);
+  }
+}
+
+.scroller::-webkit-scrollbar {
+  height: 8px;
+  background: var(--color-surface-sidebar);
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border: var(--spacing-2) solid var(--color-surface-sidebar);
+  border-radius: var(--radius-4);
+}
+
+.table {
+  width: 100%;
+  min-width: 960px; /* Not in Figma: keeps the flexible Tag and Market columns usable before scrolling */
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+.head {
+  height: var(--size-allocation-header);
+  background: var(--color-surface-white);
+}
+
+.head > th {
+  border-bottom: var(--border-width) solid var(--color-border-default);
+}
+
+.head th {
+  padding: 0 var(--spacing-12);
+  text-align: left;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Figma: the Percentage heading has no right inset, so it sits 12 px right of the values. */
+.head .percentHead {
+  padding: 0;
+  text-align: right;
+}
+
+.row {
+  height: var(--size-allocation-row);
+}
+
+.row > * {
+  padding: 0;
+  vertical-align: middle;
+  border-right: var(--border-width) solid var(--color-border-default);
+  border-bottom: var(--border-width) solid var(--color-border-default);
+}
+
+.row > *:last-child {
+  border-right: 0;
+}
+
+.textCell {
+  padding: 0 var(--spacing-12) !important;
+  text-align: left;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.accountInner,
+.departmentInner {
+  display: flex;
+  align-items: center;
+}
+
+.accountInner {
+  gap: var(--spacing-8);
+}
+
+.departmentInner {
+  gap: var(--spacing-12);
+}
+
+.cellText {
+  display: inline-block;
+  width: calc(100% - var(--icon-12) - var(--spacing-12));
+  margin-right: var(--spacing-12);
+}
+
+.cellText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 12 px icon buttons. The ::before extends the hit area to 20 × 20 (see CLAUDE.md accessibility notes). */
+.iconAction {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  width: var(--icon-12);
+  height: var(--icon-12);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-2);
+  background: none;
+}
+
+.iconAction::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
+.percentCell {
+  padding-right: var(--spacing-12) !important;
+}
+
+.percentInput {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: right;
+  font-size: var(--text-body-size);
+  line-height: normal;
+  color: var(--color-text-primary);
+}
+
+.percentInput:focus-visible {
+  outline-offset: 2px;
+}
+
+.selectCell {
+  /* 40 px cell + 2 px top + 1 px bottom inset + 1 px rule = 44 px row, as in Figma */
+  padding: var(--spacing-2) 0 calc(var(--spacing-2) - var(--border-width)) !important;
+}
+
+.total {
+  height: var(--size-allocation-total);
+  background: var(--color-surface-sidebar);
+}
+
+.total td {
+  padding: 0 0 0 200px; /* Figma: "Total" starts 200 px in */
+}
+
+.totalInner,
+.totalSpecimen {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.totalInner {
+  gap: var(--spacing-14);
+}
+
+.totalSpecimen {
+  gap: var(--spacing-16);
+  height: var(--size-allocation-row);
+  padding: 0 var(--spacing-12);
+  background: var(--color-surface-sidebar);
+}
+
+.cellSpecimen {
+  display: flex;
+  align-items: center;
+  height: var(--size-allocation-row);
+  padding: var(--spacing-2) 0;
+  outline: var(--border-width) solid var(--color-border-default);
+  outline-offset: calc(-1 * var(--border-width));
+}

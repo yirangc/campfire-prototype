@@ -1,0 +1,44 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.input {
+  height: var(--size-field);
+  width: 100%;
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* 2 px border; padding drops to match so the text does not move. */
+.input:focus,
+.input:focus-visible,
+.input[data-visual-state='focus'] {
+  outline: none;
+  border: var(--border-width-focus) solid var(--color-focus-lime);
+  padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.input:disabled {
+  color: var(--color-text-muted);
+  background: var(--color-surface-sidebar);
+}

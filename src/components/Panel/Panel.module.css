@@ -1,0 +1,14 @@
+.panel {
+  background: var(--color-surface-white);
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-8);
+}
+
+.p0 { padding: 0; }
+.p16 { padding: calc(var(--spacing-16) - var(--border-width)); }
+.p20 { padding: calc(var(--spacing-20) - var(--border-width)); }
+.p24 { padding: calc(var(--spacing-24) - var(--border-width)); }
+
+.elevated {
+  box-shadow: var(--shadow-card);
+}

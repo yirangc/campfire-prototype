@@ -1,0 +1,111 @@
+.root {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.rootCell {
+  display: flex;
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--spacing-12);
+  background: var(--color-surface-white);
+  text-align: left;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+}
+
+/* Campfire/Dropdown/*: 36 px, 1 px border, 6 px radius, 8 px gap */
+.control {
+  height: var(--size-control);
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  gap: var(--spacing-8);
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+}
+
+/* Campfire/Table/Cell/* dropdown: 40 px, no border (the cell draws rules), 12 px gap */
+.cell {
+  height: 40px;
+  gap: var(--spacing-12);
+  border: 0;
+  border-radius: 0;
+}
+
+.cell:focus-visible {
+  outline-offset: -2px;
+}
+
+.value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--color-text-muted);
+}
+
+.control .placeholder {
+  /* Closed control placeholders ("Select a view", "None") render in primary ink in Figma. */
+  color: var(--color-text-primary);
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  color: var(--color-text-muted);
+}
+
+/* Proposed open state: white, 1 px border, 6 px radius, card shadow, 4 px inset */
+.menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  min-width: 100%;
+  padding: calc(var(--spacing-4) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  box-shadow: var(--shadow-card);
+}
+
+.menu:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-card);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  height: var(--size-control);
+  padding: 0 var(--spacing-10);
+  border-radius: var(--radius-4);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-loose);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.active {
+  background: var(--color-surface-subtle);
+}

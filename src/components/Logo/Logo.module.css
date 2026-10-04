@@ -1,0 +1,21 @@
+.logo {
+  display: inline-flex;
+  flex: none;
+}
+
+/* object-fit keeps the supplied artwork's own proportions inside the Figma box. */
+.image {
+  object-fit: contain;
+}
+
+.pending {
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--color-text-muted);
+  border-radius: var(--radius-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  overflow: hidden;
+  white-space: nowrap;
+}

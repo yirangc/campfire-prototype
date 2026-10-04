@@ -1,0 +1,11 @@
+.icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+}
+
+/* Placeholder for an icon whose Figma export is missing. Deliberately not a glyph. */
+.pending {
+  border: 1px dashed var(--color-text-muted);
+  border-radius: var(--radius-2);
+}
