@@ -42,11 +42,16 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
     onCollapse()
   }
 
+  // A confirmed match merges a ledger-only row into its bank row, so follow the record to the row that now holds it.
+  const lastKey = lastRow ? (cases.find((c) => c.key === lastRow) ?? cases.find((c) => c.recordIds.includes(lastRow)))?.key : undefined
+
   useEffect(() => {
-    if (expanded !== null || !refocus.current || !lastRow) return
+    if (expanded !== null || !refocus.current || !lastKey) return
     refocus.current = false
-    buttons.current.get(lastRow)?.focus({ preventScroll: true })
-  }, [expanded, lastRow])
+    const button = buttons.current.get(lastKey)
+    button?.focus({ preventScroll: true })
+    button?.scrollIntoView?.({ block: 'nearest' })
+  }, [expanded, lastKey])
 
   return (
     <table className={styles.table}>
@@ -87,7 +92,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           return (
             <Fragment key={c.key}>
               <tr
-                className={open ? styles.rowOpen : `${styles.row} ${lastRow === c.key ? styles.rowLast : ''}`}
+                className={open ? styles.rowOpen : `${styles.row} ${lastKey === c.key ? styles.rowLast : ''}`}
                 onClick={(e) => rowClick(e, () => toggle(c.key))}
               >
                 <th scope="row" className={styles.transaction}>

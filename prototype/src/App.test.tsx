@@ -66,6 +66,7 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByText('Selected ledger entry')).toBeInTheDocument()
     await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
     expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    expect(row(/Nov 18 · ALDER SUPPLY/)).toHaveFocus()
   })
 
   it('finds entries by date in the single search field', async () => {
