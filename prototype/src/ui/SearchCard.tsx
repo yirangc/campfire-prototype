@@ -19,9 +19,9 @@ export interface SearchCardProps {
 
 /**
  * "Find another ledger entry" (38:6512) with its results menu (38:7275, 38:7320): heading, subtitle, header action
- * and one search field for keywords or dates. Matching rules (same signed amount, currency and account, unmatched
- * only) apply behind the scenes; results show while the field has focus. At Yirang's request this replaces the PRD's
- * visible filters and matching-criteria text.
+ * and one search field. Focusing it lists every unmatched record on the other side (same amount first); keywords,
+ * dates or an amount narrow the list (Yirang, 2026-10-04). Confirm match still enforces the match rules (same signed
+ * amount, currency and account). This replaces the PRD's visible filters and matching-criteria text.
  * Keyboard: the input is a combobox. Down/Up move through results, Enter selects one, Escape closes the menu and
  * keeps the query.
  */
@@ -91,7 +91,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
             Find another {otherSide}
           </h3>
           <p className={styles.cardSubtitle}>
-            Search unmatched {origin.kind === 'bank' ? 'entries' : 'bank transactions'} in this account with the same amount and currency.
+            Search unmatched {origin.kind === 'bank' ? 'entries' : 'bank transactions'} in this account by keyword, date or amount.
           </p>
         </div>
       }
@@ -103,7 +103,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
           <input
             ref={inputRef}
             role="combobox"
-            aria-label={`Search ${otherPlural} by keywords or date`}
+            aria-label={`Search ${otherPlural} by keywords, date or amount`}
             aria-expanded={open}
             aria-controls={listId}
             aria-autocomplete="list"
@@ -111,7 +111,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
             aria-describedby={`${baseId}-count`}
             autoFocus={autoFocus}
             value={search.query}
-            placeholder="Search by keywords or date"
+            placeholder="Search by keywords, date or amount"
             onChange={(e) => {
               update(e.target.value)
               setOpen(true)
@@ -140,7 +140,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
           {results.length} matching {results.length === 1 ? otherSide : otherPlural}
         </p>
         {open && (
-          <ul id={listId} role="listbox" aria-label={`Matching ${otherPlural}`} className={styles.popover} ref={listRef} style={placement.style} onMouseDown={(e) => e.preventDefault()}>
+          <ul id={listId} role="listbox" aria-label={`Unmatched ${otherPlural}`} className={styles.popover} ref={listRef} style={placement.style} onMouseDown={(e) => e.preventDefault()}>
             {results.map((record, i) => (
               <li
                 key={record.id}

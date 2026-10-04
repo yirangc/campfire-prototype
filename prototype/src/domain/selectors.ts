@@ -252,14 +252,29 @@ export const DATE_FILTER_LABEL: Record<DateFilter, string> = {
 }
 
 /**
- * Case-insensitive search over eligible candidates: description, counterparty, reference and entry id.
- * An empty query lists every eligible candidate; optional filters narrow the list.
+ * Every record on the other side that is still unexplained (not matched, not documented as outstanding), whatever
+ * its amount, with the eligible ones (same signed amount, currency and account) first. At Yirang's request
+ * (2026-10-04) search lists them all; Confirm match still enforces the match rules and explains a refusal.
+ */
+export function searchPool(state: ReconState, recordId: string): FinancialRecord[] {
+  const origin = findRecord(state, recordId)
+  if (!origin) return []
+  const others: FinancialRecord[] = origin.kind === 'bank' ? LEDGER_EXCEPTIONS : BANK_EXCEPTIONS
+  const open = others.filter((r) => !isExplained(state, r.id) && r.currency === origin.currency && r.accountId === origin.accountId)
+  const eligible = new Set(eligibleCandidates(state, recordId).map((r) => r.id))
+  return [...open.filter((r) => eligible.has(r.id)), ...open.filter((r) => !eligible.has(r.id))]
+}
+
+/**
+ * Case-insensitive search over the unexplained records on the other side: description, counterparty, reference,
+ * entry id, date and amount ("12,500", "12500", "$12,500.00", "-450"). An empty query lists them all; optional
+ * filters narrow the list.
  */
 export function searchCandidates(state: ReconState, recordId: string, search: SearchDraft): FinancialRecord[] {
   const origin = findRecord(state, recordId)
   if (!origin) return []
   const terms = search.query.trim().toLowerCase().split(/\s+/).filter(Boolean)
-  return eligibleCandidates(state, recordId).filter((candidate) => {
+  return searchPool(state, recordId).filter((candidate) => {
     const haystack = [
       candidate.description,
       recordCounterparty(candidate),
@@ -267,6 +282,7 @@ export function searchCandidates(state: ReconState, recordId: string, search: Se
       candidate.id,
       candidate.kind === 'ledger' ? candidate.entryId : '',
       dateTokens(candidate.date),
+      amountTokens(candidate.amount),
     ]
       .join(' ')
       .toLowerCase()
@@ -275,6 +291,16 @@ export function searchCandidates(state: ReconState, recordId: string, search: Se
     if (search.counterpartyFilter && recordCounterparty(candidate) !== search.counterpartyFilter) return false
     return true
   })
+}
+
+/** Ways an amount can be typed: "12,500", "12500", "12,500.00", "$12,500.00", "+12,500.00", "-450", "−$450.00". */
+export function amountTokens(cents: number): string {
+  const abs = Math.abs(cents)
+  const plain = (abs / 100).toFixed(2)
+  const grouped = money(abs, { sign: 'never' }).slice(1)
+  const sign = cents < 0 ? '-' : '+'
+  const forms = [plain, grouped, `$${plain}`, `$${grouped}`, `${sign}${plain}`, `${sign}${grouped}`, `${sign}$${plain}`, `${sign}$${grouped}`, money(cents, { sign: 'always' })]
+  return forms.join(' ')
 }
 
 const MONTH_NAMES = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']
