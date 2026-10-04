@@ -1,0 +1,105 @@
+import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { App } from './App'
+import { STORAGE_KEY } from './domain/persistence'
+
+const metric = (label: string) => screen.getByText(label).closest('div[class*=card], section, article')?.textContent ?? ''
+const row = (text: RegExp) => screen.getByRole('button', { name: text })
+const detail = () => screen.getByRole('button', { name: /Leave Unresolved/ }).closest('td') as HTMLElement
+
+beforeEach(() => {
+  localStorage.clear()
+})
+
+describe('Reconciliation prototype', () => {
+  it('starts with 14 exception records in 11 cases and the background pairs kept apart', () => {
+    render(<App />)
+    expect(screen.getByRole('tab', { name: 'All (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
+    expect(screen.getByText(/7 bank transactions \/ 7 ledger entries · 11 review cases/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Already matched: 5 pairs/ })).toBeInTheDocument()
+    expect(metric('Remaining difference')).toContain('$320.00')
+  })
+
+  it('confirms a suggestion from the keyboard and offers Undo in the row', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    row(/Nov 04 · ACH NORTH/).focus()
+    await user.keyboard('{Enter}')
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    expect(metric('Book balance')).toContain('$109,970.00')
+    expect(metric('Cleared balance')).toContain('$107,470.00')
+    await user.click(screen.getByRole('button', { name: /Undo the last action on B01/ }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
+    expect(metric('Cleared balance')).toContain('$109,870.00')
+  })
+
+  it('dismisses a suggestion without changing balances and restores it from the notice', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Nov 18 · ALDER SUPPLY/))
+    await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
+    expect(screen.getByRole('tab', { name: 'Unmatched (10)' })).toBeInTheDocument()
+    expect(screen.getByText('Suggestion dismissed')).toBeInTheDocument()
+    expect(metric('Remaining difference')).toContain('$320.00')
+    await user.click(screen.getByRole('button', { name: /Undo dismissing GL-1108/ }))
+    expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
+  })
+
+  it('searches with the keyboard, then confirms the selected entry', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Nov 18 · ALDER SUPPLY/))
+    await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
+    const combo = within(detail()).getByRole('combobox')
+    await user.click(combo)
+    await user.type(combo, 'ald-17')
+    expect(within(detail()).getAllByRole('option')).toHaveLength(1)
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(screen.getByText('Selected ledger entry')).toBeInTheDocument()
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+  })
+
+  it('keeps expense input after a rejected submit and creates the entry once', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Monthly bank service fee/))
+    await user.click(within(detail()).getByRole('button', { name: 'Create entry…' }))
+    const date = within(detail()).getByLabelText('Posting date')
+    await user.clear(date)
+    await user.type(date, 'Dec 1, 2025')
+    await user.click(within(detail()).getByRole('button', { name: 'Create and match' }))
+    expect(within(detail()).getByText('The posting date must be in November 2025.')).toBeInTheDocument()
+    expect(within(detail()).getByText('Choose the expense category that records this cost.')).toBeInTheDocument()
+    expect(date).toHaveValue('Dec 1, 2025')
+    await user.clear(date)
+    await user.type(date, 'Nov 30, 2025')
+    await user.click(within(detail()).getByRole('button', { name: /Expense category/ }))
+    await user.click(screen.getByRole('option', { name: 'Bank Fees' }))
+    await user.dblClick(within(detail()).getByRole('button', { name: 'Create and match' }))
+    expect(screen.getAllByText(/GL-1115/).length).toBeGreaterThan(0)
+    expect(metric('Book balance')).toContain('$109,955.00')
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
+    expect(saved.state?.generated ?? saved.generated).toHaveLength(1)
+  })
+
+  it('blocks completion and lists the reasons', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: /Complete reconciliation/ }))
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('14 of 14 exception records are still unresolved')
+    expect(alert).toHaveTextContent('The remaining difference is $320.00')
+  })
+
+  it('shows a recovery screen for unreadable saved data instead of discarding it', () => {
+    localStorage.setItem(STORAGE_KEY, '{')
+    render(<App />)
+    expect(screen.getByRole('button', { name: /Try again/ })).toBeInTheDocument()
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('{')
+  })
+})

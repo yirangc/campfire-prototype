@@ -1,0 +1,477 @@
+/* Expanded detail (51:1040): 20 px top and bottom, 16 px sides, 20 px between blocks. */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+  padding: var(--spacing-20) var(--spacing-16);
+  text-align: left;
+}
+
+.notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+/* Transaction comparison (51:1049): 612 | 12 | 32 arrow | 12 | 612. */
+.comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
+  gap: var(--spacing-12);
+  align-items: stretch;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Action footer (51:1102): right-aligned, 12 px gap. */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+}
+
+.footerHint {
+  margin-right: auto;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Bank transaction / ledger entry card (51:1050): 16 px inset inside a 1 px stroke, 12 px gap. */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  min-width: 0;
+  padding: calc(var(--spacing-16) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  box-shadow: var(--shadow-card);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  min-height: 20px;
+}
+
+.cardTitleGroup {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--spacing-12);
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.cardTitleStrong {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.cardSubtitle {
+  margin-top: var(--spacing-2);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Account chip (51:1053) and Draft chip (38:7838): 20 px, 6 px inset, 4 px radius, 11/16. */
+.chip,
+.chipAi {
+  flex: none;
+  padding: var(--spacing-2) var(--spacing-6);
+  border-radius: var(--radius-4);
+  background: var(--color-surface-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+}
+
+.chipAi {
+  background: var(--color-ai-pill);
+  color: var(--color-ai-ink);
+}
+
+.chipEnd {
+  margin-left: auto;
+}
+
+.rule {
+  height: var(--border-width);
+  margin: 0;
+  border: 0;
+  background: var(--color-border-default);
+}
+
+.amount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.fieldLabel {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Three equal columns with 24 px gaps (51:1059). */
+.fields {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--spacing-24);
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.fieldValue {
+  margin: 0;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.fieldNote {
+  display: block;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+/* Header links (Search existing entries 38:7842, Dismiss selection) sit in the 20 px header row. */
+.headerLink {
+  height: 20px;
+}
+
+/* Signals in the AI rationale (design addition): 11/16 chips in the AI or warning tint. */
+.signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-6);
+  margin: var(--spacing-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.signal,
+.signalDiffers {
+  padding: 0 var(--spacing-6);
+  border-radius: var(--radius-4);
+  background: var(--color-ai-pill);
+  color: var(--color-ai-ink-strong);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-loose);
+}
+
+.signalDiffers {
+  background: var(--color-warning-pill);
+  color: var(--color-warning-ink-strong);
+}
+
+/* Create ledger entry rows (38:7860, 38:7870): 206 / 150 / 200 and 180 / 388, 12 px gaps. */
+.formRowTop,
+.formRowBottom,
+.formRowHalf {
+  display: grid;
+  gap: var(--spacing-12);
+  align-items: start;
+}
+
+.formRowTop {
+  grid-template-columns: 206fr 150fr 200fr;
+}
+
+.formRowBottom {
+  grid-template-columns: 180fr 388fr;
+}
+
+.formRowHalf {
+  grid-template-columns: 1fr 1fr;
+}
+
+.formRowTop > *,
+.formRowBottom > *,
+.formRowHalf > * {
+  width: 100%;
+  min-width: 0;
+}
+
+.summary {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+.ack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.ack label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.ack input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-text-primary);
+}
+
+.fieldHint,
+.fieldError {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.fieldError {
+  color: var(--color-warning-ink);
+}
+
+/* Leave unresolved note (design addition), on the card recipe. */
+.notePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: calc(var(--spacing-16) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+}
+
+.noteActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+}
+
+/* ----- Search card (38:6696) and proposed results menu (38:7275, 38:7320) ----- */
+
+.criteria {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.criteria strong {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.combo {
+  position: relative;
+}
+
+/* Search field (38:7288): 36 px, 12 px inset, 8 px gap, 16 px icon, focus as Field/Focus. */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: var(--size-control);
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+}
+
+.searchBox:focus-within {
+  padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
+  border: var(--border-width-focus) solid var(--color-focus);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.searchBox input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.searchBox input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.searchBox input:focus,
+.searchBox input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.clearQuery {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  cursor: pointer;
+}
+
+.popover {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--spacing-4));
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow: auto;
+  margin: 0;
+  padding: calc(var(--spacing-4) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
+  box-shadow: var(--shadow-card);
+  list-style: none;
+}
+
+.groupLabel {
+  padding: var(--spacing-6) var(--spacing-10) var(--spacing-2);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.keyword {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 32px;
+  padding: 0 var(--spacing-10);
+  border-radius: var(--radius-4);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  cursor: pointer;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-12);
+  padding: var(--spacing-6) var(--spacing-10);
+  border-radius: var(--radius-4);
+  cursor: pointer;
+}
+
+.optionActive {
+  background: var(--color-surface-subtle);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.optionTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.optionMeta {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}
+
+.optionAmount {
+  flex: none;
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-medium);
+}
+
+.noResults {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding: var(--spacing-8) var(--spacing-10);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
+.noResultsActions {
+  display: flex;
+  gap: var(--spacing-16);
+}
+
+.noResultsActions button {
+  height: 24px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.chipFilter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  height: 28px;
+  padding: 0 var(--spacing-4) 0 var(--spacing-10);
+  border-radius: var(--radius-4);
+  background: var(--color-surface-subtle);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+}
+
+.chipFilter button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-4);
+  background: transparent;
+  cursor: pointer;
+}
+
+.resultSummary {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-text-secondary);
+}

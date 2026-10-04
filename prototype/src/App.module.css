@@ -1,0 +1,26 @@
+.app {
+  display: grid;
+  grid-template-columns: var(--size-sidebar) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--color-surface-white);
+  color: var(--color-text-primary);
+}
+
+/* The column carries the sidebar fill so it runs the full page height while the sticky nav scrolls with the view. */
+.sidebar {
+  background: var(--color-surface-sidebar);
+  box-shadow: inset calc(-1 * var(--border-width)) 0 0 var(--color-border-default);
+}
+
+.content {
+  min-width: 0;
+}
+
+/* Top navigation (49:631): 64 px, breadcrumbs at 32 × 16, 1 px rule below. */
+.topNav {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 var(--spacing-32);
+  border-bottom: var(--border-width) solid var(--color-border-default);
+}
