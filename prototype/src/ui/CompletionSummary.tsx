@@ -6,7 +6,7 @@ import styles from './Summary.module.css'
 
 /**
  * Reconciliation summary (28:8924): 16 px inset card, three columns 394.67 px wide with 48 px gaps, 12/20 semibold
- * headings, 8 px between 11/16 label and 12/18 value rows. Updated per the PRD: record counts out of 14, created
+ * headings, 8 px between 11/16 label and 12/18 value rows. Updated per the PRD: record counts out of 24 (14 PRD exceptions plus the 5 auto-matched pairs), created
  * entries and the outstanding adjustment with its evidence, which Figma's eight-row version does not have.
  */
 export function CompletionSummary({ state }: { state: ReconState }) {

@@ -30,6 +30,9 @@ export function Reconciliation() {
 
       <Section title="Status pills" note="100 × 22, 4 px radius, 14 px glyph, 11/16 semibold. The label always names the status." tags={<Tag kind="observed" />}>
         <div className={styles.row}>
+          <Specimen label="Auto-matched" tags={<Tag kind="proposed" />} note="Yirang's design (2026-10-04): link ink on a light blue fill, label only.">
+            <StatusPill status="auto-matched" />
+          </Specimen>
           <Specimen label="Confirmed" note={<FigmaLink nodeId="49:703" />}>
             <StatusPill status="confirmed" />
           </Specimen>
@@ -47,8 +50,8 @@ export function Reconciliation() {
 
       <Section title="Notices" note="6 px radius, 1 px stroke. Page size for the Next step banner, inline size inside an expanded row." tags={<Tag kind="observed" />}>
         <div className={styles.stack}>
-          <Notice tone="info" size="page" title="14 unmatched records need attention">
-            Review 3 suggested matches, then resolve 8 unmatched records with no suggestion.
+          <Notice tone="info" size="page" title="24 records need review">
+            Review 5 auto-matched pairs, then review 3 suggested matches, then resolve 8 unmatched records with no suggestion.
           </Notice>
           <Notice tone="ai" title="Suggested match: 3 signals found">
             AI found an existing ledger entry that may match this bank transaction.
@@ -60,7 +63,7 @@ export function Reconciliation() {
             This bank debit has not been recorded in the books.
           </Notice>
           <Notice tone="success" size="page" title="November reconciliation completed" aside="Maya · Nov 30, 2025, 5:42 PM">
-            All 14 exception records are explained.
+            All 24 records are reviewed.
           </Notice>
         </div>
         <p className={styles.note}>

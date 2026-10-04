@@ -47,31 +47,11 @@ const ledger = (
   reference,
 })
 
-/** Already-matched background activity: five bank records and five ledger records, matched before Maya starts. */
-export const BACKGROUND_PAIRS: { bank: BankRecord; ledger: LedgerEntry }[] = [
-  {
-    bank: bank('BG-B1', '2025-11-03', 'Stripe payout', 1_250_000),
-    ledger: ledger('BG-L1', 'GL-1100', '2025-11-03', 'Stripe payout', 'Stripe', 1_250_000),
-  },
-  {
-    bank: bank('BG-B2', '2025-11-08', 'Acme payment', 840_000),
-    ledger: ledger('BG-L2', 'GL-1103', '2025-11-08', 'Acme payment', 'Acme Inc.', 840_000),
-  },
-  {
-    bank: bank('BG-B3', '2025-11-10', 'AWS', -125_000),
-    ledger: ledger('BG-L3', 'GL-1104', '2025-11-10', 'AWS', 'Amazon Web Services', -125_000),
-  },
-  {
-    bank: bank('BG-B4', '2025-11-15', 'Gusto payroll', -960_000),
-    ledger: ledger('BG-L4', 'GL-1106', '2025-11-15', 'Gusto payroll', 'Gusto', -960_000),
-  },
-  {
-    bank: bank('BG-B5', '2025-11-22', 'Figma subscription', -18_000),
-    ledger: ledger('BG-L5', 'GL-1109', '2025-11-22', 'Figma subscription', 'Figma', -18_000),
-  },
-]
-
-/** Seven bank exceptions. */
+/**
+ * Bank exceptions: the PRD's seven (B01–B07) plus the five auto-matched bank records (B08–B12). The PRD treated
+ * those five pairs as already reviewed; Yirang moved them into the register as Auto-matched items that still need
+ * review (2026-10-04), so they now count toward progress and completion.
+ */
 export const BANK_EXCEPTIONS: BankRecord[] = [
   bank('B01', '2025-11-04', 'ACH NORTH', -240_000, 'NS-1103'),
   bank('B02', '2025-11-12', 'DELTA PAY', 320_000, 'DEL-1111'),
@@ -80,9 +60,14 @@ export const BANK_EXCEPTIONS: BankRecord[] = [
   bank('B05', '2025-11-30', 'Monthly bank service fee', -1_500),
   bank('B06', '2025-11-25', 'Outgoing wire fee', -2_500),
   bank('B07', '2025-11-27', 'Account service charge', -8_000),
+  bank('B08', '2025-11-03', 'Stripe payout', 1_250_000),
+  bank('B09', '2025-11-08', 'Acme payment', 840_000),
+  bank('B10', '2025-11-10', 'AWS', -125_000),
+  bank('B11', '2025-11-15', 'Gusto payroll', -960_000),
+  bank('B12', '2025-11-22', 'Figma subscription', -18_000),
 ]
 
-/** Seven ledger exceptions. */
+/** Ledger exceptions: the PRD's seven (L01–L07) plus the five auto-matched ledger entries (L08–L12). */
 export const LEDGER_EXCEPTIONS: LedgerEntry[] = [
   ledger('L01', 'GL-1101', '2025-11-03', 'ACH Northstar Hosting', 'Northstar Hosting', -240_000, 'NS-1103'),
   ledger('L02', 'GL-1105', '2025-11-11', 'DELTA PAY receipt', 'Delta Corp', 320_000, 'DEL-1111'),
@@ -91,12 +76,18 @@ export const LEDGER_EXCEPTIONS: LedgerEntry[] = [
   ledger('L05', 'GL-1112', '2025-11-28', 'Check 1042 · Riverside Janitorial', 'Riverside Janitorial', -60_000, 'CHK-1042'),
   ledger('L06', 'GL-1113', '2025-11-30', 'Deposit DEP-1130 · Orbit Labs payment', 'Orbit Labs', 100_000, 'DEP-1130'),
   ledger('L07', 'GL-1114', '2025-11-30', 'Transfer TR-1130 to Chase Savings ••7710', 'Chase Savings ••7710', -20_000, 'TR-1130'),
+  ledger('L08', 'GL-1100', '2025-11-03', 'Stripe payout', 'Stripe', 1_250_000),
+  ledger('L09', 'GL-1103', '2025-11-08', 'Acme payment', 'Acme Inc.', 840_000),
+  ledger('L10', 'GL-1104', '2025-11-10', 'AWS', 'Amazon Web Services', -125_000),
+  ledger('L11', 'GL-1106', '2025-11-15', 'Gusto payroll', 'Gusto', -960_000),
+  ledger('L12', 'GL-1109', '2025-11-22', 'Figma subscription', 'Figma', -18_000),
 ]
 
 /** Simulated AI suggestions. B03–L03 is deliberately wrong: the correct pairs are B03–L04 and B04–L03. */
 export const SUGGESTIONS: Suggestion[] = [
   {
     id: 'S1',
+    kind: 'suggested',
     bankId: 'B01',
     ledgerId: 'L01',
     headline: 'Suggested match: 3 signals found',
@@ -110,6 +101,7 @@ export const SUGGESTIONS: Suggestion[] = [
   },
   {
     id: 'S2',
+    kind: 'suggested',
     bankId: 'B02',
     ledgerId: 'L02',
     headline: 'Suggested match: 3 signals found',
@@ -123,6 +115,7 @@ export const SUGGESTIONS: Suggestion[] = [
   },
   {
     id: 'S3',
+    kind: 'suggested',
     bankId: 'B03',
     ledgerId: 'L03',
     headline: 'Suggested match: 2 signals found',
@@ -135,6 +128,28 @@ export const SUGGESTIONS: Suggestion[] = [
     ],
   },
 ]
+
+/** The five pairs the bank feed matched automatically (formerly "Already matched"). Each still needs Maya's review. */
+export const AUTO_MATCHES: Suggestion[] = (
+  [
+    ['A1', 'B08', 'L08'],
+    ['A2', 'B09', 'L09'],
+    ['A3', 'B10', 'L10'],
+    ['A4', 'B11', 'L11'],
+    ['A5', 'B12', 'L12'],
+  ] as const
+).map(([id, bankId, ledgerId]) => ({
+  id,
+  kind: 'auto',
+  bankId,
+  ledgerId,
+  headline: 'Automatically matched · Awaiting your review',
+  detail: 'Review the bank transaction and ledger entry, then confirm the match.',
+  signals: [],
+}))
+
+/** Every proposed pairing Maya reviews: simulated AI suggestions and automatic matches. */
+export const PROPOSALS: Suggestion[] = [...SUGGESTIONS, ...AUTO_MATCHES]
 
 /** Corresponding December activity outside the November statement, plus one unrelated item. */
 export const DECEMBER_ACTIVITY: EvidenceItem[] = [

@@ -56,6 +56,11 @@ export interface Signal {
 
 export interface Suggestion {
   id: string
+  /**
+   * "suggested": a simulated AI suggestion. "auto": a pair the bank feed matched automatically, which still
+   * needs Maya's review (Yirang, 2026-10-04). Both use the same review actions.
+   */
+  kind: 'suggested' | 'auto'
   bankId: string
   ledgerId: string
   headline: string

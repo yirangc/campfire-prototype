@@ -12,7 +12,6 @@ import {
   type ReviewCase,
 } from '../domain/selectors'
 import type { Recon } from '../useRecon'
-import { BackgroundPairs } from './BackgroundPairs'
 import { CompletionSummary } from './CompletionSummary'
 import { HistoryPanel } from './HistoryPanel'
 import { Register } from './Register'
@@ -58,11 +57,13 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const visible = cases.filter((c) => inTab(c) && caseMatchesQuery(c, query))
   const lastUndo = state.undoStack.at(-1)
 
+  // Tab order from Yirang's design (2026-10-04). Counts are records, derived from the current state.
   const tabs: TabItem[] = [
     { value: 'all', label: `All (${counts.all})`, width: 96, panelId: 'exceptions-register' },
-    { value: 'confirmed', label: `Confirmed (${counts.confirmed})`, width: 132, panelId: 'exceptions-register' },
+    { value: 'auto-matched', label: `Auto-matched (${counts.autoMatched})`, width: 156, panelId: 'exceptions-register' },
     { value: 'suggested', label: `Suggested (${counts.suggested})`, width: 132, panelId: 'exceptions-register' },
     { value: 'unmatched', label: `Unmatched (${counts.unmatched})`, width: 132, panelId: 'exceptions-register' },
+    { value: 'confirmed', label: `Confirmed (${counts.confirmed})`, width: 132, panelId: 'exceptions-register' },
     { value: 'outstanding', label: `Outstanding (${counts.outstanding})`, width: 132, panelId: 'exceptions-register' },
   ]
 
@@ -107,6 +108,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
       `Remaining difference,${(totals.difference / 100).toFixed(2)}`,
       `Confirmed records,${counts.confirmed}`,
       `Outstanding records,${counts.outstanding}`,
+      `Auto-matched records awaiting review,${counts.autoMatched}`,
       `Unmatched records,${counts.unmatched}`,
       '',
       'History',
@@ -122,17 +124,19 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
 
   const nextStep = () => {
     if (counts.unresolved === 0 && totals.difference === 0)
-      return { title: 'Ready to complete', detail: `All ${counts.all} exception records are explained and the remaining difference is $0.00.` }
+      return { title: 'Ready to complete', detail: `All ${counts.all} records are explained and the remaining difference is $0.00.` }
+    const autoPairs = cases.filter((c) => c.status === 'auto-matched').length
     const suggestedPairs = cases.filter((c) => c.status === 'suggested').length
     const noSuggestion = counts.unmatched - counts.suggested
     const parts = [
+      autoPairs ? `review ${autoPairs} auto-matched ${autoPairs === 1 ? 'pair' : 'pairs'}` : '',
       suggestedPairs ? `review ${suggestedPairs} suggested ${suggestedPairs === 1 ? 'match' : 'matches'}` : '',
       noSuggestion ? `resolve ${noSuggestion} unmatched ${noSuggestion === 1 ? 'record' : 'records'} with no suggestion` : '',
     ].filter(Boolean)
     const detail = parts.length
       ? `${parts.join(', then ').replace(/^./, (c) => c.toUpperCase())}. ${counts.explained} of ${counts.all} explained.`
       : `All records are explained, but the remaining difference is ${money(totals.difference)}.`
-    return { title: `${counts.unmatched} unmatched ${counts.unmatched === 1 ? 'record needs' : 'records need'} attention`, detail }
+    return { title: `${counts.unresolved} ${counts.unresolved === 1 ? 'record needs' : 'records need'} review`, detail }
   }
   const step = nextStep()
 
@@ -237,7 +241,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
         <span>Outstanding deposits <strong>{signed(totals.outstandingDeposits)}</strong></span>
         <span>Outstanding withdrawals <strong>{signed(totals.outstandingWithdrawals)}</strong></span>
         <span>Net adjustment <strong>{signed(totals.outstandingNet)}</strong></span>
-        <span className="cf-text-secondary">Progress: {counts.explained} of {counts.all} exception records explained</span>
+        <span className="cf-text-secondary">Progress: {counts.explained} of {counts.all} records reviewed</span>
       </p>
 
       <div className={styles.workspace}>
@@ -249,7 +253,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
               title="November reconciliation completed"
               aside={`${state.completion.completedBy} · ${timestamp(state.completion.completedAt!)}`}
             >
-              All {counts.all} exception records are explained: {counts.confirmed} confirmed, {counts.outstanding} outstanding. Reopen the
+              All {counts.all} records are reviewed: {counts.confirmed} confirmed, {counts.outstanding} outstanding. Reopen the
               reconciliation to make changes.
             </Notice>
             <CompletionSummary state={state} />
@@ -285,12 +289,9 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
         <section className={styles.transactions} aria-labelledby="transactions-title">
           <div className={styles.workspaceHeading}>
             <h2 id="transactions-title" className={styles.sectionTitle}>
-              Exceptions to review
+              Transactions
             </h2>
-            <p className="cf-text-caption cf-text-secondary">
-              {BANK_EXCEPTIONS.length} bank transactions / {LEDGER_EXCEPTIONS.length} ledger entries · {cases.length} review cases
-              {state.generated.length > 0 && ` · ${state.generated.length} created ${state.generated.length === 1 ? 'entry' : 'entries'}`}
-            </p>
+            <p className={styles.periodNote}>November 2025 · USD</p>
           </div>
           <div className={styles.searchRow}>
             <label className={styles.searchField}>
@@ -303,19 +304,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
                 onChange={(e) => setQuery(e.target.value)}
               />
             </label>
-            <Select
-              aria-label="Status filter"
-              className={styles.statusFilter}
-              options={[
-                { value: 'all', label: 'All statuses' },
-                { value: 'confirmed', label: 'Confirmed' },
-                { value: 'suggested', label: 'Suggested' },
-                { value: 'unmatched', label: 'Unmatched' },
-                { value: 'outstanding', label: 'Outstanding' },
-              ]}
-              value={tab}
-              onChange={(v) => setTab(v as TabValue)}
-            />
           </div>
           {/* On narrow screens the tab strip scrolls on its own instead of widening the page. */}
           <div className={styles.tabScroller}>
@@ -323,7 +311,10 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           </div>
           <div className={styles.registerFooter}>
             <p className="cf-text-caption cf-text-secondary">
-              Showing {visible.length} of {cases.length} review cases · counts are records ({counts.all} in total) · USD
+              {tab === 'auto-matched'
+                ? `${visible.length} auto-matched ${visible.length === 1 ? 'pair' : 'pairs'} · ${counts.autoMatched} ${counts.autoMatched === 1 ? 'record' : 'records'} awaiting review`
+                : `Showing ${visible.length} of ${cases.length} review cases · ${BANK_EXCEPTIONS.length} bank transactions / ${LEDGER_EXCEPTIONS.length} ledger entries · counts are records (${counts.all} in total)`}
+              {state.generated.length > 0 && ` · ${state.generated.length} created ${state.generated.length === 1 ? 'entry' : 'entries'}`}
             </p>
             <p className={styles.movement}>
               Net change in bank balance: <span className={styles.num}>{signed(totals.netBankMovement)}</span>
@@ -343,8 +334,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
             />
           </div>
         </section>
-
-        <BackgroundPairs />
 
         <HistoryPanel state={state} onUndo={undo} />
       </div>
@@ -378,7 +367,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
         }
       >
         <p className="cf-text-body">
-          This restores the original November data: 5 background pairs and 14 unexplained records. Your matches, created entries,
+          This restores the original November data: 24 records to review, including 5 auto-matched pairs. Your matches, created entries,
           evidence, notes, drafts and history will be cleared. This can't be undone.
         </p>
       </Modal>

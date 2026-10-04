@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, Icon, Notice } from '../../../src/components'
 import type { FieldErrors, Result } from '../domain/engine'
-import { ACCOUNT, PERIOD, SUGGESTIONS, TIMING_CATEGORIES } from '../domain/fixture'
+import { ACCOUNT, PERIOD, PROPOSALS, TIMING_CATEGORIES } from '../domain/fixture'
 import { longDate, money, signed } from '../domain/format'
 import {
   eligibleCandidates,
@@ -74,7 +74,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
   const lastUndo = state.undoStack[state.undoStack.length - 1]
   const canUndoHere =
     !locked && !!lastUndo && lastUndo.recordIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId)
-  const dismissed = draft.dismissedSuggestionId ? SUGGESTIONS.find((s) => s.id === draft.dismissedSuggestionId) : undefined
+  const dismissed = draft.dismissedSuggestionId ? PROPOSALS.find((s) => s.id === draft.dismissedSuggestionId) : undefined
   const showDismissed = c.status === 'unmatched' && !!dismissed && state.dismissed.includes(dismissed.id)
 
   // ----- actions -----
@@ -111,7 +111,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       note: draft.note,
       dismissedSuggestionId: s.id,
     })
-    succeed(`Suggestion dismissed. ${s.bankId} and ${c.ledger!.entryId} remain unresolved.`, false)
+    succeed(`${s.kind === 'auto' ? 'Auto-match' : 'Suggestion'} dismissed. ${s.bankId} and ${c.ledger!.entryId} are now unmatched.`, false)
   }
 
   const restoreSuggestion = () => {
@@ -119,7 +119,8 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     const result = dispatch({ type: 'restore-suggestion', suggestionId: dismissed.id })
     if (!result.ok) return fail(result)
     setDraft(c.key, null)
-    succeed(`Suggestion restored: ${dismissed.bankId} and ${ledgerRecord(state, dismissed.ledgerId)?.entryId} are suggested again.`, false)
+    const again = dismissed.kind === 'auto' ? 'auto-matched' : 'suggested'
+    succeed(`${dismissed.kind === 'auto' ? 'Auto-match' : 'Suggestion'} restored: ${dismissed.bankId} and ${ledgerRecord(state, dismissed.ledgerId)?.entryId} are ${again} again.`, false)
   }
 
   const focusFirstInvalid = (errors: FieldErrors, ids: Record<string, string>) => {
@@ -205,7 +206,15 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       </Notice>,
     )
   }
-  if (c.status === 'suggested' && c.suggestion) {
+  if (c.status === 'auto-matched' && c.suggestion) {
+    // Yirang's design (2026-10-04): a plain heading and line, not a notice box.
+    notices.push(
+      <div key="auto" className={styles.autoIntro}>
+        <p className={styles.autoTitle}>{c.suggestion.headline}</p>
+        <p className={styles.autoDetail}>{c.suggestion.detail}</p>
+      </div>,
+    )
+  } else if (c.status === 'suggested' && c.suggestion) {
     notices.push(
       <Notice key="ai" tone="ai" title={c.suggestion.headline}>
         <p>{c.suggestion.detail}</p>
@@ -217,7 +226,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       <Notice
         key="dismissed"
         tone="info"
-        title="Suggestion dismissed"
+        title={dismissed.kind === 'auto' ? 'Auto-match dismissed' : 'Suggestion dismissed'}
         action={
           !locked && (
             <Button onClick={restoreSuggestion} aria-label={`Undo dismissing ${ledger?.entryId}`}>
@@ -294,7 +303,14 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     )
 
   let rightCard: React.ReactNode = null
-  if (c.status === 'suggested' && c.ledger) {
+  if (c.status === 'auto-matched' && c.ledger) {
+    rightCard = (
+      <Card labelledBy={`${idPrefix}-auto`} title="Ledger entry" chip={c.ledger.entryId}>
+        <Amount value={c.ledger.amount} />
+        <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Match status', value: 'Auto-matched · not confirmed' }])} />
+      </Card>
+    )
+  } else if (c.status === 'suggested' && c.ledger) {
     rightCard = (
       <Card labelledBy={`${idPrefix}-suggested`} title="Suggested ledger entry" chip={c.ledger.entryId} chipTone="ai">
         <Amount value={c.ledger.amount} />
@@ -399,7 +415,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
 
   let primary: React.ReactNode = null
   let secondary: React.ReactNode = null
-  if (!locked && c.status === 'suggested' && c.suggestion) {
+  if (!locked && (c.status === 'suggested' || c.status === 'auto-matched') && c.suggestion) {
     secondary = <Button size="compact" onClick={dismissSuggestion}>Dismiss suggestion</Button>
     primary = (
       <Button variant="primary" size="compact" onClick={() => confirmPair(c.suggestion!.bankId, c.suggestion!.ledgerId, 'suggestion')}>
@@ -444,7 +460,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       )
     }
   }
-  const canLeave = !locked && (c.status === 'unmatched' || c.status === 'suggested')
+  const canLeave = !locked && (c.status === 'unmatched' || c.status === 'suggested' || c.status === 'auto-matched')
 
   return (
     <div className={styles.detail}>

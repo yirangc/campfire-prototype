@@ -45,6 +45,7 @@
   --color-info-surface: #f5f6f7;      /* "Suggestion dismissed" notice fill */
   --color-info-border: #e2e5e7;       /* "Suggestion dismissed" notice stroke */
   --color-link: #1a65f8;              /* Text actions: Leave Unresolved, Search existing entries, Dismiss selection */
+  --color-link-surface: #e3ecfc;      /* Auto-matched pill fill, from Yirang's design (2026-10-04); not in Figma */
   --color-surface-expanded: #fafbfa;  /* Expanded transaction detail */
 
   /* ---- Color / suggested grayscale (Figma: "suggestions, not extracted product colors") ---- */

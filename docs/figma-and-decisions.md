@@ -42,11 +42,12 @@ Component frames carry their own node ids in code comments, in `src/assets/manif
 
 The PRD sets behavior, data and calculations; Figma sets the visual design. Where they conflict the PRD wins, and the difference is listed here and in the flags.
 
-- **Data.** The Figma frames' eight-row November, their balances and "John Glasgow" are replaced by the PRD dataset (14 exceptions in 11 cases, 5 background pairs) and Maya.
-- **Counts and heading.** Tabs count the 14 original exception records. Unmatched counts every record not yet confirmed or documented, suggested pairs included (14 at the start, with Suggested 6 as a subset), at Yirang's request; the PRD splits them 6 / 8. The register is titled "Exceptions to review" and background pairs sit in their own "Already matched: 5 pairs" section.
+- **Data.** The Figma frames' eight-row November, their balances and "John Glasgow" are replaced by the PRD dataset and Maya. The PRD's 5 background pairs are Auto-matched items in the main table that need review (Yirang's design, 2026-10-04): 24 records in 16 cases.
+- **Counts and heading.** The register is titled "Transactions". Tabs count the 24 original records: All, Auto-matched (10), Suggested (6), Unmatched (14), Confirmed, Outstanding. Unmatched includes suggested pairs (Yirang's request; the PRD splits them 6 / 8) but not auto-matched ones, which block completion until reviewed. The status dropdown is gone (not in the design).
+- **Auto-matched.** Blue pill (link ink on #E3ECFC from the design; no link glyph, which Figma's icon set lacks). The expanded row reuses the suggested-match layout and actions. Unconfirmed pairs don't clear, so cleared starts at $100,000.00 (PRD: $109,870.00); the finish is unchanged.
 - **Action column.** Kept in every state (it appears only in 28:8442) so the Undo link has a fixed place.
 - **Expense form.** "Paid from" (PRD) instead of "Payment account". Fields are the 34 px compact size drawn in that frame.
-- **Completed summary.** Records out of 14, created entries, and the outstanding adjustment with evidence, instead of "8 of 8 transactions".
+- **Completed summary.** Records out of 24, created entries, and the outstanding adjustment with evidence, instead of "8 of 8 transactions".
 - **Design additions** (PRD, no Figma frame): Outstanding pill, tab and form; search empty results; separate-expense acknowledgement; history; save-failure, blocked-completion and recovery notices; reopen; demo reset. They reuse existing tokens and components.
 - **Field errors** use warning ink (proposed). No new color was added.
 

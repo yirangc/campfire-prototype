@@ -74,7 +74,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
       <thead>
         <tr>
           <th scope="col">
-            <span className="cf-visually-hidden">Transaction</span>
+            Transaction
           </th>
           <th scope="col">Bank amount</th>
           <th scope="col">Ledger amount</th>

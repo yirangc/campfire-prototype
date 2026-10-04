@@ -4,13 +4,12 @@
  */
 import {
   ACCOUNT,
-  BACKGROUND_PAIRS,
   BANK_EXCEPTIONS,
   DECEMBER_ACTIVITY,
   LEDGER_EXCEPTIONS,
   OPENING_BALANCE,
   ORIGINAL_EXCEPTION_IDS,
-  SUGGESTIONS,
+  PROPOSALS,
 } from './fixture'
 import { daysBetween, money } from './format'
 import type {
@@ -26,7 +25,7 @@ import type {
   Suggestion,
 } from './types'
 
-export type RecordStatus = 'suggested' | 'unmatched' | 'confirmed' | 'outstanding'
+export type RecordStatus = 'auto-matched' | 'suggested' | 'unmatched' | 'confirmed' | 'outstanding'
 
 const bankById = new Map(BANK_EXCEPTIONS.map((r) => [r.id, r]))
 const ledgerById = new Map(LEDGER_EXCEPTIONS.map((r) => [r.id, r]))
@@ -53,7 +52,7 @@ export const isExplained = (state: ReconState, id: string) => !!matchFor(state, 
 
 /** Suggestions that are still proposed: not dismissed, and neither record explained elsewhere. */
 export function activeSuggestions(state: ReconState): Suggestion[] {
-  return SUGGESTIONS.filter(
+  return PROPOSALS.filter(
     (s) => !state.dismissed.includes(s.id) && !isExplained(state, s.bankId) && !isExplained(state, s.ledgerId),
   )
 }
@@ -61,11 +60,14 @@ export function activeSuggestions(state: ReconState): Suggestion[] {
 export function recordStatus(state: ReconState, id: string): RecordStatus {
   if (matchFor(state, id)) return 'confirmed'
   if (outstandingFor(state, id)) return 'outstanding'
-  if (activeSuggestions(state).some((s) => s.bankId === id || s.ledgerId === id)) return 'suggested'
+  const proposal = activeSuggestions(state).find((s) => s.bankId === id || s.ledgerId === id)
+  if (proposal) return proposal.kind === 'auto' ? 'auto-matched' : 'suggested'
   return 'unmatched'
 }
 
 export interface StatusCounts {
+  /** Records in an automatic match awaiting review. Not counted as unmatched, but still unresolved. */
+  autoMatched: number
   /** Unmatched records that have an active suggested match (a subset of `unmatched`). */
   suggested: number
   /** Every record not yet confirmed or documented as outstanding, suggested pairs included. */
@@ -78,15 +80,25 @@ export interface StatusCounts {
 }
 
 /**
- * Record-based counts over the 14 original exception records. Generated entries are never counted.
- * Each transaction counts once: a suggested pair is two unmatched records until it is confirmed,
- * so `unmatched` includes the suggested records (Yirang's request; the PRD splits them 6 / 8).
+ * Record-based counts over the 24 original records (14 PRD exceptions and the 10 records in auto-matched pairs).
+ * Generated entries are never counted. Each transaction counts once: a suggested pair is two unmatched records
+ * until it is confirmed, so `unmatched` includes the suggested records (Yirang's request; the PRD splits them
+ * 6 / 8). Auto-matched records have their own count and are not unmatched, but they block completion until reviewed.
  */
 export function statusCounts(state: ReconState): StatusCounts {
-  const counts = { suggested: 0, unmatched: 0, confirmed: 0, outstanding: 0 }
+  const counts = { 'auto-matched': 0, suggested: 0, unmatched: 0, confirmed: 0, outstanding: 0 }
   for (const id of ORIGINAL_EXCEPTION_IDS) counts[recordStatus(state, id)] += 1
-  const unresolved = counts.suggested + counts.unmatched
-  return { ...counts, unmatched: unresolved, all: ORIGINAL_EXCEPTION_IDS.length, unresolved, explained: ORIGINAL_EXCEPTION_IDS.length - unresolved }
+  const { 'auto-matched': autoMatched, ...rest } = counts
+  const unmatched = counts.suggested + counts.unmatched
+  const unresolved = unmatched + autoMatched
+  return {
+    ...rest,
+    autoMatched,
+    unmatched,
+    all: ORIGINAL_EXCEPTION_IDS.length,
+    unresolved,
+    explained: ORIGINAL_EXCEPTION_IDS.length - unresolved,
+  }
 }
 
 export type CaseStatus = RecordStatus
@@ -105,7 +117,7 @@ export interface ReviewCase {
   date: string
 }
 
-/** Groups the 14 records into review cases. Each record appears in exactly one case. */
+/** Groups the 24 records into review cases. Each record appears in exactly one case. */
 export function reviewCases(state: ReconState): ReviewCase[] {
   const cases: ReviewCase[] = []
   const used = new Set<string>()
@@ -122,7 +134,8 @@ export function reviewCases(state: ReconState): ReviewCase[] {
     const ledger = ledgerRecord(state, suggestion.ledgerId)!
     used.add(bank.id)
     used.add(ledger.id)
-    cases.push({ key: bank.id, status: 'suggested', bank, ledger, suggestion, recordIds: [bank.id, ledger.id], date: bank.date })
+    const status = suggestion.kind === 'auto' ? 'auto-matched' : 'suggested'
+    cases.push({ key: bank.id, status, bank, ledger, suggestion, recordIds: [bank.id, ledger.id], date: bank.date })
   }
   for (const doc of state.outstanding) {
     const ledger = ledgerRecord(state, doc.ledgerId)!
@@ -154,13 +167,13 @@ export interface Balances {
 const sum = (values: Cents[]) => values.reduce((total, value) => total + value, 0)
 
 export function balances(state: ReconState): Balances {
-  const backgroundBank = sum(BACKGROUND_PAIRS.map((p) => p.bank.amount))
-  const backgroundLedger = sum(BACKGROUND_PAIRS.map((p) => p.ledger.amount))
-  const netBankMovement = backgroundBank + sum(BANK_EXCEPTIONS.map((r) => r.amount))
+  // Every November record is in the register once: the auto-matched pairs are no longer added separately.
+  const netBankMovement = sum(BANK_EXCEPTIONS.map((r) => r.amount))
   const statementClosing = OPENING_BALANCE + netBankMovement
-  const book =
-    OPENING_BALANCE + backgroundLedger + sum(LEDGER_EXCEPTIONS.map((r) => r.amount)) + sum(state.generated.map((r) => r.amount))
-  const cleared = OPENING_BALANCE + backgroundBank + sum(state.matches.map((m) => bankRecord(m.bankId)!.amount))
+  const book = OPENING_BALANCE + sum(LEDGER_EXCEPTIONS.map((r) => r.amount)) + sum(state.generated.map((r) => r.amount))
+  // Only confirmed matches clear. An auto-matched pair clears when Maya confirms it, so cleared starts at the
+  // opening balance ($100,000.00) instead of the PRD's $109,870.00, and still ends at $109,650.00.
+  const cleared = OPENING_BALANCE + sum(state.matches.map((m) => bankRecord(m.bankId)!.amount))
   const outstandingAmounts = state.outstanding.map((o) => ledgerRecord(state, o.ledgerId)!.amount)
   const outstandingDeposits = sum(outstandingAmounts.filter((a) => a > 0))
   const outstandingWithdrawals = sum(outstandingAmounts.filter((a) => a < 0))
@@ -181,10 +194,15 @@ export function completionBlockers(state: ReconState): string[] {
   const counts = statusCounts(state)
   const { difference } = balances(state)
   const blockers: string[] = []
-  if (counts.unresolved > 0) {
+  if (counts.autoMatched > 0) {
+    blockers.push(
+      `${counts.autoMatched} of ${counts.all} records are auto-matched and still need your review. Confirm or dismiss each auto-matched pair.`,
+    )
+  }
+  if (counts.unmatched > 0) {
     const suggested = counts.suggested ? ` (${counts.suggested} of them ${counts.suggested === 1 ? 'has' : 'have'} a suggested match)` : ''
     blockers.push(
-      `${counts.unresolved} of ${counts.all} exception records are still unmatched${suggested}. Every record needs a match or documented outstanding evidence.`,
+      `${counts.unmatched} of ${counts.all} records are still unmatched${suggested}. Every record needs a match or documented outstanding evidence.`,
     )
   }
   if (difference !== 0) {

@@ -162,6 +162,12 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.periodNote {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
 .searchRow {
   display: flex;
   align-items: center;
@@ -205,10 +211,6 @@
   box-shadow: none;
 }
 
-.statusFilter {
-  width: 160px;
-  flex: none;
-}
 
 .tabScroller {
   overflow-x: auto;
@@ -297,15 +299,4 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .searchRow {
-    flex-wrap: wrap;
-  }
-
-  .searchField {
-    flex-basis: 100%;
-  }
-
-  .statusFilter {
-    width: 100%;
-  }
 }

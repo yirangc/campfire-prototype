@@ -13,6 +13,12 @@
   white-space: nowrap;
 }
 
+/* Yirang's design (2026-10-04): reserved for automatic matches awaiting review; green stays for user-approved matches. */
+.autoMatched {
+  background: var(--color-link-surface);
+  color: var(--color-link);
+}
+
 .confirmed {
   background: var(--color-success-surface);
   color: var(--color-success-ink);

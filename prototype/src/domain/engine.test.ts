@@ -33,6 +33,13 @@ const expense = (bankId: string, date: string, description: string): Action => (
   acknowledgedSeparate: false,
 })
 
+const AUTO_CONFIRMS: Action[] = (['08', '09', '10', '11', '12'] as const).map((n) => ({
+  type: 'confirm-match',
+  bankId: `B${n}`,
+  ledgerId: `L${n}`,
+  source: 'suggestion',
+}))
+
 const FINISH: Action[] = [
   { type: 'confirm-match', bankId: 'B01', ledgerId: 'L01', source: 'suggestion' },
   { type: 'confirm-match', bankId: 'B02', ledgerId: 'L02', source: 'suggestion' },
@@ -45,40 +52,45 @@ const FINISH: Action[] = [
   { type: 'document-outstanding', ledgerId: 'L05', category: 'outstanding-check', explanation: 'Check cleared Dec 2', evidenceId: 'D02' },
   { type: 'document-outstanding', ledgerId: 'L06', category: 'deposit-in-transit', explanation: 'Deposited Nov 30, credited Dec 1', evidenceId: 'D01' },
   { type: 'document-outstanding', ledgerId: 'L07', category: 'outstanding-withdrawal', explanation: 'Transfer posted Dec 3', evidenceId: 'D03' },
+  ...AUTO_CONFIRMS,
 ]
 
 describe('initial fixture', () => {
   const state = initialState()
 
-  it('counts 14 exception records in 11 review cases, separate from the 5 background pairs', () => {
-    expect(statusCounts(state)).toMatchObject({ all: 14, suggested: 6, unmatched: 14, confirmed: 0, outstanding: 0, unresolved: 14 })
+  it('counts 24 records in 16 review cases, the 5 auto-matched pairs included once each', () => {
+    expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 14, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
     const cases = reviewCases(state)
-    expect(cases).toHaveLength(11)
-    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(3)
-    expect(cases.flatMap((c) => c.recordIds).sort()).toHaveLength(14)
-    expect(cases.some((c) => c.recordIds.some((id) => id.startsWith('BG')))).toBe(false)
+    expect(cases).toHaveLength(16)
+    expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(5)
+    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(8)
+    const ids = cases.flatMap((c) => c.recordIds)
+    expect(ids).toHaveLength(24)
+    expect(new Set(ids).size).toBe(24)
   })
 
   it('derives the initial balances from the PRD', () => {
     expect(balances(state)).toMatchObject({
       statementClosing: 10_965_000,
       book: 10_997_000,
-      cleared: 10_987_000,
+      // Unconfirmed auto-matched pairs do not clear, so cleared starts at the opening balance (PRD: $109,870.00).
+      cleared: 10_000_000,
       difference: 32_000,
       outstandingNet: 0,
     })
   })
 
   it('offers the three initial suggestions, including the wrong Alder/Birch pair', () => {
-    expect(activeSuggestions(state).map((s) => `${s.bankId}-${s.ledgerId}`)).toEqual(['B01-L01', 'B02-L02', 'B03-L03'])
+    expect(activeSuggestions(state).filter((s) => s.kind === 'suggested').map((s) => `${s.bankId}-${s.ledgerId}`)).toEqual(['B01-L01', 'B02-L02', 'B03-L03'])
+    expect(activeSuggestions(state).filter((s) => s.kind === 'auto').map((s) => `${s.bankId}-${s.ledgerId}`)).toEqual(['B08-L08', 'B09-L09', 'B10-L10', 'B11-L11', 'B12-L12'])
   })
 })
 
 describe('finishing the fixture', () => {
   const finished = run(initialState(), ...FINISH)
 
-  it('ends at 11 confirmed, 3 outstanding, 0 unresolved and a zero difference', () => {
-    expect(statusCounts(finished)).toMatchObject({ confirmed: 11, outstanding: 3, unresolved: 0, explained: 14 })
+  it('ends at 21 confirmed, 3 outstanding, 0 unresolved and a zero difference', () => {
+    expect(statusCounts(finished)).toMatchObject({ confirmed: 21, outstanding: 3, autoMatched: 0, unresolved: 0, explained: 24 })
     expect(balances(finished)).toMatchObject({
       statementClosing: 10_965_000,
       book: 10_985_000,
@@ -99,7 +111,7 @@ describe('finishing the fixture', () => {
       expect(debit).toBe(credit)
       expect(entry.generatedFrom).toMatch(/^B0[567]$/)
     }
-    expect(statusCounts(finished).all).toBe(14)
+    expect(statusCounts(finished).all).toBe(24)
   })
 
   it('completes, locks accounting actions, and reopens with resolutions and history preserved', () => {
@@ -111,7 +123,7 @@ describe('finishing the fixture', () => {
     expect(reopened.completion.status).toBe('in_progress')
     expect(reopened.outstanding).toHaveLength(3)
     expect(reopened.history.map((h) => h.type).slice(-2)).toEqual(['complete', 'reopen'])
-    expect(statusCounts(reopened).explained).toBe(14)
+    expect(statusCounts(reopened).explained).toBe(24)
   })
 })
 
@@ -177,7 +189,7 @@ describe('match rules', () => {
 
   it('confirming a different pair retires the stale suggestion and leaves its partner unmatched', () => {
     const s = run(initialState(), { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
-    expect(activeSuggestions(s).map((x) => x.id)).toEqual(['S1', 'S2'])
+    expect(activeSuggestions(s).map((x) => x.id)).toEqual(['S1', 'S2', 'A1', 'A2', 'A3', 'A4', 'A5'])
     expect(recordStatus(s, 'B03')).toBe('unmatched')
     expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 12, confirmed: 2 })
   })
@@ -188,7 +200,7 @@ describe('dismissal and its undo', () => {
     let s = run(initialState(), { type: 'dismiss-suggestion', suggestionId: 'S3' })
     expect(recordStatus(s, 'B03')).toBe('unmatched')
     expect(recordStatus(s, 'L03')).toBe('unmatched')
-    expect(reviewCases(s)).toHaveLength(12)
+    expect(reviewCases(s)).toHaveLength(17)
     const restored = run(s, { type: 'restore-suggestion', suggestionId: 'S3' })
     expect(recordStatus(restored, 'B03')).toBe('suggested')
     s = run(s, { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
@@ -196,6 +208,45 @@ describe('dismissal and its undo', () => {
       ok: false,
       reason: expect.stringContaining('GL-1108'),
     })
+  })
+})
+
+describe('auto-matched pairs', () => {
+  it('confirming moves both records to Confirmed, clears the bank amount and undoes like any match', () => {
+    const start = initialState()
+    const s = run(start, AUTO_CONFIRMS[0])
+    expect(recordStatus(s, 'B08')).toBe('confirmed')
+    expect(recordStatus(s, 'L08')).toBe('confirmed')
+    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, confirmed: 2, explained: 2 })
+    expect(balances(s).cleared).toBe(balances(start).cleared + 1_250_000)
+    expect(balances(s).book).toBe(balances(start).book)
+    const undone = run(s, { type: 'undo' })
+    expect(recordStatus(undone, 'B08')).toBe('auto-matched')
+    expect(statusCounts(undone)).toEqual(statusCounts(start))
+    expect(balances(undone)).toEqual(balances(start))
+  })
+
+  it('dismissing returns both records to Unmatched, searchable, and restorable', () => {
+    const start = initialState()
+    const s = run(start, { type: 'dismiss-suggestion', suggestionId: 'A3' })
+    expect(recordStatus(s, 'B10')).toBe('unmatched')
+    expect(recordStatus(s, 'L10')).toBe('unmatched')
+    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, unmatched: 16, all: 24 })
+    expect(balances(s)).toEqual(balances(start))
+    expect(eligibleCandidates(s, 'B10').map((r) => r.id)).toEqual(['L10'])
+    expect(s.history.at(-1)?.summary).toContain('auto-match')
+    const restored = run(s, { type: 'restore-suggestion', suggestionId: 'A3' })
+    expect(recordStatus(restored, 'B10')).toBe('auto-matched')
+    const searched = run(s, { type: 'confirm-match', bankId: 'B10', ledgerId: 'L10', source: 'search' })
+    expect(recordStatus(searched, 'L10')).toBe('confirmed')
+  })
+
+  it('blocks completion until every auto-matched pair is reviewed', () => {
+    const almost = run(initialState(), ...FINISH.slice(0, -1))
+    expect(balances(almost).difference).toBe(0)
+    expect(completionBlockers(almost)).toEqual([expect.stringContaining('2 of 24 records are auto-matched')])
+    expect(reduce(almost, { type: 'complete' }, AT).ok).toBe(false)
+    expect(reduce(run(almost, FINISH.at(-1)!), { type: 'complete' }, AT).ok).toBe(true)
   })
 })
 
@@ -259,9 +310,10 @@ describe('undo order and completion blockers', () => {
 
   it('a zero difference with unresolved records is blocked', () => {
     // Expenses plus outstanding items bring the difference to zero while the Alder/Birch and suggested pairs remain open.
-    const s = run(initialState(), ...FINISH.slice(5))
+    const s = run(initialState(), ...FINISH.slice(5, 11))
     expect(balances(s).difference).toBe(0)
-    expect(completionBlockers(s)).toHaveLength(1)
+    // One blocker for the unreviewed auto-matched pairs, one for the unmatched records.
+    expect(completionBlockers(s)).toHaveLength(2)
     expect(reduce(s, { type: 'complete' }, AT).ok).toBe(false)
   })
 
@@ -295,6 +347,21 @@ describe('persistence', () => {
     expect(loaded.kind).toBe('ok')
     if (loaded.kind !== 'ok') return
     expect(reduce(loaded.state, expense('B05', 'Nov 30, 2025', 'Fee'), AT).ok).toBe(false)
+  })
+
+  it('reopens a save completed before the auto-matched pairs needed review, keeping every decision', () => {
+    const storage = memory()
+    // A save from before this change: the PRD's 14 records resolved and the reconciliation completed.
+    const old: ReconState = { ...run(initialState(), ...FINISH.slice(0, 11)), completion: { status: 'completed', completedAt: AT, completedBy: 'Maya' } }
+    save(old, AT, storage)
+    const loaded = load(storage)
+    expect(loaded.kind).toBe('ok')
+    if (loaded.kind !== 'ok') return
+    expect(loaded.state.completion.status).toBe('in_progress')
+    expect(loaded.state.matches).toEqual(old.matches)
+    expect(loaded.state.outstanding).toEqual(old.outstanding)
+    expect(loaded.state.history.at(-1)).toMatchObject({ type: 'reopen', summary: expect.stringContaining('auto-matched') })
+    expect(statusCounts(loaded.state)).toMatchObject({ confirmed: 11, outstanding: 3, autoMatched: 10 })
   })
 
   it('reports save failures instead of claiming success', () => {

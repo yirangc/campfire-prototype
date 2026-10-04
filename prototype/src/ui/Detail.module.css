@@ -14,6 +14,25 @@
   gap: var(--spacing-12);
 }
 
+/* Auto-matched intro (Yirang's design, 2026-10-04): 12/18 semibold title over a 12/18 secondary line. */
+.autoIntro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.autoTitle {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.autoDetail {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  color: var(--color-text-secondary);
+}
+
 /* Transaction comparison (51:1049): 612 | 12 | 32 arrow | 12 | 612. */
 .comparison {
   display: grid;

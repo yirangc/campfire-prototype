@@ -2,7 +2,8 @@
  * Local persistence. Progress is saved to localStorage after every change and restored on refresh.
  * Unreadable data is never discarded silently: load() reports it and the UI offers an explicit reset.
  */
-import { BANK_EXCEPTIONS, DECEMBER_ACTIVITY, LEDGER_EXCEPTIONS, SUGGESTIONS } from './fixture'
+import { BANK_EXCEPTIONS, DECEMBER_ACTIVITY, LEDGER_EXCEPTIONS, PROPOSALS } from './fixture'
+import { completionBlockers } from './selectors'
 import type { ReconState } from './types'
 
 export const STORAGE_KEY = 'campfire.reconciliation.chase-4821.2025-11.v1'
@@ -45,7 +46,7 @@ export function checkState(value: unknown): string | null {
     if (!DECEMBER_ACTIVITY.some((e) => e.id === o.evidenceId)) return 'An outstanding item refers to unknown evidence.'
   }
   for (const id of value.dismissed as unknown[]) {
-    if (!SUGGESTIONS.some((s) => s.id === id)) return 'A dismissed suggestion is unknown.'
+    if (!PROPOSALS.some((s) => s.id === id)) return 'A dismissed suggestion is unknown.'
   }
   return null
 }
@@ -66,7 +67,25 @@ export function load(storage: Pick<Storage, 'getItem'> = localStorage): LoadResu
   }
   const problem = checkState(parsed)
   if (problem) return { kind: 'unreadable', reason: problem, raw }
-  return { kind: 'ok', state: parsed as ReconState }
+  return { kind: 'ok', state: reopenIfIncomplete(parsed as ReconState) }
+}
+
+/**
+ * A save completed before the five auto-matched pairs needed review can no longer count as complete. It is
+ * reopened, with every match, outstanding item and history entry kept, and the reopening is recorded.
+ */
+function reopenIfIncomplete(state: ReconState): ReconState {
+  if (state.completion.status !== 'completed' || completionBlockers(state).length === 0) return state
+  const seq = state.seq + 1
+  return {
+    ...state,
+    seq,
+    completion: { status: 'in_progress' },
+    history: [
+      ...state.history,
+      { id: `H${seq}`, at: new Date().toISOString(), type: 'reopen', recordIds: [], summary: 'Reopened: auto-matched pairs now need review before completion' },
+    ],
+  }
 }
 
 export function save(state: ReconState, at: string, storage: Pick<Storage, 'setItem'> = localStorage): SaveResult {

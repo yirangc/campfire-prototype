@@ -2,7 +2,7 @@
  * Accounting actions. Each action is a pure function of (state, action) and either returns the next state
  * or a rejection with a reason (and field errors for forms). A rejected action never changes state.
  */
-import { ACCOUNT, DECEMBER_ACTIVITY, EXPENSE_CATEGORIES, FIRST_GENERATED_ENTRY, PERIOD, SUGGESTIONS, USER } from './fixture'
+import { ACCOUNT, DECEMBER_ACTIVITY, EXPENSE_CATEGORIES, FIRST_GENERATED_ENTRY, PERIOD, PROPOSALS, USER } from './fixture'
 import { longDate, money, parseDate } from './format'
 import {
   bankRecord,
@@ -152,7 +152,7 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
       const problem = matchProblem(state, action.bankId, action.ledgerId)
       if (problem) return reject(state, problem)
       const ledger = ledgerRecord(state, action.ledgerId)!
-      const suggestion = SUGGESTIONS.find(
+      const suggestion = PROPOSALS.find(
         (s) => s.bankId === action.bankId && s.ledgerId === action.ledgerId && !state.dismissed.includes(s.id),
       )
       const seq = state.seq + 1
@@ -172,7 +172,7 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
 
     case 'dismiss-suggestion': {
       if (locked) return reject(state, LOCKED)
-      const suggestion = SUGGESTIONS.find((s) => s.id === action.suggestionId)
+      const suggestion = PROPOSALS.find((s) => s.id === action.suggestionId)
       if (!suggestion) return reject(state, 'That suggestion no longer exists.')
       if (state.dismissed.includes(suggestion.id)) return reject(state, 'That suggestion is already dismissed.')
       if (isExplained(state, suggestion.bankId) || isExplained(state, suggestion.ledgerId))
@@ -181,13 +181,13 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
       const next = { ...state, dismissed: [...state.dismissed, suggestion.id] }
       return {
         ok: true,
-        state: record(next, at, 'dismiss-suggestion', [suggestion.bankId, suggestion.ledgerId], `Dismissed suggestion ${suggestion.bankId} → ${ledger.entryId}; both records remain unresolved`),
+        state: record(next, at, 'dismiss-suggestion', [suggestion.bankId, suggestion.ledgerId], `Dismissed ${suggestion.kind === 'auto' ? 'auto-match' : 'suggestion'} ${suggestion.bankId} → ${ledger.entryId}; both records are unmatched`),
       }
     }
 
     case 'restore-suggestion': {
       if (locked) return reject(state, LOCKED)
-      const suggestion = SUGGESTIONS.find((s) => s.id === action.suggestionId)
+      const suggestion = PROPOSALS.find((s) => s.id === action.suggestionId)
       if (!suggestion || !state.dismissed.includes(suggestion.id)) return reject(state, 'There is no dismissed suggestion to restore.')
       const ledger = ledgerRecord(state, suggestion.ledgerId)!
       const taken = [suggestion.bankId, suggestion.ledgerId].filter((id) => isExplained(state, id))
@@ -198,7 +198,7 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
       const next = { ...state, dismissed: state.dismissed.filter((id) => id !== suggestion.id) }
       return {
         ok: true,
-        state: record(next, at, 'restore-suggestion', [suggestion.bankId, suggestion.ledgerId], `Restored suggestion ${suggestion.bankId} → ${ledger.entryId}`),
+        state: record(next, at, 'restore-suggestion', [suggestion.bankId, suggestion.ledgerId], `Restored ${suggestion.kind === 'auto' ? 'auto-match' : 'suggestion'} ${suggestion.bankId} → ${ledger.entryId}`),
       }
     }
 
