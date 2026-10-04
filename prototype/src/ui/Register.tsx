@@ -41,17 +41,24 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
     refocus.current = true
     onCollapse()
   }
+  // Undo collapses any open row (ReconcilePage) and returns focus to the row whose Undo was pressed.
+  const undo = (key: string) => {
+    setLastRow(key)
+    refocus.current = true
+    onUndo()
+  }
 
   // A confirmed match merges a ledger-only row into its bank row, so follow the record to the row that now holds it.
   const lastKey = lastRow ? (cases.find((c) => c.key === lastRow) ?? cases.find((c) => c.recordIds.includes(lastRow)))?.key : undefined
 
+  // Runs after every render: Undo can leave both the expanded row and lastKey unchanged.
   useEffect(() => {
     if (expanded !== null || !refocus.current || !lastKey) return
     refocus.current = false
     const button = buttons.current.get(lastKey)
     button?.focus({ preventScroll: true })
     button?.scrollIntoView?.({ block: 'nearest' })
-  }, [expanded, lastKey])
+  })
 
   return (
     <table className={styles.table}>
@@ -130,7 +137,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                 </td>
                 <td className={styles.action}>
                   {showUndo ? (
-                    <Button variant="link" className={styles.undo} onClick={onUndo} aria-label={`Undo the last action on ${c.recordIds.join(' and ')}`}>
+                    <Button variant="link" className={styles.undo} onClick={() => undo(c.key)} aria-label={`Undo the last action on ${c.recordIds.join(' and ')}`}>
                       Undo
                     </Button>
                   ) : null}

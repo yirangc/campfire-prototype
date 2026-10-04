@@ -87,6 +87,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
     const result = dispatch({ type: 'undo' })
     if (result.ok) {
       setPageError(null)
+      setExpanded(null)
       announce(result.message ?? 'Undone.')
     } else setPageError(result.reason)
   }

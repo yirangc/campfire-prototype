@@ -35,9 +35,13 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Unmatched (12)' })).toBeInTheDocument()
     expect(metric('Book balance')).toContain('$109,970.00')
     expect(metric('Cleared balance')).toContain('$107,470.00')
+    await user.click(row(/Nov 12 · DELTA PAY/))
     await user.click(screen.getByRole('button', { name: /Undo the last action on B01/ }))
     expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
     expect(metric('Cleared balance')).toContain('$109,870.00')
+    // Undo collapses the open row and keeps focus on the row it was pressed in.
+    expect(row(/Nov 12 · DELTA PAY/)).toHaveAttribute('aria-expanded', 'false')
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveFocus()
   })
 
   it('dismisses a suggestion without changing balances and restores it from the notice', async () => {
