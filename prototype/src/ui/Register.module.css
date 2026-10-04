@@ -117,10 +117,6 @@ tbody tr:last-child > * {
   font-size: var(--text-caption-size);
 }
 
-.noteFlag {
-  color: var(--color-text-secondary);
-}
-
 .detailRow > td {
   padding: 0 !important;
   border-bottom: var(--border-width) solid var(--color-border-default);

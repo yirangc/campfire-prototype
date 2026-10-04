@@ -276,12 +276,17 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
       if (!target) return reject(state, 'That record no longer exists.')
       const notes = { ...state.notes }
       const text = action.note.trim()
+      const had = !!notes[action.recordId]
       if (text) notes[action.recordId] = { text, at }
       else delete notes[action.recordId]
-      return {
-        ok: true,
-        state: record({ ...state, notes }, at, 'leave-unresolved', [action.recordId], text ? `Left ${action.recordId} unresolved with a note` : `Left ${action.recordId} unresolved`),
-      }
+      const summary = had
+        ? text
+          ? `Edited the note on ${action.recordId}`
+          : `Removed the note on ${action.recordId}`
+        : text
+          ? `Left ${action.recordId} unresolved with a note`
+          : `Left ${action.recordId} unresolved`
+      return { ok: true, state: record({ ...state, notes }, at, 'leave-unresolved', [action.recordId], summary) }
     }
 
     case 'undo': {

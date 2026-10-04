@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, Icon, Notice, TextArea } from '../../../src/components'
+import { Button, Icon, Notice } from '../../../src/components'
 import type { FieldErrors, Result } from '../domain/engine'
 import { ACCOUNT, PERIOD, SUGGESTIONS, TIMING_CATEGORIES } from '../domain/fixture'
 import { longDate, money, signed } from '../domain/format'
@@ -42,7 +42,6 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
   const locked = state.completion.status === 'completed'
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
-  const [noteOpen, setNoteOpen] = useState(false)
   const busy = useRef(false)
   const confirmRef = useRef<HTMLButtonElement>(null)
   const focusConfirm = useRef(false)
@@ -163,15 +162,13 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     succeed(`Documented ${c.ledger.entryId} as outstanding. It is explained by later bank activity; the book balance is unchanged.`)
   }
 
+  /** Leave unresolved only collapses the row. It stays Unmatched (or Suggested) and keeps any draft, so reopening
+   *  the row continues the review. Nothing is recorded and no balance, count or progress changes. */
   const leaveUnresolved = () => {
-    const result = dispatch({ type: 'leave-unresolved', recordId: c.key, note: draft.note })
-    if (!result.ok) return fail(result)
-    setNoteOpen(false)
-    succeed(
-      draft.note.trim()
-        ? `Left ${recordLabel(origin)} unresolved with a note. Balances and progress are unchanged.`
-        : `Left ${recordLabel(origin)} unresolved. Balances and progress are unchanged.`,
-    )
+    setError(null)
+    setFieldErrors({})
+    announce(`Left ${recordLabel(origin)} unresolved. It still needs a resolution before you can complete.`)
+    onCollapse()
   }
 
   const switchMode = (mode: CaseDraft['mode']) => {
@@ -281,15 +278,6 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       </Notice>,
     )
   }
-  const savedNote = state.notes[c.key]
-  if (savedNote && (c.status === 'unmatched' || c.status === 'suggested') && !noteOpen) {
-    notices.push(
-      <Notice key="note" tone="info" title={`Left unresolved · ${longDate(savedNote.at.slice(0, 10))}`}>
-        {savedNote.text}
-      </Notice>,
-    )
-  }
-
   // ----- cards -----
 
   const leftCard =
@@ -468,25 +456,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
         </div>
         {rightCard}
       </div>
-      {noteOpen && canLeave && (
-        <div className={styles.notePanel}>
-          <TextArea
-            label="Note (optional)"
-            hint="Leaving a record unresolved changes no balance and doesn’t count as explained."
-            rows={2}
-            autoFocus
-            value={draft.note}
-            onChange={(e) => update({ note: e.target.value })}
-          />
-          <div className={styles.noteActions}>
-            <Button onClick={() => setNoteOpen(false)}>Cancel</Button>
-            <Button variant="primary" onClick={leaveUnresolved}>
-              Save and leave unresolved
-            </Button>
-          </div>
-        </div>
-      )}
-      {(primary || secondary || canLeave) && !noteOpen && (
+      {(primary || secondary || canLeave) && (
         <div className={styles.footer}>
           {draft.mode === 'search' && c.status === 'unmatched' && (
             <p id={`${idPrefix}-confirm-hint`} className={styles.footerHint}>
@@ -494,7 +464,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
             </p>
           )}
           {canLeave && (
-            <Button variant="link" onClick={() => setNoteOpen(true)}>
+            <Button variant="link" onClick={leaveUnresolved}>
               Leave Unresolved
             </Button>
           )}

@@ -31,7 +31,7 @@ Other paths worth trying:
 
 - **Undo in reverse order.** Use the row's Undo link or the History section. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).
-- **Leave unresolved.** Any open case can be left unresolved with a note. It changes no balance and doesn't count as explained.
+- **Leave unresolved.** Choose **Leave Unresolved** in any open case: the row collapses in place and stays Unmatched. Nothing else changes, and it still needs a resolution before you can complete. Click the row to continue.
 - **Unreadable save.** In the browser console run `localStorage.setItem('campfire.reconciliation.chase-4821.2025-11.v1', '{')` and reload. A recovery screen explains the problem, shows the raw data, and offers Try again or Reset demo. Nothing is overwritten until you choose.
 
 ## Calculations

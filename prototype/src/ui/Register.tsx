@@ -62,7 +62,6 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           const primary = c.bank ?? c.ledger!
           const detailId = `case-${c.key}`
           const showUndo = !completed && lastUndoIds.length > 0 && lastUndoIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId)
-          const note = recon.state.notes[c.key]
           return (
             <Fragment key={c.key}>
               <tr className={open ? styles.rowOpen : styles.row} onClick={(e) => rowClick(e, () => onToggle(c.key))}>
@@ -100,10 +99,6 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                     <Button variant="link" className={styles.undo} onClick={onUndo} aria-label={`Undo the last action on ${c.recordIds.join(' and ')}`}>
                       Undo
                     </Button>
-                  ) : note ? (
-                    <span className={styles.noteFlag} title={note.text}>
-                      Note
-                    </span>
                   ) : null}
                 </td>
               </tr>

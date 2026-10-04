@@ -135,6 +135,21 @@ describe('Reconciliation prototype', () => {
     expect(state?.matches ?? []).toHaveLength(0)
   })
 
+  it('leaves a case unresolved by collapsing it, with nothing else changed', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(row(/Outgoing wire fee/))
+    await user.click(within(detail()).getByRole('button', { name: 'Leave Unresolved' }))
+    expect(row(/Outgoing wire fee/)).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /History \(0\)/ })).toBeInTheDocument()
+    expect(metric('Remaining difference')).toContain('$320.00')
+    await user.click(row(/Outgoing wire fee/))
+    expect(row(/Outgoing wire fee/)).toHaveAttribute('aria-expanded', 'true')
+  })
+
   it('blocks completion and lists the reasons', async () => {
     const user = userEvent.setup()
     render(<App />)
