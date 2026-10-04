@@ -8,6 +8,7 @@
 
 .heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-16);
@@ -46,6 +47,7 @@
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-12);
 }
@@ -64,6 +66,7 @@
 
 .accountRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--spacing-16);
 }
@@ -84,12 +87,24 @@
 }
 
 .opening {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
-  white-space: pre;
+}
+
+/* Context selectors (49:640): 280 and 300 px, never wider than the page. */
+.accountSelect {
+  width: 280px;
+  max-width: 100%;
+}
+
+.periodSelect {
+  width: 300px;
+  max-width: 100%;
+}
+
+/* A signed amount never breaks between its sign, currency symbol and digits. */
+.num {
+  white-space: nowrap;
 }
 
 .balances {
@@ -135,6 +150,7 @@
 
 .workspaceHeading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-16);
@@ -189,12 +205,29 @@
   box-shadow: none;
 }
 
+.statusFilter {
+  width: 160px;
+  flex: none;
+}
+
+.tabScroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
 .tabs {
   gap: var(--spacing-12);
+  min-width: max-content;
+}
+
+.register {
+  container: register / inline-size;
 }
 
 .registerFooter {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-16);
@@ -220,4 +253,59 @@
   background: var(--color-surface-sidebar);
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* ----- Narrower pages: fewer balance columns, tighter gutters, stacked header and selectors ----- */
+
+@container page (max-width: 959px) {
+  .balances {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container page (max-width: 767px) {
+  .page {
+    padding: var(--spacing-20) var(--spacing-24) var(--spacing-24);
+  }
+}
+
+@container page (max-width: 599px) {
+  .page {
+    padding: var(--spacing-20) var(--spacing-16) var(--spacing-24);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions > p {
+    flex-basis: 100%;
+  }
+
+  .accountRow > * {
+    flex-basis: 100%;
+  }
+
+  .accountSelect,
+  .periodSelect {
+    width: 100%;
+  }
+}
+
+@container page (max-width: 479px) {
+  .balances {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .searchRow {
+    flex-wrap: wrap;
+  }
+
+  .searchField {
+    flex-basis: 100%;
+  }
+
+  .statusFilter {
+    width: 100%;
+  }
 }

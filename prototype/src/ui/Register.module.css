@@ -145,3 +145,145 @@ tbody tr.detailRow:last-child > td {
   color: var(--color-text-secondary);
   text-align: center !important;
 }
+
+.amountCell {
+  white-space: nowrap;
+}
+
+/* ----- Narrower registers: tighter fixed columns so amounts and pills never overlap ----- */
+
+@container register (max-width: 879px) {
+  .colTransaction {
+    width: 200px;
+  }
+
+  .colStatus {
+    width: 124px;
+  }
+
+  .colAction {
+    width: 72px;
+  }
+
+  .table th,
+  .table td {
+    padding-right: var(--spacing-16);
+  }
+}
+
+/* ----- Small screens: each case becomes a compact row with labeled details. The detail still opens directly
+   beneath its row. Design addition (no Figma frame), built from the table's own type, rules and pill. ----- */
+
+@container register (max-width: 639px) {
+  .table,
+  .table tbody {
+    display: block;
+  }
+
+  .table thead {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .table colgroup {
+    display: none;
+  }
+
+  .row,
+  .rowOpen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      'tx tx status'
+      'bank ledger entry'
+      'action action action';
+    gap: var(--spacing-8) var(--spacing-12);
+    padding: var(--spacing-10) var(--spacing-16) var(--spacing-12);
+    border-bottom: var(--border-width) solid var(--color-border-default);
+  }
+
+  .rowOpen {
+    background: var(--color-selection-neutral);
+    border-bottom: 0;
+  }
+
+  .table .row > :is(th, td),
+  .table .rowOpen > :is(th, td) {
+    display: block;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .table .row > [data-label]:not(th)::before,
+  .table .rowOpen > [data-label]:not(th)::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-size: var(--text-caption-size);
+    line-height: var(--text-caption-line);
+    color: var(--color-text-secondary);
+  }
+
+  .transaction {
+    grid-area: tx;
+    min-width: 0;
+  }
+
+  .disclosure {
+    align-items: flex-start;
+    height: auto;
+    min-height: 32px;
+    padding: var(--spacing-6) 0;
+  }
+
+  .disclosure > svg {
+    flex: none;
+    margin-top: var(--spacing-4);
+  }
+
+  .label {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .amountCell:nth-of-type(1) {
+    grid-area: bank;
+  }
+
+  .amountCell:nth-of-type(2) {
+    grid-area: ledger;
+  }
+
+  .entry {
+    grid-area: entry;
+  }
+
+  .statusCell {
+    grid-area: status;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .action {
+    grid-area: action;
+  }
+
+  .action:empty {
+    display: none !important;
+  }
+
+  .detailRow,
+  .detailRow > td {
+    display: block;
+  }
+
+  tbody tr:last-child {
+    border-bottom: 0;
+  }
+}

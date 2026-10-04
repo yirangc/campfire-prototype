@@ -157,6 +157,19 @@ describe('Reconciliation prototype', () => {
     expect(row(/Outgoing wire fee/)).toHaveAttribute('aria-expanded', 'true')
   })
 
+  it('opens the navigation menu on narrow screens and closes it with Escape', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const menu = screen.getByRole('button', { name: 'Menu' })
+    expect(menu).toHaveAttribute('aria-expanded', 'false')
+    await user.click(menu)
+    expect(menu).toHaveAttribute('aria-expanded', 'true')
+    expect(document.getElementById('app-sidebar')).toContainElement(document.activeElement as HTMLElement)
+    await user.keyboard('{Escape}')
+    expect(menu).toHaveAttribute('aria-expanded', 'false')
+    expect(menu).toHaveFocus()
+  })
+
   it('blocks completion and lists the reasons', async () => {
     const user = userEvent.setup()
     render(<App />)

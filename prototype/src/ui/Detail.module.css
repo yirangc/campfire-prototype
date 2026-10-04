@@ -1,5 +1,6 @@
 /* Expanded detail (51:1040): 20 px top and bottom, 16 px sides, 20 px between blocks. */
 .detail {
+  container: detail / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-20);
@@ -30,6 +31,7 @@
 /* Action footer (51:1102): right-aligned, 12 px gap. */
 .footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: var(--spacing-12);
@@ -44,6 +46,7 @@
 
 /* Bank transaction / ledger entry card (51:1050): 16 px inset inside a 1 px stroke, 12 px gap. */
 .card {
+  container: card / inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
@@ -57,6 +60,7 @@
 
 .cardHeader {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-12);
@@ -65,7 +69,7 @@
 
 .cardTitleGroup {
   display: flex;
-  flex: 1;
+  flex: 1 1 200px;
   align-items: center;
   gap: var(--spacing-12);
   min-width: 0;
@@ -132,12 +136,12 @@
   color: var(--color-text-secondary);
 }
 
-/* Three equal columns with 24 px gaps (51:1059). */
+/* Equal columns with 24 px gaps (51:1059). A card as wide as Figma's fits every field in one row; narrower cards
+   wrap to fewer columns instead of squeezing words into single letters. */
 .fields {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: var(--spacing-24);
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: var(--spacing-16) var(--spacing-24);
   margin: 0;
 }
 
@@ -153,7 +157,7 @@
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
   color: var(--color-text-primary);
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .fieldNote {
@@ -345,6 +349,7 @@
 
 .optionAmount {
   flex: none;
+  white-space: nowrap;
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
 }
@@ -356,3 +361,56 @@
   color: var(--color-text-secondary);
 }
 
+
+/* ----- Narrower rows: the cards stack inside the expanded row, source transaction first ----- */
+
+@container detail (max-width: 759px) {
+  .comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .arrow svg {
+    transform: rotate(90deg);
+  }
+}
+
+/* Small screens: the actions stack full width, the primary action first, each at least 40 px tall. */
+@container detail (max-width: 479px) {
+  .detail {
+    padding: var(--spacing-16) var(--spacing-12);
+  }
+
+  .footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .footer > button {
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  .footerHint {
+    margin-right: 0;
+    text-align: center;
+  }
+}
+
+/* Narrow cards: form rows drop to one column. */
+@container card (max-width: 479px) {
+  .formRowTop,
+  .formRowBottom,
+  .formRowHalf {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container card (min-width: 480px) and (max-width: 599px) {
+  .formRowTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formRowTop > :first-child {
+    grid-column: 1 / -1;
+  }
+}

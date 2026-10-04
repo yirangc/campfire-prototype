@@ -1,5 +1,5 @@
 import { useId, useMemo, useRef, useState, type KeyboardEvent } from 'react'
-import { Icon } from '../../../src/components'
+import { Icon, useMenuPlacement } from '../../../src/components'
 import { longDate, signed } from '../domain/format'
 import { findRecord, searchCandidates } from '../domain/selectors'
 import type { ReconState, SearchDraft } from '../domain/types'
@@ -33,6 +33,10 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
   const listId = `${baseId}-list`
   const inputRef = useRef<HTMLInputElement>(null)
   const [open, setOpen] = useState(!!autoFocus)
+  const comboRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+  // The results menu (38:7275) caps at 280 px and stays on screen: it opens upward when the row sits low.
+  const placement = useMenuPlacement(open, comboRef, listRef, 280)
   const [active, setActive] = useState(-1)
 
   // Only the query is used; date and counterparty filters are no longer offered.
@@ -93,7 +97,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
       }
       headerAction={headerAction}
     >
-      <div className={styles.combo}>
+      <div ref={comboRef} className={styles.combo}>
         <div className={styles.searchBox}>
           <Icon name="search" size={16} />
           <input
@@ -136,7 +140,7 @@ export function SearchCard({ state, originId, search, onSearchChange, onSelect, 
           {results.length} matching {results.length === 1 ? otherSide : otherPlural}
         </p>
         {open && (
-          <ul id={listId} role="listbox" aria-label={`Matching ${otherPlural}`} className={styles.popover} onMouseDown={(e) => e.preventDefault()}>
+          <ul id={listId} role="listbox" aria-label={`Matching ${otherPlural}`} className={styles.popover} ref={listRef} style={placement.style} onMouseDown={(e) => e.preventDefault()}>
             {results.map((record, i) => (
               <li
                 key={record.id}

@@ -102,7 +102,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                 className={open ? styles.rowOpen : `${styles.row} ${lastKey === c.key ? styles.rowLast : ''}`}
                 onClick={(e) => rowClick(e, () => toggle(c.key))}
               >
-                <th scope="row" className={styles.transaction}>
+                <th scope="row" className={styles.transaction} data-label="Transaction">
                   <button
                     type="button"
                     className={styles.disclosure}
@@ -120,9 +120,13 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                     </span>
                   </button>
                 </th>
-                <td>{c.bank ? signed(c.bank.amount) : <Dash />}</td>
-                <td>{c.ledger ? signed(c.ledger.amount) : <Dash />}</td>
-                <td className={styles.entry}>
+                <td className={styles.amountCell} data-label="Bank amount">
+                  {c.bank ? signed(c.bank.amount) : <Dash />}
+                </td>
+                <td className={styles.amountCell} data-label="Ledger amount">
+                  {c.ledger ? signed(c.ledger.amount) : <Dash />}
+                </td>
+                <td className={styles.entry} data-label="Ledger entry / date">
                   {c.ledger ? (
                     <>
                       {c.ledger.entryId} · {shortDate(c.ledger.date)}
@@ -132,7 +136,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                     <Dash />
                   )}
                 </td>
-                <td>
+                <td className={styles.statusCell}>
                   <StatusPill status={c.status} />
                 </td>
                 <td className={styles.action}>

@@ -26,3 +26,4 @@ export { StatusPill, type StatusPillProps, type ReconStatus } from './StatusPill
 export { Notice, type NoticeProps, type NoticeTone } from './Notice/Notice'
 export { InfoTip, type InfoTipProps } from './InfoTip/InfoTip'
 export { TextArea, type TextAreaProps } from './TextArea/TextArea'
+export { useMenuPlacement, type MenuPlacement } from './Overlay/useMenuPlacement'

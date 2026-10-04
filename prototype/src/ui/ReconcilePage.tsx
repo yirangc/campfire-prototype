@@ -201,8 +201,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           options={[{ value: ACCOUNT.id, label: ACCOUNT.name }]}
           value={ACCOUNT.id}
           onChange={() => {}}
-          width={280}
-          className={styles.contextSelect}
+          className={`${styles.contextSelect} ${styles.accountSelect}`}
         />
         <Select
           label="Statement period"
@@ -210,13 +209,12 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           options={[{ value: 'nov', label: PERIOD.label }]}
           value="nov"
           onChange={() => {}}
-          width={300}
-          className={styles.contextSelect}
+          className={`${styles.contextSelect} ${styles.periodSelect}`}
         />
         <div className={styles.source}>
           <p className="cf-text-caption cf-text-secondary">Statement imported · {longDate(STATEMENT_IMPORTED)}</p>
           <p className={styles.opening}>
-            Opening balance • Nov 1, 2025&nbsp;&nbsp;{money(OPENING_BALANCE)}
+            Opening balance • Nov 1, 2025&nbsp;&nbsp;<span className={styles.num}>{money(OPENING_BALANCE)}</span>
           </p>
         </div>
       </div>
@@ -307,7 +305,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
             </label>
             <Select
               aria-label="Status filter"
-              width={160}
+              className={styles.statusFilter}
               options={[
                 { value: 'all', label: 'All statuses' },
                 { value: 'confirmed', label: 'Confirmed' },
@@ -319,14 +317,19 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
               onChange={(v) => setTab(v as TabValue)}
             />
           </div>
-          <Tabs aria-label="Exception status" items={tabs} value={tab} onChange={(v) => setTab(v as TabValue)} divider className={styles.tabs} />
+          {/* On narrow screens the tab strip scrolls on its own instead of widening the page. */}
+          <div className={styles.tabScroller}>
+            <Tabs aria-label="Exception status" items={tabs} value={tab} onChange={(v) => setTab(v as TabValue)} divider className={styles.tabs} />
+          </div>
           <div className={styles.registerFooter}>
             <p className="cf-text-caption cf-text-secondary">
               Showing {visible.length} of {cases.length} review cases · counts are records ({counts.all} in total) · USD
             </p>
-            <p className={styles.movement}>Net change in bank balance: {signed(totals.netBankMovement)}</p>
+            <p className={styles.movement}>
+              Net change in bank balance: <span className={styles.num}>{signed(totals.netBankMovement)}</span>
+            </p>
           </div>
-          <div id="exceptions-register" role="tabpanel" aria-labelledby={`exceptions-register-tab`}>
+          <div id="exceptions-register" role="tabpanel" className={styles.register} aria-labelledby={`exceptions-register-tab`}>
             <Register
               recon={recon}
               cases={visible}

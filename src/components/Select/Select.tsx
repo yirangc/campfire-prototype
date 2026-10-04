@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { IconName } from '../../assets/manifest'
 import { Icon } from '../Icon/Icon'
+import { useMenuPlacement } from '../Overlay/useMenuPlacement'
 import styles from './Select.module.css'
 
 export interface SelectOption {
@@ -69,6 +70,8 @@ export function Select({
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const placement = useMenuPlacement(open, anchorRef, listRef)
 
   const selectedIndex = options.findIndex((o) => o.value === value)
   const selected = selectedIndex >= 0 ? options[selectedIndex] : null
@@ -152,7 +155,7 @@ export function Select({
           {label}
         </span>
       )}
-      <div className={styles.anchor}>
+      <div ref={anchorRef} className={styles.anchor}>
         <button
           ref={triggerRef}
           id={baseId}
@@ -184,6 +187,8 @@ export function Select({
             role="listbox"
             tabIndex={-1}
             className={styles.menu}
+            style={placement.style}
+            data-side={placement.side}
             aria-labelledby={label ? labelId : undefined}
             aria-label={label ? undefined : ariaLabel}
             aria-activedescendant={`${baseId}-opt-${active}`}

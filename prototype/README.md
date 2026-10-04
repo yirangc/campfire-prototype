@@ -73,7 +73,7 @@ The UI imports every component, icon and token from `../../src` (the shared desi
 - No real AI, bank feed, statement import, authentication or server. Data lives in localStorage only.
 - Account and period selectors show the single demo account and period.
 - Navigation outside Reconcile is decorative.
-- Desktop layout (designed at 1440 px). Checked in Chromium only.
+- Figma draws desktop only (1440 px). Narrower layouts are checked from 320 to 1440 px in Chromium only.
 
 ## Design departures
 
@@ -85,4 +85,5 @@ The PRD wins where it conflicts with Figma. The main departures, all listed in `
 - Outstanding status, the outstanding form, search popover details, the note panel, history, save errors, blocked completion, reopen and recovery are PRD design additions with no Figma frame. They reuse existing tokens and components and are marked in the flags.
 - The expense form says "Paid from" (PRD) where Figma says "Payment account".
 - Field errors use warning ink (proposed; Figma has no error state).
+- Narrower screens are a design addition: below 1100 px the sidebar becomes a menu drawer, and the balance cards, register rows, expanded-row cards, forms and actions reflow by the width the page has (container queries). Dropdowns open upward when there is no room below. At 1440 px nothing changes.
 - Icons are reconstructions of the Figma icon components, not original Campfire assets.
