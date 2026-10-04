@@ -55,7 +55,7 @@ export function Foundations() {
 
       <Section
         title="Color roles"
-        note="Primary is neutral ink. Lime is a selective accent for the dashboard's selected state, not a universal brand fill. Orange belongs to the logo."
+        note="Figma's foundations call primary neutral ink and lime a selective accent, but the Primary button component is filled lime (see Flags). Orange belongs to the logo."
         tags={<Tag kind="observed" />}
       >
         <div className={styles.grid4}>

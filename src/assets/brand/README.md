@@ -1,7 +1,8 @@
 # Brand files
 
-- `campfire-logo.png` from Figma node 12:12168 (supplied 2328 × 464 transparent PNG, displayed at 138 × 32)
-- `campfire-mark.png` from Figma node 12:12169 (supplied 472 × 259 crop, displayed in a 26 × 32 box)
+Supplied by Yirang on 2026-10-04 as 4x PNG exports of the Figma layers. Use them as supplied; don't redraw them as SVG.
 
-Figma holds the logo only as PNG artwork. There is no SVG source. Export the original image fill
-(Figma's "raw image"), not a screenshot render, so no resampling happens.
+- `campfire-logo.png` from Figma node 12:12168: 552 × 128 transparent PNG, displayed at 138 × 32
+- `campfire-mark.png` from Figma node 12:12169: 104 × 128 transparent PNG, displayed at 26 × 32
+
+Figma holds the logo only as PNG artwork. There is no SVG source.

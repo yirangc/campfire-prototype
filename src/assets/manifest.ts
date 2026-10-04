@@ -13,8 +13,11 @@ export const FIGMA_FILE_KEY = 'M4alZ0UMg6muqKn7l2WaXW'
 export const figmaNodeUrl = (nodeId: string) =>
   `https://www.figma.com/design/${FIGMA_FILE_KEY}/Campfire-take-home?node-id=${nodeId.replace(':', '-')}`
 
-/** How Figma classifies each icon. "suggested" icons are utility additions not seen in the product screenshots. */
-export type IconEvidence = 'observed' | 'suggested'
+/**
+ * How Figma classifies each icon. "suggested" icons are utility additions not seen in the product screenshots.
+ * "unclassified" icons were added to the icon grid later without an evidence note (lock).
+ */
+export type IconEvidence = 'observed' | 'suggested' | 'unclassified'
 
 export interface IconSpec {
   /** File name without extension: src/assets/icons/{name}.svg */
@@ -52,6 +55,7 @@ export const ICONS = [
   { name: 'panel', label: 'Panel', nodeId: '12:12165', evidence: 'suggested', artwork: '75%' },
   { name: 'settings', label: 'Settings', nodeId: '12:12166', evidence: 'suggested' },
   { name: 'help', label: 'Help', nodeId: '12:12167', evidence: 'suggested' },
+  { name: 'lock', label: 'Lock', nodeId: '38:7923', evidence: 'unclassified' },
 ] as const satisfies readonly IconSpec[]
 
 export type IconName = (typeof ICONS)[number]['name']
@@ -65,14 +69,14 @@ export const BRAND = {
     nodeId: '12:12168',
     width: 138,
     height: 32,
-    source: 'Supplied high-resolution PNG, 2328 × 464 px, transparent background',
+    source: 'Supplied PNG, 552 × 128 px (4x export of the 138 × 32 layer), transparent background',
   },
   mark: {
     file: 'campfire-mark.png',
     nodeId: '12:12169',
     width: 26,
     height: 32,
-    source: 'Supplied high-resolution PNG crop, 472 × 259 px',
+    source: 'Supplied PNG, 104 × 128 px (4x export of the 26 × 32 layer), transparent background',
   },
 } as const
 

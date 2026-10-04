@@ -24,10 +24,11 @@ export function Assets() {
       <div className={styles.callout} role="status">
         <p className={styles.calloutTitle}>Icons are Figma reconstructions</p>
         <p className={styles.note}>
-          All {ICONS.length} icons come from the Figma components 12:12143 to 12:12167, which Figma describes as
-          "screenshot-derived reconstruction; geometry is estimated". They are rebuilt from the vector paths by
-          scripts/figma/build-icons.mjs and match Figma's renders of the components to within 1% of inked pixels. Smaller
-          sizes keep Figma's 1.5 px stroke, as Figma's own 16, 14 and 12 px instances do.
+          All {ICONS.length} icons come from the Figma icon components (12:12143 to 12:12167, plus lock 38:7923), re-read
+          after the icon update on 2026-10-04. Figma describes them as "screenshot-derived reconstruction; geometry is
+          estimated". They are rebuilt from the vector paths by scripts/figma/build-icons.mjs and match Figma's renders of
+          the components to within 1% of inked pixels. Smaller sizes keep Figma's 1.5 px stroke, as Figma's own 16, 14 and
+          12 px instances do.
           {missingIcons > 0 && ` ${missingIcons} icon files are missing.`}
         </p>
       </div>
@@ -90,7 +91,11 @@ export function Assets() {
                 {'artwork' in icon ? ` · ${icon.artwork} artwork` : ''}
               </p>
               <div className={styles.rowTight}>
-                <Tag kind={icon.evidence === 'observed' ? 'observed' : 'suggested'} />
+                {icon.evidence === 'unclassified' ? (
+                  <Tag kind="inferred">No evidence note</Tag>
+                ) : (
+                  <Tag kind={icon.evidence} />
+                )}
                 <Tag kind="inferred">Reconstruction</Tag>
               </div>
               <FigmaLink nodeId={icon.nodeId} />
@@ -160,7 +165,7 @@ export function Assets() {
             <p className={styles.calloutTitle}>How they fit</p>
             <ul className={styles.flagList}>
               <li>
-                Stroke and color match the observed set: 1.5 px outlines in color/text/secondary, round caps, square corners.
+                Except settings, stroke and color match the observed set: 1.5 px outlines in color/text/secondary, round caps.
               </li>
               <li>
                 Like the observed utility icons (calendar, filter, save, trash), they fill the whole 24 px canvas, so they read
@@ -171,7 +176,10 @@ export function Assets() {
                 Panel is described in Figma as 75% artwork, but its outline is drawn edge to edge at 24 px. Its 16 px instance
                 (38:5739) also thins the stroke to 1 px, the only icon that does.
               </li>
-              <li>Download draws 0.75 px past its frame on every side (Figma's own render is 25.5 px), because its frame does not clip.</li>
+              <li>
+                Settings is now a solid gear (a filled shape, no stroke), the only filled icon in the set. It reads heavier
+                than the 1.5 px outlines beside it.
+              </li>
               <li>
                 Search's handle sits about 0.25 px lower in the 12 px instance (28:8962) than a straight scale of the component.
                 The files follow the component.

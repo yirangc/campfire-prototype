@@ -47,9 +47,9 @@ a {
   color: inherit;
 }
 
-/* Default keyboard focus treatment: 2 px green outline + soft lime ring (Figma's proposal, recolored for contrast). */
+/* Default keyboard focus treatment, from Figma's Field/Focus: 2 px lime stroke inside + 2 px soft lime ring. */
 :focus-visible {
   outline: var(--focus-outline);
-  outline-offset: 0;
+  outline-offset: var(--focus-outline-offset);
   box-shadow: var(--shadow-focus-ring);
 }

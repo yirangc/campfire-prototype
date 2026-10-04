@@ -18,7 +18,7 @@ export function Controls() {
       index="04"
       title="Controls, fields and metric cards"
       nodeId="12:11464"
-      description="Compact controls, low-contrast outlines and soft card elevation. Positive trend tints are used sparingly, as in the references. Keyboard focus uses a green outline with a soft lime ring."
+      description="Compact controls, low-contrast outlines and soft card elevation. Positive trend tints are used sparingly, as in the references. Keyboard focus follows Figma's Labelled inputs: a 2 px lime stroke inside the control and a soft lime ring outside it."
     >
       <Section
         title="Buttons"
@@ -54,7 +54,7 @@ export function Controls() {
         </p>
       </Section>
 
-      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus is Figma's proposed outline and ring, with the outline recolored from lime (1.31:1 on white) to chart green (5.0:1) for contrast. Hover and disabled reuse existing tokens." tags={<Tag kind="proposed" />}>
+      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus uses the Field/Focus recipe from Labelled inputs (2 px focus lime inside, 2 px lime ring at 50% outside). Secondary and ghost hover reuse surface/subtle, like the Tab hover variant. Figma has no token for a primary hover, so primary hover shows no change. Disabled uses muted ink." tags={<Tag kind="proposed" />}>
         <div className={styles.row}>
           {(['primary', 'secondary', 'ghost'] as const).map((variant) => (
             <div key={variant} className={styles.specimen}>
@@ -78,7 +78,7 @@ export function Controls() {
 
       <Section
         title="Labelled inputs"
-        note="Name / IT Allocation and Number / 12345 are transcribed. Figma draws the focused border in lime; it uses the focus green here for contrast, with Figma's proposed soft lime ring outside it. Label gap 6 px · input inset 12 px · 1 px border, 2 px on focus · 38 px height."
+        note="Name / IT Allocation and Number / 12345 are transcribed. Focus is Figma's 2 px focus lime border with the proposed soft lime ring outside it. Label gap 6 px · input inset 12 px · 1 px border, 2 px on focus · 38 px height."
         tags={<Tag kind="transcribed" />}
       >
         <div className={styles.row}>

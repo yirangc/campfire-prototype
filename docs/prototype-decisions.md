@@ -4,11 +4,11 @@ These are the flagged issues that would change what the prototype looks like or 
 
 ## Needs your input
 
-1. **Logo files.** The logo and mark PNGs still can't be downloaded here, so every screen shows a dashed placeholder where the logo goes. **Recommendation:** export the two layers listed under "Assets to export manually" below and upload them. I'll add them as supplied.
+1. **Focus color (decided 2026-10-04, worth a second look).** Focus now follows Figma's Labelled inputs: a 2 px focus-lime stroke inside the control and a soft lime ring outside it, on buttons, tabs, inputs and everything else. Lime is 1.31:1 on white and almost invisible on the lime primary button, so keyboard users will struggle to see where they are. **Recommendation:** keep Figma's lime for now, as asked, and switch `--color-focus` back to chart green #287D60 (5.0:1) before any usability testing. It's one line in `src/tokens/tokens.css`.
 
 2. **States the designs don't show.** The prototype will probably need states that Figma doesn't draw: a negative trend badge, an allocation total other than 100%, a cleared department cell, empty and loading tables, and disabled controls. **Recommendation:** once the PRD says which ones the flows need, I'll build them from existing tokens (the success ink and tint for positive, the same recipe in neutral gray for negative, muted ink for disabled) and label each one "proposed" in the showcase so you can approve or replace it. I won't add a new color for errors without your sign-off.
 
-3. **The seven suggested icons.** Edit, download, search, check, panel, settings and help fill the whole 24 px canvas, like the observed utility icons, so they look larger than the 18 px navigation glyphs. **Recommendation:** use them in toolbars, buttons and menus, and not in the side navigation. Panel is the weakest fit. Its description says 75% artwork but it's drawn edge to edge, and its 16 px instance uses a 1 px stroke. Avoid it unless the PRD needs a "toggle panel" control.
+3. **The seven suggested icons.** Edit, download, search, check, panel, settings and help fill the whole 24 px canvas, like the observed utility icons, so they look larger than the 18 px navigation glyphs. **Recommendation:** use them in toolbars, buttons and menus, and not in the side navigation. Panel is the weakest fit. Its description says 75% artwork but it's drawn edge to edge, and its 16 px instance uses a 1 px stroke. Avoid it unless the PRD needs a "toggle panel" control. Settings is now a solid gear, the only filled icon, so it reads heavier than the outlines around it.
 
 ## Recommended changes (small visual shifts, better accessibility)
 
@@ -20,7 +20,7 @@ These are the flagged issues that would change what the prototype looks like or 
 
 ## Recommended to keep as is
 
-7. **Focus indicator: fixed as you asked.** The outline is now chart green #287D60 (5.0:1 on white, 3.7:1 on the lime selection), and Figma's soft lime ring stays outside it. Focused text inputs use the green border instead of lime. This is already in the build, stored as `--color-focus` in `src/tokens/tokens.css`.
+7. **Primary buttons are lime.** The Primary button component and every Reconcile screen use an accent-lime fill with dark text, although the Foundations page calls primary "neutral ink". The build follows the component. Keep it.
 
 8. **The selected nav row is mostly a fill change.** Lime is 1.29:1 against the sidebar and neutral is 1.11:1. The medium text weight and `aria-current` add a second cue. **Recommendation:** keep it for the prototype. If testers miss the current page, the least invasive fix is primary ink on the selected label.
 
@@ -30,13 +30,6 @@ These are the flagged issues that would change what the prototype looks like or 
 
 11. **Desktop only.** Every frame is about 1440 px wide, and the allocation table scrolls horizontally below 960 px. **Recommendation:** build the prototype for a 1440 px desktop viewport unless the PRD asks for mobile.
 
-## Assets to export manually
+## Assets
 
-The icons no longer need exporting. I rebuilt all 25 from the Figma vector data, as reconstructions. Only the brand PNGs are left:
-
-| Figma layer | Node | Export | Save as |
-| --- | --- | --- | --- |
-| Campfire/Brand/Campfire logo/High resolution | 12:12168 | PNG, 4x | `src/assets/brand/campfire-logo.png` |
-| Campfire/Brand/Campfire mark/High resolution | 12:12169 | PNG, 4x | `src/assets/brand/campfire-mark.png` |
-
-You can upload them in the thread and I'll put them in place. Exporting at 4x keeps the transparent background and is sharp on high-density screens.
+All brand and icon assets are in the build. The logo and mark are the 4x PNG exports supplied on 2026-10-04. The 26 icons are reconstructions rebuilt from the Figma vector data (see `src/assets/icons/README.md`).

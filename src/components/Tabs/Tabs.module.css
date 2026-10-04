@@ -1,0 +1,74 @@
+/* Figma Campfire/Tab row: 16 px gap in the component specimen (31:909). The Reconcile screens use 12 and 20 px. */
+.tabs {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-16);
+}
+
+/* Reconcile status tabs: 1 px border/default rule along the bottom, drawn above the tabs as Figma draws frame strokes. */
+.divider::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--border-width);
+  background: var(--color-border-default);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: var(--size-control);
+  padding: 0 var(--spacing-12) var(--spacing-4);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-surface-white);
+  color: var(--color-text-secondary);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* State=Active: primary ink, 4 px accent lime underline across the full tab width. */
+.tab[aria-selected='true'] {
+  color: var(--color-text-primary);
+}
+
+.tab[aria-selected='true']::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--spacing-4);
+  background: var(--color-accent-lime);
+}
+
+/* State=Hover (Figma: proposed extension): surface/subtle, primary ink, no underline. Not on the selected tab. */
+.tab[aria-selected='false']:hover:not(:disabled),
+.tab[data-visual-state='hover'] {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-primary);
+}
+
+.tab[data-visual-state='focus'] {
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-outline-offset);
+  box-shadow: var(--shadow-focus-ring);
+}
+
+/* Focus sits above the row divider. */
+.tab:focus-visible,
+.tab[data-visual-state='focus'] {
+  z-index: 2;
+}
+
+/* Disabled is not drawn in Figma. Proposed: muted ink, no hover, same geometry. */
+.tab:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}

@@ -21,7 +21,7 @@
   --color-surface-subtle: #f2f3f2;   /* Headers, breadcrumb current page, menu highlight */
   --color-selection-neutral: #ebedeb;/* Reporting navigation selection */
   --color-accent-lime: #b3ed92;      /* Dashboard selection */
-  --color-focus-lime: #bcefa3;       /* Allocation input outline; now only the soft outer focus ring */
+  --color-focus-lime: #bcefa3;       /* color/focus/lime: focus stroke and soft ring */
   --color-success-ink: #3e7461;      /* Positive trend */
   --color-success-surface: #eaf5ef;  /* Trend badge background */
   --color-brand-orange: #ff852f;     /* Campfire rays (logo only) */
@@ -75,7 +75,7 @@
   /* ---- Elevation ---- */
   --shadow-card: 0 2px 5px 0 rgb(0 0 0 / 0.05);   /* Campfire/Elevation/Card */
   --shadow-modal: 0 12px 32px 0 rgb(0 0 0 / 0.15);/* Campfire/Elevation/Modal */
-  --shadow-focus-ring: 0 0 0 4px rgb(188 239 163 / 0.5); /* Campfire/Focus/Proposed ring: 2 px visible outside the 2 px outline */
+  --shadow-focus-ring: 0 0 0 2px rgb(188 239 163 / 0.5); /* Field/Focus drop shadow: spread 2, blur 0, focus lime at 50% */
 
   /* ---- Typography ---- */
   --font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; /* Inter: medium-confidence match */
@@ -120,10 +120,11 @@
   --icon-10: 10px; /* Trend arrow, reporting breadcrumb chevron */
 
   /* ---- Focus ----
-   * Figma proposes "2 px lime outline + 2 px soft ring". Lime #BCEFA3 is only 1.31:1 on white, below the
-   * 3:1 that WCAG 2.2 asks of focus indicators, so the outline uses the observed chart green instead
-   * (5.0:1 on white, 4.5:1 on surface/subtle, 3.7:1 on the lime selection). The lime ring stays outside it.
-   * Changed at Yirang's request on 2026-10-04; see docs/design-flags.md. */
-  --color-focus: var(--color-chart-green); /* #287D60 */
+   * Figma's Labelled inputs focus (Field/Focus, 12:12184): a 2 px color/focus/lime stroke inside the box
+   * and a 2 px soft lime ring outside it. Every focusable control uses this recipe, as Yirang asked on
+   * 2026-10-04 (replacing the earlier chart-green outline). Lime #BCEFA3 is 1.31:1 on white and
+   * almost invisible on the lime primary button; see docs/design-flags.md. */
+  --color-focus: var(--color-focus-lime); /* #BCEFA3 */
   --focus-outline: var(--border-width-focus) solid var(--color-focus);
+  --focus-outline-offset: calc(-1 * var(--border-width-focus)); /* drawn inside, like Figma's INSIDE stroke */
 }

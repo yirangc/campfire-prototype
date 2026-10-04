@@ -28,7 +28,7 @@
   color: var(--color-text-muted);
 }
 
-/* 2 px focus border (Figma draws it lime; see --color-focus); padding drops to match so the text does not move. */
+/* Figma Field/Focus: 2 px lime border and soft ring; padding drops to match so the text does not move. */
 .input:focus,
 .input:focus-visible,
 .input[data-visual-state='focus'] {
