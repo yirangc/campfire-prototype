@@ -21,9 +21,10 @@ export function dateNote(record: FinancialRecord, other?: FinancialRecord): stri
 export function recordFields(record: FinancialRecord, other?: FinancialRecord, extra: Field[] = []): Field[] {
   const base: Field[] = [{ label: 'Date', value: longDate(record.date), note: dateNote(record, other) }]
   if (record.kind === 'bank') {
+    // Reference third, as on the ledger side, so the fields both cards share sit in the same columns.
     base.push({ label: 'Description', value: record.description })
+    base.push({ label: 'Reference', value: record.reference ?? '—' })
     base.push({ label: 'Type', value: record.amount < 0 ? 'Debit' : 'Credit' })
-    if (record.reference) base.push({ label: 'Reference', value: record.reference })
   } else {
     base.push({ label: 'Description', value: record.description })
     base.push({ label: record.category ? 'Category' : 'Reference', value: record.category ?? record.reference ?? '—' })

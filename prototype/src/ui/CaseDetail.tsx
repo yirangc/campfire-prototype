@@ -33,8 +33,9 @@ const SOURCE_LABEL = { suggestion: 'from the suggestion', search: 'from search',
 
 /**
  * Expanded detail inside the register row (49:952, 38:6667, 38:7064, 51:1040): 20 px top and bottom, 16 px sides,
- * 20 px between the notice, the comparison and the action footer. The comparison is two 612 px cards with a 32 px
- * arrow column and 12 px gaps; the footer right-aligns Leave Unresolved (link) and the primary action.
+ * 20 px between the notice, the comparison and the action footer. The comparison is two equal cards 12 px apart
+ * (Figma's arrow column between them is removed at Yirang's request); the footer right-aligns Leave Unresolved
+ * (link) and the primary action.
  */
 export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseDetailProps) {
   const { state, dispatch, setDraft } = recon
@@ -291,12 +292,12 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
 
   const leftCard =
     origin.kind === 'bank' ? (
-      <Card labelledBy={`${idPrefix}-bank`} title="Bank transaction" chip={ACCOUNT.name}>
+      <Card record labelledBy={`${idPrefix}-bank`} title="Bank transaction" chip={ACCOUNT.name}>
         <Amount value={origin.amount} />
         <Fields fields={recordFields(origin, undefined)} />
       </Card>
     ) : (
-      <Card labelledBy={`${idPrefix}-ledger`} title="Ledger entry" chip={origin.entryId}>
+      <Card record labelledBy={`${idPrefix}-ledger`} title="Ledger entry" chip={origin.entryId}>
         <Amount value={origin.amount} />
         <Fields fields={recordFields(origin, undefined, [{ label: 'Counterparty', value: origin.counterparty }])} />
       </Card>
@@ -305,14 +306,14 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
   let rightCard: React.ReactNode = null
   if (c.status === 'auto-matched' && c.ledger) {
     rightCard = (
-      <Card labelledBy={`${idPrefix}-auto`} title="Ledger entry" chip={c.ledger.entryId}>
+      <Card record labelledBy={`${idPrefix}-auto`} title="Ledger entry" chip={c.ledger.entryId}>
         <Amount value={c.ledger.amount} />
         <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Match status', value: 'Auto-matched · not confirmed' }])} />
       </Card>
     )
   } else if (c.status === 'suggested' && c.ledger) {
     rightCard = (
-      <Card labelledBy={`${idPrefix}-suggested`} title="Suggested ledger entry" chip={c.ledger.entryId} chipTone="ai">
+      <Card record labelledBy={`${idPrefix}-suggested`} title="Suggested ledger entry" chip={c.ledger.entryId} chipTone="ai">
         <Amount value={c.ledger.amount} />
         <Fields fields={recordFields(c.ledger, c.bank, [{ label: 'Match status', value: 'Suggested · not confirmed' }])} />
       </Card>
@@ -323,7 +324,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     const evidence = evidenceItem(c.outstanding.evidenceId)
     const category = TIMING_CATEGORIES.find((t) => t.value === c.outstanding!.category)?.label
     rightCard = (
-      <Card labelledBy={`${idPrefix}-evidence`} title="Outstanding evidence" chip={evidence?.reference}>
+      <Card record labelledBy={`${idPrefix}-evidence`} title="Outstanding evidence" chip={evidence?.reference}>
         <Amount value={evidence?.amount ?? 0} />
         <Fields
           fields={[
@@ -351,6 +352,7 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     if (draft.mode === 'selected' && selected) {
       rightCard = (
         <Card
+          record
           labelledBy={`${idPrefix}-selected`}
           title={`Selected ${otherNoun}`}
           headerAction={
@@ -467,9 +469,6 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
       {notices.length > 0 && <div className={styles.notices}>{notices}</div>}
       <div className={styles.comparison}>
         {leftCard}
-        <div className={styles.arrow} aria-hidden="true">
-          <Icon name="chevron-right" size={24} />
-        </div>
         {rightCard}
       </div>
       {(primary || secondary || canLeave) && (
@@ -503,7 +502,7 @@ function MatchedCard({ idPrefix, ledger, bank }: { idPrefix: string; ledger: Led
   const created = !!ledger.generatedFrom
   const amount = Math.abs(ledger.amount)
   return (
-    <Card labelledBy={`${idPrefix}-matched`} title={created ? 'Created ledger entry' : 'Matched ledger entry'} chip={ledger.entryId}>
+    <Card record labelledBy={`${idPrefix}-matched`} title={created ? 'Created ledger entry' : 'Matched ledger entry'} chip={ledger.entryId}>
       <Amount value={ledger.amount} />
       <Fields fields={recordFields(ledger, bank, created ? [] : [{ label: 'Match status', value: 'Confirmed' }])} />
       {created && (

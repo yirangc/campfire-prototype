@@ -82,9 +82,10 @@ The PRD wins where it conflicts with Figma. The main departures, all listed in `
 
 - The Figma frames' eight-row November and "John Glasgow" are replaced by the PRD dataset and Maya. Tabs count records (24), not rows. The PRD's five background pairs are Auto-matched items in the main table that still need review (Yirang's design), so the cleared balance starts at $100,000.00. Unmatched counts every transaction not yet confirmed or documented, so it starts at 14 and includes the 6 records in suggested pairs (Suggested is a subset, listed in both tabs). The PRD splits them 6 / 8; this follows Yirang's request.
 - The GL-1101 and GL-1105 memos read "ACH Northstar Hosting" and "DELTA PAY receipt" (PRD: "Northstar hosting", "Delta receipt") so the two correct suggestions look like close matches, at Yirang's request.
-- The register heading is "Exceptions to review", and the five matched pairs sit in a separate section.
+- The register heading is "Transactions", following Figma and Yirang's design.
+- Expanded rows have no arrow between the bank and ledger cards (Figma draws a 32 px chevron column), at Yirang's request. Side by side, the two cards line up row by row so the amount, date, description and reference are at the same height and column.
 - Outstanding status, the outstanding form, search popover details, save errors, blocked completion, reopen and recovery are PRD design additions with no Figma frame. They reuse existing tokens and components and are marked in the flags.
 - The expense form says "Paid from" (PRD) where Figma says "Payment account".
 - Field errors use warning ink (proposed; Figma has no error state).
-- Narrower screens are a design addition: below 1100 px the sidebar becomes a menu drawer, and the balance cards, register rows, expanded-row cards, forms and actions reflow by the width the page has (container queries). Dropdowns open upward when there is no room below. At 1440 px nothing changes.
+- Narrower screens are a design addition: below 1100 px the sidebar becomes a menu drawer, and the balance cards, register rows, expanded-row cards, forms and actions reflow by the width the page has (container queries). Dropdowns open upward when there is no room below. At 1440 px the page is laid out as on desktop.
 - Icons are reconstructions of the Figma icon components, not original Campfire assets.

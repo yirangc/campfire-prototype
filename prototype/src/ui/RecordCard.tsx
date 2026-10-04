@@ -16,6 +16,7 @@ export function Card({
   children,
   labelledBy,
   rule = true,
+  record = false,
 }: {
   title: ReactNode
   chip?: ReactNode
@@ -25,9 +26,11 @@ export function Card({
   labelledBy?: string
   /** The 1 px rule under the header. The search card (38:6696) has none. */
   rule?: boolean
+  /** A record card (header, rule, amount, fields): side by side, its rows line up with the other card's. */
+  record?: boolean
 }) {
   return (
-    <section className={styles.card} aria-labelledby={labelledBy}>
+    <section className={[styles.card, record && styles.recordCard].filter(Boolean).join(' ')} aria-labelledby={labelledBy}>
       <div className={styles.cardHeader}>
         <div className={styles.cardTitleGroup}>
           {typeof title === 'string' ? (

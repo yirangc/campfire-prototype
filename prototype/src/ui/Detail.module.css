@@ -33,18 +33,12 @@
   color: var(--color-text-secondary);
 }
 
-/* Transaction comparison (51:1049): 612 | 12 | 32 arrow | 12 | 612. */
+/* Transaction comparison (51:1049): two cards 12 px apart. Figma's 32 px arrow column between them is removed at
+   Yirang's request (2026-10-04). Stacked by default; side by side from 760 px (see the end of this file). */
 .comparison {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
-  gap: var(--spacing-12);
-  align-items: stretch;
-}
-
-.arrow {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: var(--spacing-12);
 }
 
 /* Action footer (51:1102): right-aligned, 12 px gap. */
@@ -184,6 +178,11 @@
   font-size: var(--text-caption-size);
   line-height: var(--text-caption-line);
   color: var(--color-text-secondary);
+}
+
+/* Record cards keep empty columns (auto-fill), so stacked cards also put Date and Description in the same columns. */
+.recordCard > .fields:first-of-type {
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
 }
 
 /* Header links (Search existing entries 38:7842, Dismiss selection) sit in the 20 px header row. */
@@ -381,15 +380,53 @@
 }
 
 
-/* ----- Narrower rows: the cards stack inside the expanded row, source transaction first ----- */
+/* ----- Comparison widths: stacked below 760 px (source transaction first), side by side above ----- */
 
-@container detail (max-width: 759px) {
+@container detail (min-width: 760px) {
+  /* Side by side, both cards span the same row tracks: header, rule, amount, two rows of fields, then anything
+     extra. Record cards take those tracks as a subgrid, so the amount and each shared field (date, description)
+     start at the same height in both cards. Forms and search span all the tracks without a subgrid. */
   .comparison {
-    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, auto) 1fr;
+    gap: 0 var(--spacing-12);
   }
 
-  .arrow svg {
-    transform: rotate(90deg);
+  .comparison > * {
+    grid-row: 1 / -1;
+  }
+
+  /* Margins instead of a row gap, so an empty track adds no space. A size container can't be a subgrid, and
+     record cards hold no form rows, so they drop the card container here. */
+  .recordCard {
+    container-type: normal;
+    display: grid;
+    grid-template-rows: subgrid;
+    gap: 0;
+  }
+
+  .recordCard > * + * {
+    margin-top: var(--spacing-12);
+  }
+
+  /* Fixed columns, so the same field sits in the same column in both cards. */
+  .recordCard > .fields:first-of-type {
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Wide enough for four 104 px fields per card: one row of fields. */
+@container detail (min-width: 1052px) {
+  .comparison {
+    grid-template-rows: repeat(4, auto) 1fr;
+  }
+
+  .recordCard > .fields:first-of-type {
+    grid-row: span 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
