@@ -54,7 +54,7 @@ export function Controls() {
         </p>
       </Section>
 
-      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus uses the Field/Focus recipe from Labelled inputs (2 px focus lime inside, 2 px lime ring at 50% outside). Secondary and ghost hover reuse surface/subtle, like the Tab hover variant. Figma has no token for a primary hover, so primary hover shows no change. Disabled uses muted ink." tags={<Tag kind="proposed" />}>
+      <Section title="Button states" note="Only the resting state is drawn in Figma. Focus uses the Field/Focus recipe from Labelled inputs (2 px focus lime inside, 2 px lime ring at 50% outside). Secondary and ghost hover reuse surface/subtle, like the Tab hover variant. Figma has no token for a primary hover, so primary hover shows no change. Disabled is 35% opacity, as drawn on the Reconcile screens (49:639)." tags={<Tag kind="proposed" />}>
         <div className={styles.row}>
           {(['primary', 'secondary', 'ghost'] as const).map((variant) => (
             <div key={variant} className={styles.specimen}>

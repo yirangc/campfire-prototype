@@ -31,6 +31,24 @@ export const OBSERVED_COLORS: ColorToken[] = [
   { variable: '--color-shell-purple', name: 'Shell / purple', role: 'Outer dashboard surround', evidence: 'observed' },
 ]
 
+/** Raw hex fills in the Reconcile mockups (not Figma variables), used by the reconciliation components. */
+export const RECONCILE_COLORS: ColorToken[] = [
+  { variable: '--color-ai-surface', name: 'AI / tint', role: 'Suggestion rationale, ledger id chip', evidence: 'observed' },
+  { variable: '--color-ai-border', name: 'AI / border', role: 'Suggestion rationale stroke', evidence: 'observed' },
+  { variable: '--color-ai-pill', name: 'AI / pill', role: 'Suggested status pill', evidence: 'observed' },
+  { variable: '--color-ai-ink', name: 'AI / ink', role: 'Suggested label, sparkle', evidence: 'observed' },
+  { variable: '--color-ai-ink-strong', name: 'AI / ink strong', role: 'Suggestion title', evidence: 'observed' },
+  { variable: '--color-warning-surface', name: 'Warning / tint', role: 'No-match notice', evidence: 'observed' },
+  { variable: '--color-warning-border', name: 'Warning / border', role: 'No-match notice stroke', evidence: 'observed' },
+  { variable: '--color-warning-pill', name: 'Warning / pill', role: 'Unmatched status pill', evidence: 'observed' },
+  { variable: '--color-warning-ink', name: 'Warning / ink', role: 'Unmatched label, notice detail', evidence: 'observed' },
+  { variable: '--color-warning-ink-strong', name: 'Warning / ink strong', role: 'Notice title', evidence: 'observed' },
+  { variable: '--color-info-surface', name: 'Info / tint', role: 'Dismissed-suggestion notice', evidence: 'observed' },
+  { variable: '--color-info-border', name: 'Info / border', role: 'Dismissed-suggestion notice stroke', evidence: 'observed' },
+  { variable: '--color-link', name: 'Link', role: 'Text actions', evidence: 'observed' },
+  { variable: '--color-surface-expanded', name: 'Surface / expanded', role: 'Expanded transaction detail', evidence: 'observed' },
+]
+
 export const EXTRA_COLORS: ColorToken[] = [
   { variable: '--color-focus', name: 'Focus / outline', role: 'Alias of focus lime, used by every focus outline and focused input border', evidence: 'observed' },
   { variable: '--color-surface-canvas', name: 'Surface / canvas', role: 'Documentation canvas (bound variable, not in the palette)', evidence: 'observed' },

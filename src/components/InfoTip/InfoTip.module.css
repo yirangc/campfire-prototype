@@ -1,0 +1,42 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  cursor: help;
+}
+
+/* Extend the hit area to 24 px without moving the 14 px glyph. */
+.trigger::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+}
+
+.tip {
+  position: absolute;
+  top: calc(100% + var(--spacing-6));
+  left: 50%;
+  z-index: 20;
+  width: max-content;
+  max-width: 280px;
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-4);
+  background: var(--color-text-primary);
+  color: var(--color-surface-white);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-regular);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.tip[hidden] {
+  display: none;
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { IconName } from '../../assets/manifest'
+import { Icon } from '../Icon/Icon'
 import { Logo } from '../Logo/Logo'
 import { NavItem, type NavSelection } from './NavItem'
 import styles from './Navigation.module.css'
@@ -25,6 +26,12 @@ export interface SideNavProps {
   defaultExpanded?: string[]
   onNavigate?: (id: string) => void
   'aria-label'?: string
+  /**
+   * "panel": the Side panel components (12:12171, 12:12172). "app": the Reconcile persistent sidebar (49:619):
+   * full height, 80 px brand header, and the workspace identity (Settings, company, user) pinned to the bottom.
+   */
+  layout?: 'panel' | 'app'
+  workspace?: { company: string; user: string; settingsHref?: string }
   className?: string
 }
 
@@ -40,6 +47,8 @@ export function SideNav({
   defaultExpanded = [],
   onNavigate,
   'aria-label': ariaLabel = 'Main',
+  layout = 'panel',
+  workspace,
   className,
 }: SideNavProps) {
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set(defaultExpanded))
@@ -60,7 +69,7 @@ export function SideNav({
   }
 
   return (
-    <nav className={[styles.panel, className].filter(Boolean).join(' ')} aria-label={ariaLabel}>
+    <nav className={[styles.panel, layout === 'app' && styles.app, className].filter(Boolean).join(' ')} aria-label={ariaLabel}>
       <div className={styles.brand}>
         <Logo />
       </div>
@@ -101,6 +110,19 @@ export function SideNav({
           )
         })}
       </ul>
+      {workspace && (
+        <div className={styles.workspace}>
+          <a className={styles.settings} href={workspace.settingsHref ?? '#'} onClick={go('settings')}>
+            <Icon name="settings" size={12} />
+            Settings
+          </a>
+          <hr className={styles.workspaceRule} />
+          <p className={styles.workspaceText}>
+            <span className={styles.company}>{workspace.company}</span>
+            <span>{workspace.user}</span>
+          </p>
+        </div>
+      )}
     </nav>
   )
 }

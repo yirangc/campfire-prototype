@@ -21,3 +21,8 @@ export {
 } from './AllocationTable/AllocationTable'
 export { Modal, type ModalProps } from './Modal/Modal'
 export { Tabs, type TabsProps, type TabItem } from './Tabs/Tabs'
+export { StatusGlyph, type StatusGlyphProps } from './StatusGlyph/StatusGlyph'
+export { StatusPill, type StatusPillProps, type ReconStatus } from './StatusPill/StatusPill'
+export { Notice, type NoticeProps, type NoticeTone } from './Notice/Notice'
+export { InfoTip, type InfoTipProps } from './InfoTip/InfoTip'
+export { TextArea, type TextAreaProps } from './TextArea/TextArea'

@@ -94,3 +94,25 @@ export function iconSvg(name: IconName, size: IconSize): string | undefined {
 export function brandUrl(kind: keyof typeof BRAND): string | undefined {
   return brandFiles[`./brand/${BRAND[kind].file}`]
 }
+
+/**
+ * Status glyphs drawn locally inside the Reconcile mockups (see src/assets/status/README.md).
+ * They keep their drawn colors and are not part of the Campfire icon set.
+ */
+export const STATUS_GLYPHS = {
+  'info-20': { nodeId: '38:6881', size: 20 },
+  'info-14': { nodeId: 'I28:8871;38:5420', size: 14 },
+  'warning-16': { nodeId: '51:1042', size: 16 },
+  'warning-14': { nodeId: '49:795', size: 14 },
+  'sparkle-16': { nodeId: '49:968', size: 16 },
+  'sparkle-14': { nodeId: '49:963', size: 14 },
+  'check-14': { nodeId: '47:629', size: 14 },
+} as const
+
+export type StatusGlyphName = keyof typeof STATUS_GLYPHS
+
+const statusFiles = import.meta.glob<string>('./status/*.svg', { eager: true, query: '?raw', import: 'default' })
+
+export function statusGlyphSvg(name: StatusGlyphName): string | undefined {
+  return statusFiles[`./status/${name}.svg`]
+}

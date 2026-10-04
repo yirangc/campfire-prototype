@@ -1,0 +1,102 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  width: 100%;
+  padding: calc(var(--spacing-8) - var(--border-width)) calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-6);
+}
+
+/* The compact notices inside an expanded row use 10 px vertical insets and an 8 px gap (38:6668, 49:967). */
+.inline.info,
+.inline.ai {
+  gap: var(--spacing-8);
+  padding-block: calc(var(--spacing-10) - var(--border-width));
+}
+
+.page {
+  min-height: 55px;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  min-width: 0;
+}
+
+.page .text {
+  gap: 3px; /* Figma value (38:7413), not on the spacing scale */
+}
+
+.title {
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line);
+  font-weight: var(--font-weight-semibold);
+}
+
+.page .title {
+  line-height: var(--text-body-line-loose);
+}
+
+.detail {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+}
+
+.aside {
+  flex: none;
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-success-ink);
+}
+
+.info {
+  background: var(--color-info-surface);
+  border-color: var(--color-info-border);
+}
+.info .title {
+  color: var(--color-text-primary);
+}
+.info .detail {
+  color: var(--color-text-secondary);
+}
+
+.ai {
+  background: var(--color-ai-surface);
+  border-color: var(--color-ai-border);
+}
+.ai .title {
+  color: var(--color-ai-ink-strong);
+}
+.ai .detail {
+  color: var(--color-ai-ink);
+}
+
+.warning {
+  background: var(--color-warning-surface);
+  border-color: var(--color-warning-border);
+}
+.warning .title {
+  color: var(--color-warning-ink-strong);
+}
+.warning .detail {
+  color: var(--color-warning-ink);
+}
+
+.success {
+  background: var(--color-success-surface);
+  border-color: var(--color-border-default);
+}
+.success .title {
+  color: var(--color-text-primary);
+}
+.success .detail {
+  color: var(--color-text-secondary);
+}
+
+.successIcon {
+  color: var(--color-success-ink);
+}

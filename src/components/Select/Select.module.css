@@ -6,6 +6,36 @@
   min-width: 0;
 }
 
+.anchor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Compact (38:7885): field label recipe, 6 px gap, 34 px trigger. */
+.rootCompact {
+  gap: var(--spacing-6);
+}
+
+.rootCompact .label {
+  color: var(--color-text-primary);
+}
+
+.compact {
+  height: 34px;
+}
+
+/* Proposed error state, shared with TextField: warning ink, no new color. */
+.invalid {
+  border-color: var(--color-warning-ink);
+}
+
+.error {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+  color: var(--color-warning-ink);
+}
+
 .rootCell {
   display: flex;
   width: 100%;

@@ -12,33 +12,104 @@
   color: var(--color-text-primary);
 }
 
-.input {
+/* The box draws the border so a leading icon or lock can sit inside it; the input itself is borderless. */
+.box {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
   height: var(--size-field);
   width: 100%;
   padding: 0 calc(var(--spacing-12) - var(--border-width));
   border: var(--border-width) solid var(--color-border-default);
   border-radius: var(--radius-6);
   background: var(--color-surface-white);
+}
+
+.compact {
+  height: 34px; /* Reconcile expense form inputs (38:7939, 38:8005) */
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: var(--text-body-size);
   line-height: var(--text-body-line);
   color: var(--color-text-primary);
+}
+
+/* A textarea reuses .input as its own bordered box (see TextArea). */
+textarea.input {
+  width: 100%;
+  padding: 0 calc(var(--spacing-12) - var(--border-width));
+  border: var(--border-width) solid var(--color-border-default);
+  border-radius: var(--radius-6);
+  background: var(--color-surface-white);
 }
 
 .input::placeholder {
   color: var(--color-text-muted);
 }
 
+.leading,
+.trailing {
+  flex: none;
+}
+
 /* Figma Field/Focus: 2 px lime border and soft ring; padding drops to match so the text does not move. */
-.input:focus,
-.input:focus-visible,
-.input[data-visual-state='focus'] {
+.box:focus-within,
+.box:has(> .input[data-visual-state='focus']),
+textarea.input:focus,
+textarea.input[data-visual-state='focus'] {
   outline: none;
   border: var(--border-width-focus) solid var(--color-focus);
-  padding: 0 calc(var(--spacing-12) - var(--border-width-focus));
+  padding-inline: calc(var(--spacing-12) - var(--border-width-focus));
   box-shadow: var(--shadow-focus-ring);
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+textarea.input:focus,
+textarea.input:focus-visible {
+  box-shadow: var(--shadow-focus-ring);
+}
+
+/* Read only (38:7939): surface/subtle fill and a lock. Focus still shows so keyboard users can read the value. */
+.readOnly {
+  background: var(--color-surface-subtle);
+}
+
+.box:has(> .input:disabled) {
+  background: var(--color-surface-sidebar);
 }
 
 .input:disabled {
   color: var(--color-text-muted);
-  background: var(--color-surface-sidebar);
+}
+
+/* Proposed (no Figma error state): warning ink border and message, so no new color is introduced. */
+.invalid,
+textarea.input[aria-invalid='true'] {
+  border-color: var(--color-warning-ink);
+}
+
+.hint,
+.error {
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line);
+}
+
+.hint {
+  color: var(--color-text-secondary);
+}
+
+.error {
+  color: var(--color-warning-ink);
 }
