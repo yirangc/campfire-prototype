@@ -158,7 +158,14 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
     busy.current = false
     if (!result.ok) {
       setFieldErrors(result.fieldErrors ?? {})
-      if (result.fieldErrors) focusFirstInvalid(result.fieldErrors, outstandingFieldIds(idPrefix))
+      if (result.fieldErrors) {
+        // As in the expense form, the fields carry the messages and the "Not on the November statement" notice
+        // already says the entry is unresolved, so no "Nothing was changed" banner (Yirang, 2026-10-04).
+        setError(null)
+        focusFirstInvalid(result.fieldErrors, outstandingFieldIds(idPrefix))
+        const n = Object.keys(result.fieldErrors).length
+        return announce(`Nothing was documented. ${n} ${n === 1 ? 'field needs' : 'fields need'} attention.`)
+      }
       return fail(result)
     }
     succeed(`Documented ${c.ledger.entryId} as outstanding. It is explained by later bank activity; the book balance is unchanged.`)
