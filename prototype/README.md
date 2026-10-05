@@ -31,7 +31,7 @@ Start from a reset. The page opens with a $320.00 difference and 24 records in 1
 Other paths worth trying:
 
 - **One row per record.** Each bank transaction and ledger entry has its own row: *Nov 03 · Stripe payout* appears twice, once with the bank amount and once with the ledger amount and GL-1100. Both rows show the pair's status and change together, and expanding either shows the match. Created entries get their own row, tagged Created.
-- **Live table summary.** The line above the table describes only the rows on screen: switch tabs, search or confirm a match and it updates, for example *Showing 3 suggested pairs · 3 bank transactions / 3 ledger entries*.
+- **Live table summary.** The line above the table describes only the rows on screen: switch tabs, search or confirm a match and it updates, for example *Showing 6 rows · 3 bank transactions · 3 ledger entries* on the Suggested tab.
 - **Status tooltips.** Hover over a status pill, or Tab to it, to read what the status means. Escape hides the tooltip. Clicking the pill expands or collapses its row like any other cell.
 - **Undo.** Expand a confirmed or outstanding row and use **Undo** at the right of its banner. It reverses that row's own action, even after later actions elsewhere. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).

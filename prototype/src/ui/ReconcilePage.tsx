@@ -294,7 +294,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           </div>
           <div className={styles.registerFooter}>
             <p className="cf-text-caption cf-text-secondary">
-              {registerSummary(visible, tab === 'all' ? undefined : tab, query)}
+              {registerSummary(visible)}
             </p>
             <p className={styles.movement}>
               Net change in bank balance: <span className={styles.num}>{signed(totals.netBankMovement)}</span>

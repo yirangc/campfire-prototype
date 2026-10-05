@@ -403,16 +403,11 @@ describe('registerSummary', () => {
   const stripe = rows.filter((c) => c.bank?.description === 'Stripe payout')
   const unmatchedLedger = rows.filter((c) => c.status === 'unmatched' && c.side === 'ledger')
 
-  it('counts the rows it is given: pairs, single records and each side', () => {
-    expect(registerSummary(stripe, 'auto-matched')).toBe('Showing 1 auto-matched pair · 1 bank transaction / 1 ledger entry')
-    expect(registerSummary(stripe.slice(0, 1))).toBe('Showing 1 bank transaction')
-    expect(registerSummary(unmatchedLedger.slice(0, 1), 'unmatched')).toBe('Showing 1 unmatched ledger entry')
-    expect(registerSummary(unmatchedLedger, 'unmatched')).toBe(`Showing ${unmatchedLedger.length} unmatched ledger entries`)
-    // One row of a pair (search matched only that record) is a single record.
-    expect(registerSummary([...stripe, unmatchedLedger[0], rows.find((c) => c.status === 'suggested' && c.side === 'ledger')!])).toBe(
-      'Showing 1 pair and 2 single records · 1 bank transaction / 3 ledger entries',
-    )
-    expect(registerSummary([], 'confirmed', ' acme ')).toBe('No confirmed records matching “acme”')
-    expect(registerSummary([])).toBe('No records')
+  it('counts the rows it is given, then bank transactions and ledger entries among them', () => {
+    expect(registerSummary(rows)).toBe('Showing 24 rows · 12 bank transactions · 12 ledger entries')
+    expect(registerSummary(stripe)).toBe('Showing 2 rows · 1 bank transaction · 1 ledger entry')
+    expect(registerSummary(stripe.slice(0, 1))).toBe('Showing 1 row · 1 bank transaction · 0 ledger entries')
+    expect(registerSummary(unmatchedLedger)).toBe(`Showing ${unmatchedLedger.length} rows · 0 bank transactions · ${unmatchedLedger.length} ledger entries`)
+    expect(registerSummary([])).toBe('Showing 0 rows · 0 bank transactions · 0 ledger entries')
   })
 })
