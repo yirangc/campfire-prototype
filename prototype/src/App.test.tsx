@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from './App'
 import { STORAGE_KEY } from './domain/persistence'
 
+// The line above the register that describes the rows on screen.
+const summary = () => document.querySelector('[class*=registerFooter] p')?.textContent
 const metric = (label: string) => screen.getByText(label).closest('div[class*=card], section, article')?.textContent ?? ''
 // A pair has a bank row and a ledger row; when both match, the bank row (listed first) is meant.
 const row = (text: RegExp) => screen.getAllByRole('button', { name: text })[0]
@@ -27,12 +29,39 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Already matched/ })).not.toBeInTheDocument()
-    expect(screen.getByText(/Showing 24 of 24 rows, one per record · 12 bank transactions \/ 12 ledger entries/)).toBeInTheDocument()
+    expect(summary()).toBe('Showing 8 pairs and 8 single records · 12 bank transactions / 12 ledger entries')
     await userEvent.setup().click(screen.getByRole('tab', { name: 'Auto-matched (10)' }))
-    expect(screen.getByText('5 auto-matched pairs · 10 records awaiting review, one row each')).toBeInTheDocument()
+    expect(summary()).toBe('Showing 5 auto-matched pairs · 5 bank transactions / 5 ledger entries')
     expect(within(row(/Nov 03 · Stripe payout/).closest('tr')!).getByText('Auto-matched')).toBeInTheDocument()
     expect(metric('Remaining difference')).toContain('$320.00')
     expect(metric('Cleared balance')).toContain('$100,000.00')
+  })
+
+  it('describes only the rows on screen above the table, after the tab, the search and each change', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const search = screen.getByRole('searchbox')
+    await user.click(screen.getByRole('tab', { name: 'Unmatched (8)' }))
+    expect(summary()).toBe('Showing 8 unmatched records · 4 bank transactions / 4 ledger entries')
+    await user.type(search, 'wire fee')
+    expect(summary()).toBe('Showing 1 unmatched bank transaction matching “wire fee”')
+    await user.clear(search)
+    await user.type(search, 'zzz')
+    expect(summary()).toBe('No unmatched records matching “zzz”')
+    await user.click(screen.getByRole('tab', { name: 'All (24)' }))
+    expect(summary()).toBe('No records matching “zzz”')
+    await user.clear(search)
+    await user.type(search, 'stripe')
+    expect(summary()).toBe('Showing 1 pair matching “stripe” · 1 bank transaction / 1 ledger entry')
+    await user.clear(search)
+    // Confirming a suggestion moves its two rows into Confirmed; Undo moves them back.
+    await user.click(screen.getByRole('tab', { name: 'Suggested (6)' }))
+    expect(summary()).toBe('Showing 3 suggested pairs · 3 bank transactions / 3 ledger entries')
+    await user.click(row(/Nov 04 · ACH NORTH/))
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(summary()).toBe('Showing 2 suggested pairs · 2 bank transactions / 2 ledger entries')
+    await user.click(screen.getByRole('tab', { name: 'Confirmed (2)' }))
+    expect(summary()).toBe('Showing 1 confirmed pair · 1 bank transaction / 1 ledger entry')
   })
 
   it('lists only Unmatched cases in the Unmatched tab and keeps the list and count current', async () => {
@@ -224,15 +253,18 @@ describe('Reconciliation prototype', () => {
     const button = row(/Nov 04 · ACH NORTH/)
     await user.click(within(button.closest('tr')!).getByText(/2,400\.00/, { selector: 'td' }))
     expect(button).toHaveAttribute('aria-expanded', 'true')
-    // The status pill shows its tooltip instead of toggling the row.
-    await user.click(within(button.closest('tr')!).getByText('Suggested'))
-    expect(button).toHaveAttribute('aria-expanded', 'true')
     await user.click(within(button.closest('tr')!).getAllByText(/2,400\.00/, { selector: 'td' })[0])
     expect(button).toHaveAttribute('aria-expanded', 'false')
     expect(button).toHaveFocus()
+    // The status pill is part of the row: one click toggles it once, with the tooltip showing.
+    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('tooltip')).toBeInTheDocument()
+    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('explains each status pill in a tooltip on hover and keyboard focus without expanding the row', async () => {
+  it('explains each status pill in a tooltip on hover and keyboard focus, and a click on it toggles the row once', async () => {
     const user = userEvent.setup()
     render(<App />)
     const tr = row(/Nov 04 · ACH NORTH/).closest('tr')!
@@ -241,6 +273,8 @@ describe('Reconciliation prototype', () => {
     await user.hover(pill)
     expect(screen.getByRole('tooltip')).toHaveTextContent('A possible match is ready for your review.')
     expect(pill).toHaveAccessibleDescription('A possible match is ready for your review.')
+    await user.click(pill)
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'true')
     await user.click(pill)
     expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'false')
     await user.unhover(pill)

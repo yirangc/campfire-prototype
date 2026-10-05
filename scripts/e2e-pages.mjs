@@ -127,14 +127,17 @@ check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hostin
   const kept = (await row('Nov 20 · BIRCH STUDIO').getAttribute('aria-expanded')) === 'true' && (await search.inputValue()) === 'birch' && (await page.getByRole('listbox').count()) === 0
   await search.fill('')
   await row('Nov 20 · BIRCH STUDIO').click()
-  await page.keyboard.press('Shift+Tab')
-  await page.keyboard.press('Tab')
-  const keyboard = await ringOn('Nov 20 · BIRCH STUDIO')
   await outside()
-  check(before && !after && kept && keyboard, 'Clicking outside clears the row focus ring and closes the search list, keeping the expanded row and its search text; Tab still shows the ring')
+  // Keyboard focus: WebKit's Tab skips buttons by default (as Safari does), so focus the row after a key press,
+  // which browsers treat as keyboard focus.
+  await page.keyboard.press('Shift')
+  await row('Nov 27 · Account service charge').focus()
+  const keyboard = await ringOn('Nov 27 · Account service charge')
+  await outside()
+  check(before && !after && kept && keyboard, `Clicking outside clears the row focus ring and closes the search list, keeping the expanded row and its search text; keyboard focus still shows the ring ${JSON.stringify({ before, after, kept, keyboard })}`)
 }
 
-// Status pills explain themselves on hover and keyboard focus, and clicking one does not expand its row.
+// Status pills explain themselves on hover and keyboard focus, and a click on one toggles its row once.
 {
   const wire = row('Outgoing wire fee')
   const pill = wire.locator('xpath=ancestor::tr').locator('[data-tooltip-trigger]')
@@ -144,8 +147,11 @@ check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hostin
   const box = await tip.boundingBox()
   const width = page.viewportSize().width
   await pill.click()
-  check(hovered && box && box.x >= 0 && box.x + box.width <= width && (await wire.getAttribute('aria-expanded')) === 'false',
-    'Unmatched pill shows its tooltip on hover, inside the viewport, and a click leaves the row collapsed')
+  const opened = (await wire.getAttribute('aria-expanded')) === 'true' && (await tip.isVisible())
+  await pill.click()
+  const closed = (await wire.getAttribute('aria-expanded')) === 'false'
+  check(hovered && box && box.x >= 0 && box.x + box.width <= width && opened && closed,
+    `Unmatched pill shows its tooltip on hover, inside the viewport, and each click on it toggles the row once ${JSON.stringify({ hovered, opened, closed })}`)
   await page.mouse.move(0, 0)
   await row('Nov 03 · Stripe payout').focus()
   await page.keyboard.press('Tab')

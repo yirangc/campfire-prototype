@@ -16,22 +16,27 @@ export interface TooltipProps {
  * 4 px radius, 8 × 12 px insets, white text. It wraps a non-interactive element (such as a status pill), which takes
  * keyboard focus so the explanation can be read without a pointer. Showing it on hover and focus, hiding it with
  * Escape, and the "end" alignment are proposed: Figma keeps the tooltip hidden and has no interaction.
- * The trigger carries data-tooltip-trigger so containers that act on clicks (such as a table row) can ignore it.
+ * The tip ignores the pointer and the trigger has no click action, so a click on the trigger reaches its container
+ * (such as a table row that toggles). The trigger carries data-tooltip-trigger for tests.
  */
 export function Tooltip({ content, children, align = 'center', className }: TooltipProps) {
   const id = useId()
-  const [open, setOpen] = useState(false)
+  // Hover and focus are tracked apart, so a click that moves focus elsewhere keeps the tip while the pointer is on it.
+  const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
+  const open = hovered || focused
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && open) {
       e.stopPropagation()
-      setOpen(false)
+      setHovered(false)
+      setFocused(false)
     }
   }
   return (
     <span
       className={[styles.wrap, className].filter(Boolean).join(' ')}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <span
         // A focusable, non-interactive trigger: the tooltip is its description, not an action.
@@ -40,8 +45,8 @@ export function Tooltip({ content, children, align = 'center', className }: Tool
         className={styles.trigger}
         aria-describedby={id}
         data-tooltip-trigger=""
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         onKeyDown={onKeyDown}
       >
         {children}

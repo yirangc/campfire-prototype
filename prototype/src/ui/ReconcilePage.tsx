@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Button, Icon, MetricCard, Modal, Notice, Select, Tabs, type TabItem } from '../../../src/components'
-import { ACCOUNT, BANK_EXCEPTIONS, LEDGER_EXCEPTIONS, OPENING_BALANCE, PERIOD, STATEMENT_IMPORTED } from '../domain/fixture'
+import { ACCOUNT, OPENING_BALANCE, PERIOD, STATEMENT_IMPORTED } from '../domain/fixture'
 import { longDate, money, signed, timestamp } from '../domain/format'
 import {
   balances,
   completionBlockers,
   recordCounterparty,
+  registerSummary,
   reviewCases,
   statusCounts,
   type RecordStatus,
@@ -293,10 +294,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           </div>
           <div className={styles.registerFooter}>
             <p className="cf-text-caption cf-text-secondary">
-              {tab === 'auto-matched'
-                ? `${counts.autoMatched / 2} auto-matched ${counts.autoMatched === 2 ? 'pair' : 'pairs'} · ${counts.autoMatched} ${counts.autoMatched === 1 ? 'record' : 'records'} awaiting review, one row each`
-                : `Showing ${visible.length} of ${cases.length} rows, one per record · ${BANK_EXCEPTIONS.length} bank transactions / ${LEDGER_EXCEPTIONS.length} ledger entries · counts are records (${counts.all} in total)`}
-              {state.generated.length > 0 && ` · ${state.generated.length} created ${state.generated.length === 1 ? 'entry' : 'entries'}`}
+              {registerSummary(visible, tab === 'all' ? undefined : tab, query)}
             </p>
             <p className={styles.movement}>
               Net change in bank balance: <span className={styles.num}>{signed(totals.netBankMovement)}</span>

@@ -344,3 +344,38 @@ export function counterpartyOptions(state: ReconState, recordId: string): string
 export function generatedEntryFor(state: ReconState, bankId: string): LedgerEntry | undefined {
   return state.generated.find((g) => g.generatedFrom === bankId)
 }
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
+
+/**
+ * The line above the register (Yirang, 2026-10-05): it describes only the rows on screen, after the tab and the
+ * search. Both rows of a pair on screen count as one pair; any other row is a single record. Bank transactions
+ * and ledger entries are counted per row, created entries included, and a side with no rows is left out.
+ */
+export function registerSummary(rows: ReviewCase[], status?: CaseStatus, query = ''): string {
+  const q = query.trim()
+  const kind = status ? `${status} ` : ''
+  const matching = q ? ` matching “${q}”` : ''
+  if (rows.length === 0) return `No ${kind}records${matching}`
+  const pairKey = (c: ReviewCase) => (c.bank && c.ledger ? `${c.bank.id}|${c.ledger.id}` : undefined)
+  const seen = new Map<string, number>()
+  for (const c of rows) {
+    const key = pairKey(c)
+    if (key) seen.set(key, (seen.get(key) ?? 0) + 1)
+  }
+  const pairs = [...seen.values()].filter((n) => n === 2).length
+  const singles = rows.length - pairs * 2
+  const bank = rows.filter((c) => c.side === 'bank').length
+  const ledger = rows.length - bank
+  const sides = [bank && plural(bank, 'bank transaction', 'bank transactions'), ledger && plural(ledger, 'ledger entry', 'ledger entries')]
+    .filter(Boolean)
+    .join(' / ')
+  if (pairs === 0 && (bank === 0 || ledger === 0)) return `Showing ${plural(singles, `${kind}${bank ? 'bank transaction' : 'ledger entry'}`, `${kind}${bank ? 'bank transactions' : 'ledger entries'}`)}${matching}`
+  const what =
+    singles === 0
+      ? plural(pairs, `${kind}pair`, `${kind}pairs`)
+      : pairs === 0
+        ? plural(singles, `${kind}record`, `${kind}records`)
+        : `${plural(pairs, `${kind}pair`, `${kind}pairs`)} and ${plural(singles, 'single record', 'single records')}`
+  return `Showing ${what}${matching} · ${sides}`
+}
