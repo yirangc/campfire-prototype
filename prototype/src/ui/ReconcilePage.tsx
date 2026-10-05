@@ -50,8 +50,8 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const cases = useMemo(() => reviewCases(state), [state])
   const blockers = completionBlockers(state)
   const completed = state.completion.status === 'completed'
-  // Suggested pairs are still unmatched transactions, so the Unmatched tab lists them too.
-  const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab || (tab === 'unmatched' && c.status === 'suggested')
+  // Each tab lists only its own status; All lists every case.
+  const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab
   const visible = cases.filter((c) => inTab(c) && caseMatchesQuery(c, query))
 
   // Tab order from Yirang's design (2026-10-04). Counts are records, derived from the current state.
@@ -97,6 +97,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
       `Confirmed records,${counts.confirmed}`,
       `Outstanding records,${counts.outstanding}`,
       `Auto-matched records awaiting review,${counts.autoMatched}`,
+      `Suggested records awaiting review,${counts.suggested}`,
       `Unmatched records,${counts.unmatched}`,
       '',
       'History',
@@ -115,7 +116,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
       return { title: 'Ready to complete', detail: `All ${counts.all} records are explained and the remaining difference is $0.00.` }
     const autoPairs = cases.filter((c) => c.status === 'auto-matched').length
     const suggestedPairs = cases.filter((c) => c.status === 'suggested').length
-    const noSuggestion = counts.unmatched - counts.suggested
+    const noSuggestion = counts.unmatched
     const parts = [
       autoPairs ? `review ${autoPairs} auto-matched ${autoPairs === 1 ? 'pair' : 'pairs'}` : '',
       suggestedPairs ? `review ${suggestedPairs} suggested ${suggestedPairs === 1 ? 'match' : 'matches'}` : '',

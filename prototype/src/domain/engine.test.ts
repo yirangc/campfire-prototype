@@ -59,7 +59,7 @@ describe('initial fixture', () => {
   const state = initialState()
 
   it('counts 24 records in 16 review cases, the 5 auto-matched pairs included once each', () => {
-    expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 14, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
+    expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 8, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
     const cases = reviewCases(state)
     expect(cases).toHaveLength(16)
     expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(5)
@@ -196,7 +196,7 @@ describe('match rules', () => {
     const s = run(initialState(), { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
     expect(activeSuggestions(s).map((x) => x.id)).toEqual(['S1', 'S2', 'A1', 'A2', 'A3', 'A4', 'A5'])
     expect(recordStatus(s, 'B03')).toBe('unmatched')
-    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 12, confirmed: 2 })
+    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 8, confirmed: 2 })
   })
 })
 
@@ -236,7 +236,7 @@ describe('auto-matched pairs', () => {
     const s = run(start, { type: 'dismiss-suggestion', suggestionId: 'A3' })
     expect(recordStatus(s, 'B10')).toBe('unmatched')
     expect(recordStatus(s, 'L10')).toBe('unmatched')
-    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, unmatched: 16, all: 24 })
+    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, unmatched: 10, all: 24 })
     expect(balances(s)).toEqual(balances(start))
     expect(eligibleCandidates(s, 'B10').map((r) => r.id)).toEqual(['L10'])
     expect(s.history.at(-1)?.summary).toContain('auto-match')
@@ -325,8 +325,8 @@ describe('undo order and completion blockers', () => {
     // Expenses plus outstanding items bring the difference to zero while the Alder/Birch and suggested pairs remain open.
     const s = run(initialState(), ...FINISH.slice(5, 11))
     expect(balances(s).difference).toBe(0)
-    // One blocker for the unreviewed auto-matched pairs, one for the unmatched records.
-    expect(completionBlockers(s)).toHaveLength(2)
+    // One blocker each for the unreviewed auto-matched pairs, the suggested pairs and the unmatched records.
+    expect(completionBlockers(s)).toHaveLength(3)
     expect(reduce(s, { type: 'complete' }, AT).ok).toBe(false)
   })
 

@@ -243,7 +243,7 @@ check(await final(), 'Completed again: 21 Confirmed, 3 Outstanding, $0.00 differ
 // Reset.
 await page.getByRole('button', { name: 'Reset demo' }).click()
 await page.getByRole('dialog').getByRole('button', { name: 'Reset demo' }).click()
-check((await tabCount('Confirmed')) === 0 && (await tabCount('Unmatched')) === 14 && (await metricHas('Remaining difference', '$320.00')), 'Reset demo restores the original data')
+check((await tabCount('Confirmed')) === 0 && (await tabCount('Unmatched')) === 8 && (await metricHas('Remaining difference', '$320.00')), 'Reset demo restores the original data')
 await page.reload({ waitUntil: 'networkidle' })
 check((await tabCount('Confirmed')) === 0, 'Reset survives a reload')
 check(page.problems.length === 0, `No errors during the flow${page.problems.length ? `: ${page.problems.join('; ')}` : ''}`)

@@ -68,9 +68,9 @@ export function recordStatus(state: ReconState, id: string): RecordStatus {
 export interface StatusCounts {
   /** Records in an automatic match awaiting review. Not counted as unmatched, but still unresolved. */
   autoMatched: number
-  /** Unmatched records that have an active suggested match (a subset of `unmatched`). */
+  /** Records in a suggested match awaiting review. Not counted as unmatched, but still unresolved. */
   suggested: number
-  /** Every record not yet confirmed or documented as outstanding, suggested pairs included. */
+  /** Records with no match, no active suggestion and no outstanding documentation. */
   unmatched: number
   confirmed: number
   outstanding: number
@@ -81,20 +81,17 @@ export interface StatusCounts {
 
 /**
  * Record-based counts over the 24 original records (14 PRD exceptions and the 10 records in auto-matched pairs).
- * Generated entries are never counted. Each transaction counts once: a suggested pair is two unmatched records
- * until it is confirmed, so `unmatched` includes the suggested records (Yirang's request; the PRD splits them
- * 6 / 8). Auto-matched records have their own count and are not unmatched, but they block completion until reviewed.
+ * Generated entries are never counted. Each record counts once, under its own status: suggested and auto-matched
+ * records are not unmatched (Yirang, 2026-10-05, as the PRD's 6 / 8 split), but they block completion until reviewed.
  */
 export function statusCounts(state: ReconState): StatusCounts {
   const counts = { 'auto-matched': 0, suggested: 0, unmatched: 0, confirmed: 0, outstanding: 0 }
   for (const id of ORIGINAL_EXCEPTION_IDS) counts[recordStatus(state, id)] += 1
   const { 'auto-matched': autoMatched, ...rest } = counts
-  const unmatched = counts.suggested + counts.unmatched
-  const unresolved = unmatched + autoMatched
+  const unresolved = counts.suggested + counts.unmatched + autoMatched
   return {
     ...rest,
     autoMatched,
-    unmatched,
     all: ORIGINAL_EXCEPTION_IDS.length,
     unresolved,
     explained: ORIGINAL_EXCEPTION_IDS.length - unresolved,
@@ -199,10 +196,14 @@ export function completionBlockers(state: ReconState): string[] {
       `${counts.autoMatched} of ${counts.all} records are auto-matched and still need your review. Confirm or dismiss each auto-matched pair.`,
     )
   }
-  if (counts.unmatched > 0) {
-    const suggested = counts.suggested ? ` (${counts.suggested} of them ${counts.suggested === 1 ? 'has' : 'have'} a suggested match)` : ''
+  if (counts.suggested > 0) {
     blockers.push(
-      `${counts.unmatched} of ${counts.all} records are still unmatched${suggested}. Every record needs a match or documented outstanding evidence.`,
+      `${counts.suggested} of ${counts.all} records have a suggested match that still needs your review. Confirm or dismiss each suggestion.`,
+    )
+  }
+  if (counts.unmatched > 0) {
+    blockers.push(
+      `${counts.unmatched} of ${counts.all} records are still unmatched. Every record needs a match or documented outstanding evidence.`,
     )
   }
   if (difference !== 0) {
