@@ -99,6 +99,26 @@ const ledgerCardShowsCounterparty = async (name, counterparty) => {
 check(await ledgerCardShowsCounterparty('Nov 03 · Stripe payout', 'Stripe'), 'Auto-matched ledger card shows Counterparty: Stripe, no Match status')
 check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hosting'), 'Suggested ledger card shows Counterparty: Northstar Hosting, no Match status')
 
+// Status pills explain themselves on hover and keyboard focus, and clicking one does not expand its row.
+{
+  const wire = row('Outgoing wire fee')
+  const pill = wire.locator('xpath=ancestor::tr').locator('[data-tooltip-trigger]')
+  const tip = page.getByRole('tooltip')
+  await pill.hover()
+  const hovered = (await tip.textContent()) === 'This transaction still needs a match or an explanation.'
+  const box = await tip.boundingBox()
+  const width = page.viewportSize().width
+  await pill.click()
+  check(hovered && box && box.x >= 0 && box.x + box.width <= width && (await wire.getAttribute('aria-expanded')) === 'false',
+    'Unmatched pill shows its tooltip on hover, inside the viewport, and a click leaves the row collapsed')
+  await page.mouse.move(0, 0)
+  await row('Nov 03 · Stripe payout').focus()
+  await page.keyboard.press('Tab')
+  const focused = (await tip.textContent()) === 'The system found a match. Review the details to confirm it.'
+  await page.keyboard.press('Escape')
+  check(focused && (await tip.count()) === 0, 'Auto-matched pill shows its tooltip on keyboard focus and Escape hides it')
+}
+
 // Confirm a suggestion, Undo it, confirm it again.
 await open('Nov 04 · ACH NORTH')
 await detail().getByRole('button', { name: 'Confirm match' }).click()

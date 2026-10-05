@@ -30,6 +30,7 @@ Start from a reset. The page opens with a $320.00 difference and 24 records in 1
 
 Other paths worth trying:
 
+- **Status tooltips.** Hover over a status pill, or Tab to it, to read what the status means. Escape hides the tooltip; clicking the pill doesn't expand the row.
 - **Undo.** Expand a confirmed or outstanding row and use **Undo** at the right of its banner. It reverses that row's own action, even after later actions elsewhere. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).
 - **Leave unresolved.** Choose **Leave Unresolved** in any open case: the row collapses in place and keeps its status (Unmatched, Suggested or Auto-matched). Nothing else changes, and it still needs a resolution before you can complete. Click the row to continue.

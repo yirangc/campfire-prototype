@@ -167,9 +167,36 @@ describe('Reconciliation prototype', () => {
     const button = row(/Nov 04 · ACH NORTH/)
     await user.click(within(button.closest('tr')!).getByText('GL-1101 · Nov 03'))
     expect(button).toHaveAttribute('aria-expanded', 'true')
+    // The status pill shows its tooltip instead of toggling the row.
     await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    await user.click(within(button.closest('tr')!).getAllByText(/2,400\.00/, { selector: 'td' })[0])
     expect(button).toHaveAttribute('aria-expanded', 'false')
     expect(button).toHaveFocus()
+  })
+
+  it('explains each status pill in a tooltip on hover and keyboard focus without expanding the row', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const tr = row(/Nov 04 · ACH NORTH/).closest('tr')!
+    const pill = within(tr).getByText('Suggested').closest<HTMLElement>('[data-tooltip-trigger]')!
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    await user.hover(pill)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('A possible match is ready for your review.')
+    expect(pill).toHaveAccessibleDescription('A possible match is ready for your review.')
+    await user.click(pill)
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'false')
+    await user.unhover(pill)
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    // From the keyboard: Tab from the row's disclosure reaches the pill; Escape hides the tooltip.
+    row(/Nov 03 · Stripe payout/).focus()
+    await user.tab()
+    expect(screen.getByRole('tooltip')).toHaveTextContent('The system found a match. Review the details to confirm it.')
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    expect(row(/Nov 03 · Stripe payout/)).toHaveAttribute('aria-expanded', 'false')
+    await user.hover(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched'))
+    expect(screen.getByRole('tooltip')).toHaveTextContent('This transaction still needs a match or an explanation.')
   })
 
   it('resets the demo to the original data and clears saved actions', async () => {

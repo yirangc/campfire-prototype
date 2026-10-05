@@ -1,10 +1,22 @@
 import { Fragment, useEffect, useRef, useState, type MouseEvent } from 'react'
-import { Icon, StatusPill } from '../../../src/components'
+import { Icon, StatusPill, Tooltip } from '../../../src/components'
 import { shortDate, signed } from '../domain/format'
-import type { ReviewCase } from '../domain/selectors'
+import type { CaseStatus, ReviewCase } from '../domain/selectors'
 import type { Recon } from '../useRecon'
 import { CaseDetail } from './CaseDetail'
 import styles from './Register.module.css'
+
+/**
+ * What each status pill means, shown in its tooltip on hover or keyboard focus. Yirang's wording (2026-10-05),
+ * checked against the case statuses in selectors.ts; Outstanding is a proposed addition in the same voice.
+ */
+const STATUS_TIPS: Record<CaseStatus, string> = {
+  suggested: 'A possible match is ready for your review.',
+  unmatched: 'This transaction still needs a match or an explanation.',
+  confirmed: 'You’ve reviewed and confirmed this transaction’s resolution.',
+  'auto-matched': 'The system found a match. Review the details to confirm it.',
+  outstanding: 'You’ve documented this as a timing difference that clears after the statement period.',
+}
 
 export interface RegisterProps {
   recon: Recon
@@ -124,7 +136,9 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                   )}
                 </td>
                 <td className={styles.statusCell}>
-                  <StatusPill status={c.status} />
+                  <Tooltip content={STATUS_TIPS[c.status]} align="end">
+                    <StatusPill status={c.status} />
+                  </Tooltip>
                 </td>
               </tr>
               {open && (
@@ -147,7 +161,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
  * screen-reader control; clicks on buttons or links in the row, and text selections, are left alone.
  */
 function rowClick(e: MouseEvent<HTMLTableRowElement>, toggle: () => void) {
-  if ((e.target as HTMLElement).closest('button, a, input, select, textarea')) return
+  if ((e.target as HTMLElement).closest('button, a, input, select, textarea, [data-tooltip-trigger]')) return
   if (window.getSelection()?.toString()) return
   toggle()
 }
