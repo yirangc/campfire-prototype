@@ -44,7 +44,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const [expanded, setExpanded] = useState<string | null>(null)
   const [blockersShown, setBlockersShown] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
-  const [pageError, setPageError] = useState<string | null>(null)
 
   const counts = statusCounts(state)
   const totals = balances(state)
@@ -54,7 +53,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   // Suggested pairs are still unmatched transactions, so the Unmatched tab lists them too.
   const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab || (tab === 'unmatched' && c.status === 'suggested')
   const visible = cases.filter((c) => inTab(c) && caseMatchesQuery(c, query))
-  const lastUndo = state.undoStack.at(-1)
 
   // Tab order from Yirang's design (2026-10-04). Counts are records, derived from the current state.
   const tabs: TabItem[] = [
@@ -81,15 +79,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const reopen = () => {
     const result = dispatch({ type: 'reopen' })
     if (result.ok) announce('Reconciliation reopened. Your resolutions are kept and editing is available again.')
-  }
-
-  const undo = () => {
-    const result = dispatch({ type: 'undo' })
-    if (result.ok) {
-      setPageError(null)
-      setExpanded(null)
-      announce(result.message ?? 'Undone.')
-    } else setPageError(result.reason)
   }
 
   const download = () => {
@@ -278,12 +267,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           </p>
         )}
 
-        {pageError && (
-          <Notice tone="warning" role="alert" title="That didn't work">
-            {pageError}
-          </Notice>
-        )}
-
         {/* Transaction workspace (49:670) */}
         <section className={styles.transactions} aria-labelledby="transactions-title">
           <div className={styles.workspaceHeading}>
@@ -327,8 +310,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
               onToggle={(key) => setExpanded((cur) => (cur === key ? null : key))}
               onCollapse={() => setExpanded(null)}
               announce={announce}
-              lastUndoIds={lastUndo?.recordIds ?? []}
-              onUndo={undo}
               emptyLabel={query ? `No review cases match “${query}”.` : `No ${tab === 'all' ? '' : tab} records.`}
             />
           </div>
@@ -354,7 +335,6 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
                 setTab('all')
                 setQuery('')
                 setBlockersShown(false)
-                setPageError(null)
                 announce('Demo reset to the original November data.')
               }}
             >

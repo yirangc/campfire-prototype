@@ -6,7 +6,12 @@ import { STORAGE_KEY } from './domain/persistence'
 
 const metric = (label: string) => screen.getByText(label).closest('div[class*=card], section, article')?.textContent ?? ''
 const row = (text: RegExp) => screen.getByRole('button', { name: text })
-const detail = () => screen.getByRole('button', { name: /Leave Unresolved/ }).closest('td') as HTMLElement
+// The open row's detail cell (one is open at a time).
+const detail = () => {
+  const cell = document.querySelector<HTMLElement>('td[id^="case-"]')
+  if (!cell) throw new Error('No expanded row')
+  return cell
+}
 
 beforeEach(() => {
   localStorage.clear()
@@ -29,9 +34,10 @@ describe('Reconciliation prototype', () => {
     expect(metric('Cleared balance')).toContain('$100,000.00')
   })
 
-  it('confirms a suggestion from the keyboard and offers Undo in the row', async () => {
+  it('confirms a suggestion from the keyboard and offers Undo in the expanded row', async () => {
     const user = userEvent.setup()
     render(<App />)
+    expect(screen.queryByRole('columnheader', { name: 'Action' })).not.toBeInTheDocument()
     row(/Nov 04 · ACH NORTH/).focus()
     await user.keyboard('{Enter}')
     await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
@@ -39,12 +45,17 @@ describe('Reconciliation prototype', () => {
     expect(screen.getByRole('tab', { name: 'Unmatched (12)' })).toBeInTheDocument()
     expect(metric('Book balance')).toContain('$109,970.00')
     expect(metric('Cleared balance')).toContain('$97,600.00')
+    // A later action elsewhere doesn't take away this row's Undo.
     await user.click(row(/Nov 12 · DELTA PAY/))
-    await user.click(screen.getByRole('button', { name: /Undo the last action on B01/ }))
-    expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
-    expect(metric('Cleared balance')).toContain('$100,000.00')
-    // Undo collapses the open row and keeps focus on the row it was pressed in.
-    expect(row(/Nov 12 · DELTA PAY/)).toHaveAttribute('aria-expanded', 'false')
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (4)' })).toBeInTheDocument()
+    await user.click(row(/Nov 04 · ACH NORTH/))
+    expect(within(detail()).getByText('Match confirmed')).toBeInTheDocument()
+    await user.click(within(detail()).getByRole('button', { name: 'Undo' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    expect(metric('Cleared balance')).toContain('$103,200.00')
+    // Undo collapses the row and keeps focus on it.
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'false')
     expect(row(/Nov 04 · ACH NORTH/)).toHaveFocus()
   })
 
@@ -221,7 +232,8 @@ describe('Reconciliation prototype', () => {
     expect(within(stripe().closest('tr')!).getByText('Confirmed')).toBeInTheDocument()
     expect(metric('Cleared balance')).toContain('$112,500.00')
     expect(screen.getByText(/Progress: 2 of 24 records reviewed/)).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /Undo the last action on B08/ }))
+    await user.click(stripe())
+    await user.click(within(detail()).getByRole('button', { name: 'Undo' }))
     expect(screen.getByRole('tab', { name: 'Auto-matched (10)' })).toBeInTheDocument()
     expect(metric('Cleared balance')).toContain('$100,000.00')
   })

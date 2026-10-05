@@ -18,10 +18,6 @@
   width: 148px;
 }
 
-.colAction {
-  width: 96px;
-}
-
 .table th,
 .table td {
   padding: 0 var(--spacing-24) 0 0;
@@ -121,15 +117,6 @@ tbody tr:last-child > * {
   color: var(--color-text-secondary);
 }
 
-.action {
-  font-size: var(--text-caption-size);
-}
-
-.undo {
-  height: 24px;
-  font-size: var(--text-caption-size);
-}
-
 .detailRow > td {
   padding: 0 !important;
   border-bottom: var(--border-width) solid var(--color-border-default);
@@ -159,10 +146,6 @@ tbody tr.detailRow:last-child > td {
 
   .colStatus {
     width: 124px;
-  }
-
-  .colAction {
-    width: 72px;
   }
 
   .table th,
@@ -199,8 +182,7 @@ tbody tr.detailRow:last-child > td {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     grid-template-areas:
       'tx tx status'
-      'bank ledger entry'
-      'action action action';
+      'bank ledger entry';
     gap: var(--spacing-8) var(--spacing-12);
     padding: var(--spacing-10) var(--spacing-16) var(--spacing-12);
     border-bottom: var(--border-width) solid var(--color-border-default);
@@ -268,14 +250,6 @@ tbody tr.detailRow:last-child > td {
     grid-area: status;
     justify-self: end;
     align-self: center;
-  }
-
-  .action {
-    grid-area: action;
-  }
-
-  .action:empty {
-    display: none !important;
   }
 
   .detailRow,
