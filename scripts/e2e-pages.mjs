@@ -111,6 +111,29 @@ check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hostin
     'Stripe has a bank row and a ledger row, each with its own amount, both Auto-matched')
 }
 
+// Clicking outside clears the row's focus ring, keeps an expanded row open, and keeps search text.
+{
+  const ringOn = (name) => row(name).locator('xpath=ancestor::tr').evaluate((tr) => getComputedStyle(tr).outlineStyle !== 'none')
+  const outside = () => page.getByRole('heading', { name: 'Transactions' }).click()
+  await row('Nov 25 · Outgoing wire fee').click()
+  await row('Nov 25 · Outgoing wire fee').click()
+  const before = await ringOn('Nov 25 · Outgoing wire fee')
+  await outside()
+  const after = await ringOn('Nov 25 · Outgoing wire fee')
+  await open('Nov 20 · BIRCH STUDIO')
+  const search = detail().getByRole('combobox')
+  await search.fill('birch')
+  await outside()
+  const kept = (await row('Nov 20 · BIRCH STUDIO').getAttribute('aria-expanded')) === 'true' && (await search.inputValue()) === 'birch' && (await page.getByRole('listbox').count()) === 0
+  await search.fill('')
+  await row('Nov 20 · BIRCH STUDIO').click()
+  await page.keyboard.press('Shift+Tab')
+  await page.keyboard.press('Tab')
+  const keyboard = await ringOn('Nov 20 · BIRCH STUDIO')
+  await outside()
+  check(before && !after && kept && keyboard, 'Clicking outside clears the row focus ring and closes the search list, keeping the expanded row and its search text; Tab still shows the ring')
+}
+
 // Status pills explain themselves on hover and keyboard focus, and clicking one does not expand its row.
 {
   const wire = row('Outgoing wire fee')
