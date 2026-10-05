@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { AllocationTable, FinancialTable, Modal, Select, SideNav, Button, Tabs, type AllocationLine } from '.'
+import { AllocationTable, FinancialTable, Modal, Select, SideNav, Button, Tabs, Tooltip, type AllocationLine } from '.'
 
 // All data in this file is test fixture data, not product data.
 const OPTIONS = [
@@ -210,5 +210,32 @@ describe('Tabs', () => {
     expect(pending).toHaveAttribute('aria-selected', 'true')
     await user.click(screen.getByRole('tab', { name: 'APPROVED' }))
     expect(pending).toHaveAttribute('aria-selected', 'true')
+  })
+})
+
+describe('Tooltip', () => {
+  it('describes its trigger on hover and keyboard focus and hides with Escape', async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <Tooltip content="A possible match is ready for your review.">
+          <span>Suggested</span>
+        </Tooltip>
+        <button type="button">Next</button>
+      </>,
+    )
+    const trigger = screen.getByText('Suggested').parentElement!
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    await user.tab()
+    expect(trigger).toHaveFocus()
+    expect(trigger).toHaveAccessibleDescription('A possible match is ready for your review.')
+    expect(screen.getByRole('tooltip')).toBeVisible()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    await user.tab()
+    await user.hover(trigger)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('A possible match is ready for your review.')
+    await user.unhover(trigger)
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   })
 })

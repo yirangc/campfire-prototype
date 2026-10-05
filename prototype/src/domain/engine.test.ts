@@ -8,6 +8,7 @@ import {
   eligibleCandidates,
   keywordSuggestions,
   recordStatus,
+  registerSummary,
   reviewCases,
   searchCandidates,
   statusCounts,
@@ -58,15 +59,21 @@ const FINISH: Action[] = [
 describe('initial fixture', () => {
   const state = initialState()
 
-  it('counts 24 records in 16 review cases, the 5 auto-matched pairs included once each', () => {
-    expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 14, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
+  it('counts 24 records in 24 rows, one per record, with pairs sharing a status', () => {
+    expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 8, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
     const cases = reviewCases(state)
-    expect(cases).toHaveLength(16)
-    expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(5)
-    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(8)
-    const ids = cases.flatMap((c) => c.recordIds)
-    expect(ids).toHaveLength(24)
+    expect(cases).toHaveLength(24)
+    expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(10)
+    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(16)
+    expect(cases.filter((c) => c.side === 'bank')).toHaveLength(12)
+    const ids = cases.map((c) => c.record.id)
     expect(new Set(ids).size).toBe(24)
+    // Both rows of a pair show the same status and pair.
+    const stripe = cases.filter((c) => c.suggestion?.id === 'A1')
+    expect(stripe.map((c) => [c.side, c.status, c.record.amount])).toEqual([
+      ['bank', 'auto-matched', 1_250_000],
+      ['ledger', 'auto-matched', 1_250_000],
+    ])
   })
 
   it('derives the initial balances from the PRD', () => {
@@ -196,7 +203,7 @@ describe('match rules', () => {
     const s = run(initialState(), { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
     expect(activeSuggestions(s).map((x) => x.id)).toEqual(['S1', 'S2', 'A1', 'A2', 'A3', 'A4', 'A5'])
     expect(recordStatus(s, 'B03')).toBe('unmatched')
-    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 12, confirmed: 2 })
+    expect(statusCounts(s)).toMatchObject({ suggested: 4, unmatched: 8, confirmed: 2 })
   })
 })
 
@@ -205,7 +212,7 @@ describe('dismissal and its undo', () => {
     let s = run(initialState(), { type: 'dismiss-suggestion', suggestionId: 'S3' })
     expect(recordStatus(s, 'B03')).toBe('unmatched')
     expect(recordStatus(s, 'L03')).toBe('unmatched')
-    expect(reviewCases(s)).toHaveLength(17)
+    expect(reviewCases(s)).toHaveLength(24)
     const restored = run(s, { type: 'restore-suggestion', suggestionId: 'S3' })
     expect(recordStatus(restored, 'B03')).toBe('suggested')
     s = run(s, { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })
@@ -236,7 +243,7 @@ describe('auto-matched pairs', () => {
     const s = run(start, { type: 'dismiss-suggestion', suggestionId: 'A3' })
     expect(recordStatus(s, 'B10')).toBe('unmatched')
     expect(recordStatus(s, 'L10')).toBe('unmatched')
-    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, unmatched: 16, all: 24 })
+    expect(statusCounts(s)).toMatchObject({ autoMatched: 8, unmatched: 10, all: 24 })
     expect(balances(s)).toEqual(balances(start))
     expect(eligibleCandidates(s, 'B10').map((r) => r.id)).toEqual(['L10'])
     expect(s.history.at(-1)?.summary).toContain('auto-match')
@@ -325,8 +332,8 @@ describe('undo order and completion blockers', () => {
     // Expenses plus outstanding items bring the difference to zero while the Alder/Birch and suggested pairs remain open.
     const s = run(initialState(), ...FINISH.slice(5, 11))
     expect(balances(s).difference).toBe(0)
-    // One blocker for the unreviewed auto-matched pairs, one for the unmatched records.
-    expect(completionBlockers(s)).toHaveLength(2)
+    // One blocker each for the unreviewed auto-matched pairs, the suggested pairs and the unmatched records.
+    expect(completionBlockers(s)).toHaveLength(3)
     expect(reduce(s, { type: 'complete' }, AT).ok).toBe(false)
   })
 
@@ -388,5 +395,19 @@ describe('persistence', () => {
     expect(load(storage)).toMatchObject({ kind: 'unreadable', raw: '{not json' })
     expect(storage.data.get(STORAGE_KEY)).toBe('{not json')
     expect(checkState({ ...initialState(), matches: [{ bankId: 'B01', ledgerId: 'L01' }, { bankId: 'B02', ledgerId: 'L01' }] })).toMatch(/two matches/)
+  })
+})
+
+describe('registerSummary', () => {
+  const rows = reviewCases(initialState())
+  const stripe = rows.filter((c) => c.bank?.description === 'Stripe payout')
+  const unmatchedLedger = rows.filter((c) => c.status === 'unmatched' && c.side === 'ledger')
+
+  it('counts the rows it is given, then bank transactions and ledger entries among them', () => {
+    expect(registerSummary(rows)).toBe('Showing 24 rows · 12 bank transactions · 12 ledger entries')
+    expect(registerSummary(stripe)).toBe('Showing 2 rows · 1 bank transaction · 1 ledger entry')
+    expect(registerSummary(stripe.slice(0, 1))).toBe('Showing 1 row · 1 bank transaction · 0 ledger entries')
+    expect(registerSummary(unmatchedLedger)).toBe(`Showing ${unmatchedLedger.length} rows · 0 bank transactions · ${unmatchedLedger.length} ledger entries`)
+    expect(registerSummary([])).toBe('Showing 0 rows · 0 bank transactions · 0 ledger entries')
   })
 })

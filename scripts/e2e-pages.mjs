@@ -79,7 +79,8 @@ const metric = (label) => page.getByRole('region', { name: 'Balances' }).getByRo
 // The card's text is its label, the info tip's definition, then the value.
 const metricValue = async (label) => (await metric(label).textContent()).match(/-?\$[\d,]+\.\d\d$/)?.[0]
 const metricHas = async (label, value) => (await metricValue(label)) === value
-const row = (name) => page.getByRole('button', { name, exact: false }).and(page.locator('[aria-expanded]'))
+// A pair has a bank row and a ledger row; when both match, the bank row (listed first) is meant.
+const row = (name) => page.getByRole('button', { name, exact: false }).and(page.locator('[aria-expanded]')).first()
 // The open row's detail cell (one is open at a time).
 const detail = () => page.locator('td[id^="case-"]')
 const open = async (name) => {
@@ -98,6 +99,72 @@ const ledgerCardShowsCounterparty = async (name, counterparty) => {
 }
 check(await ledgerCardShowsCounterparty('Nov 03 · Stripe payout', 'Stripe'), 'Auto-matched ledger card shows Counterparty: Stripe, no Match status')
 check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hosting'), 'Suggested ledger card shows Counterparty: Northstar Hosting, no Match status')
+
+// One row per record: the Stripe pair is a bank row and a ledger row, each with its own amount column.
+{
+  const bankRow = page.getByRole('button', { name: 'Bank transaction, Nov 03 · Stripe payout', exact: true }).locator('xpath=ancestor::tr')
+  const ledgerRow = page.getByRole('button', { name: 'Ledger entry, Nov 03 · Stripe payout', exact: true }).locator('xpath=ancestor::tr')
+  const amounts = async (tr) => (await tr.locator('td').allInnerTexts()).slice(0, 2).map((t) => t.trim())
+  const statuses = async () => [await bankRow.locator('[data-status]').getAttribute('data-status'), await ledgerRow.locator('[data-status]').getAttribute('data-status')]
+  const [b, l] = [await amounts(bankRow), await amounts(ledgerRow)]
+  check(b[0] === '+$12,500.00' && b[1].startsWith('—') && l[0].startsWith('—') && l[1] === '+$12,500.00' && (await statuses()).join() === 'auto-matched,auto-matched',
+    'Stripe has a bank row and a ledger row, each with its own amount, both Auto-matched')
+}
+
+// Clicking outside clears the row's focus ring, keeps an expanded row open, and keeps search text.
+{
+  const ringOn = (name) => row(name).locator('xpath=ancestor::tr').evaluate((tr) => getComputedStyle(tr).outlineStyle !== 'none')
+  const outside = () => page.getByRole('heading', { name: 'Transactions' }).click()
+  await row('Nov 25 · Outgoing wire fee').click()
+  await row('Nov 25 · Outgoing wire fee').click()
+  const before = await ringOn('Nov 25 · Outgoing wire fee')
+  await outside()
+  const after = await ringOn('Nov 25 · Outgoing wire fee')
+  await open('Nov 20 · BIRCH STUDIO')
+  const search = detail().getByRole('combobox')
+  await search.fill('birch')
+  await outside()
+  const kept = (await row('Nov 20 · BIRCH STUDIO').getAttribute('aria-expanded')) === 'true' && (await search.inputValue()) === 'birch' && (await page.getByRole('listbox').count()) === 0
+  await search.fill('')
+  await row('Nov 20 · BIRCH STUDIO').click()
+  // Keyboard focus. WebKit's Tab skips buttons by default (Safari reaches them with Option+Tab or a setting), so
+  // there the row is focused as keyboard focus would be, with focusVisible; the other engines use Tab.
+  let ringed = 'Nov 20 · BIRCH STUDIO'
+  if (engine === 'webkit') {
+    await outside()
+    ringed = 'Nov 27 · Account service charge'
+    await row(ringed).evaluate((el) => el.focus({ focusVisible: true }))
+  } else {
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Tab')
+  }
+  const keyboard = await ringOn(ringed)
+  await outside()
+  check(before && !after && kept && keyboard, `Clicking outside clears the row focus ring and closes the search list, keeping the expanded row and its search text; keyboard focus still shows the ring ${JSON.stringify({ before, after, kept, keyboard })}`)
+}
+
+// Status pills explain themselves on hover and keyboard focus, and a click on one toggles its row once.
+{
+  const wire = row('Outgoing wire fee')
+  const pill = wire.locator('xpath=ancestor::tr').locator('[data-tooltip-trigger]')
+  const tip = page.getByRole('tooltip')
+  await pill.hover()
+  const hovered = (await tip.textContent()) === 'This transaction still needs a match or an explanation.'
+  const box = await tip.boundingBox()
+  const width = page.viewportSize().width
+  await pill.click()
+  const opened = (await wire.getAttribute('aria-expanded')) === 'true' && (await tip.isVisible())
+  await pill.click()
+  const closed = (await wire.getAttribute('aria-expanded')) === 'false'
+  check(hovered && box && box.x >= 0 && box.x + box.width <= width && opened && closed,
+    `Unmatched pill shows its tooltip on hover, inside the viewport, and each click on it toggles the row once ${JSON.stringify({ hovered, opened, closed })}`)
+  await page.mouse.move(0, 0)
+  await row('Nov 03 · Stripe payout').focus()
+  await page.keyboard.press('Tab')
+  const focused = (await tip.textContent()) === 'The system found a match. Review the details to confirm it.'
+  await page.keyboard.press('Escape')
+  check(focused && (await tip.count()) === 0, 'Auto-matched pill shows its tooltip on keyboard focus and Escape hides it')
+}
 
 // Confirm a suggestion, Undo it, confirm it again.
 await open('Nov 04 · ACH NORTH')
@@ -223,12 +290,47 @@ check(await final(), 'Completed again: 21 Confirmed, 3 Outstanding, $0.00 differ
 // Reset.
 await page.getByRole('button', { name: 'Reset demo' }).click()
 await page.getByRole('dialog').getByRole('button', { name: 'Reset demo' }).click()
-check((await tabCount('Confirmed')) === 0 && (await tabCount('Unmatched')) === 14 && (await metricHas('Remaining difference', '$320.00')), 'Reset demo restores the original data')
+check((await tabCount('Confirmed')) === 0 && (await tabCount('Unmatched')) === 8 && (await metricHas('Remaining difference', '$320.00')), 'Reset demo restores the original data')
 await page.reload({ waitUntil: 'networkidle' })
 check((await tabCount('Confirmed')) === 0, 'Reset survives a reload')
 check(page.problems.length === 0, `No errors during the flow${page.problems.length ? `: ${page.problems.join('; ')}` : ''}`)
 
 const version = browser.version()
+// ---------- 3. Scrollbars never shift the layout ----------
+// Chromium runs headless without scrollbars unless asked, so it gets a second launch that shows them.
+{
+  const shown = engine === 'chromium' ? await pw.chromium.launch({ ...(process.env.CI ? {} : { executablePath: localChromium }), ignoreDefaultArgs: ['--hide-scrollbars'] }) : browser
+  const page = await shown.newPage({ viewport: { width: 1440, height: 2000 } })
+  await page.goto(`${site}prototype/`)
+  await page.evaluate(() => localStorage.clear())
+  await page.reload()
+  const width = async () => (await page.locator('table').first().boundingBox()).width
+  const before = await width()
+  await page.getByRole('button', { name: /Stripe payout/ }).first().click()
+  const scrolls = await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)
+  check(scrolls && (await width()) === before, `The table keeps its width (${before}px) when the page starts to scroll`)
+  const fades = await page.evaluate(() => document.documentElement.hasAttribute('data-scrollbar-fade'))
+  if (fades) {
+    const visible = () => page.evaluate(() => document.documentElement.hasAttribute('data-scrollbar-visible'))
+    await page.setViewportSize({ width: 1440, height: 900 })
+    const idle = !(await visible())
+    await page.mouse.move(700, 400)
+    await page.mouse.wheel(0, 300)
+    await page.waitForFunction(() => document.documentElement.hasAttribute('data-scrollbar-visible'))
+    await page.waitForFunction(() => !document.documentElement.hasAttribute('data-scrollbar-visible'), null, { timeout: 3000 })
+    await page.evaluate(() => document.activeElement?.blur())
+    await page.keyboard.press('End')
+    const keyboard = await page
+      .waitForFunction(() => scrollY > 300 && document.documentElement.hasAttribute('data-scrollbar-visible'), null, { timeout: 2000 })
+      .then(() => true, () => false)
+    check(idle && keyboard, 'Classic scrollbars hide while idle and show while scrolling, by wheel or keyboard')
+  } else {
+    console.log('note Scrollbars here are overlay or hidden, so the fade is left to the system')
+  }
+  await page.close()
+  if (shown !== browser) await shown.close()
+}
+
 await browser.close()
 console.log(`\n${engine} ${version}: ${failures ? `${failures} check(s) failed` : 'all checks passed'}`)
 process.exit(failures ? 1 : 0)

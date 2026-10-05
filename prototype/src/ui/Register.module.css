@@ -56,9 +56,10 @@
   cursor: pointer;
 }
 
-/* The last row opened or closed, and any row whose disclosure has keyboard focus, carries the shared
-   Field/Focus ring on the whole row instead of around the label only. */
-.rowLast,
+/* The last row opened or closed, while its disclosure still has focus, and any row whose disclosure has keyboard
+   focus, carry the shared Field/Focus ring on the whole row instead of around the label only. Clicking anywhere
+   else moves focus away, so the ring clears (Yirang, 2026-10-05). */
+.rowLast:has(.disclosure:focus),
 .row:has(.disclosure:focus-visible) {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);

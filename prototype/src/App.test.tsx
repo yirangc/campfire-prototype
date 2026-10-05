@@ -4,8 +4,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { App } from './App'
 import { STORAGE_KEY } from './domain/persistence'
 
+// The line above the register that describes the rows on screen.
+const summary = () => document.querySelector('[class*=registerFooter] p')?.textContent
 const metric = (label: string) => screen.getByText(label).closest('div[class*=card], section, article')?.textContent ?? ''
-const row = (text: RegExp) => screen.getByRole('button', { name: text })
+// A pair has a bank row and a ledger row; when both match, the bank row (listed first) is meant.
+const row = (text: RegExp) => screen.getAllByRole('button', { name: text })[0]
 // The open row's detail cell (one is open at a time).
 const detail = () => {
   const cell = document.querySelector<HTMLElement>('td[id^="case-"]')
@@ -18,20 +21,102 @@ beforeEach(() => {
 })
 
 describe('Reconciliation prototype', () => {
-  it('starts with 24 records in 16 cases, the auto-matched pairs in the main table', async () => {
+  it('starts with 24 records in 24 rows, the auto-matched pairs in the main table', async () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: 'Transactions' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'All (24)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Auto-matched (10)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Already matched/ })).not.toBeInTheDocument()
-    expect(screen.getByText(/Showing 16 of 16 review cases · 12 bank transactions \/ 12 ledger entries/)).toBeInTheDocument()
+    expect(summary()).toBe('Showing 24 rows · 12 bank transactions · 12 ledger entries')
     await userEvent.setup().click(screen.getByRole('tab', { name: 'Auto-matched (10)' }))
-    expect(screen.getByText('5 auto-matched pairs · 10 records awaiting review')).toBeInTheDocument()
+    expect(summary()).toBe('Showing 10 rows · 5 bank transactions · 5 ledger entries')
     expect(within(row(/Nov 03 · Stripe payout/).closest('tr')!).getByText('Auto-matched')).toBeInTheDocument()
     expect(metric('Remaining difference')).toContain('$320.00')
     expect(metric('Cleared balance')).toContain('$100,000.00')
+  })
+
+  it('describes only the rows on screen above the table, after the tab, the search and each change', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const search = screen.getByRole('searchbox')
+    await user.click(screen.getByRole('tab', { name: 'Unmatched (8)' }))
+    expect(summary()).toBe('Showing 8 rows · 4 bank transactions · 4 ledger entries')
+    await user.type(search, 'wire fee')
+    expect(summary()).toBe('Showing 1 row · 1 bank transaction · 0 ledger entries')
+    await user.clear(search)
+    await user.type(search, 'zzz')
+    expect(summary()).toBe('Showing 0 rows · 0 bank transactions · 0 ledger entries')
+    await user.click(screen.getByRole('tab', { name: 'All (24)' }))
+    expect(summary()).toBe('Showing 0 rows · 0 bank transactions · 0 ledger entries')
+    await user.clear(search)
+    await user.type(search, 'stripe')
+    expect(summary()).toBe('Showing 2 rows · 1 bank transaction · 1 ledger entry')
+    await user.clear(search)
+    // Confirming a suggestion moves its two rows into Confirmed; Undo moves them back.
+    await user.click(screen.getByRole('tab', { name: 'Suggested (6)' }))
+    expect(summary()).toBe('Showing 6 rows · 3 bank transactions · 3 ledger entries')
+    await user.click(row(/Nov 04 · ACH NORTH/))
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect(summary()).toBe('Showing 4 rows · 2 bank transactions · 2 ledger entries')
+    await user.click(screen.getByRole('tab', { name: 'Confirmed (2)' }))
+    expect(summary()).toBe('Showing 2 rows · 1 bank transaction · 1 ledger entry')
+  })
+
+  it('lists only Unmatched cases in the Unmatched tab and keeps the list and count current', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const pills = () => [...document.querySelectorAll('tbody [data-status]')].map((el) => el.getAttribute('data-status'))
+    await user.click(screen.getByRole('tab', { name: 'Unmatched (8)' }))
+    expect(pills()).toHaveLength(8)
+    expect(new Set(pills())).toEqual(new Set(['unmatched']))
+    expect(screen.queryByRole('button', { name: /Nov 04 · ACH NORTH/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'Suggested (6)' }))
+    expect(new Set(pills())).toEqual(new Set(['suggested']))
+    await user.click(screen.getByRole('tab', { name: 'All (24)' }))
+    expect(pills()).toContain('suggested')
+    // Dismissing a suggestion moves its pair into Unmatched; Undo moves it back.
+    await user.click(row(/Nov 18 · ALDER SUPPLY/))
+    await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
+    await user.click(screen.getByRole('tab', { name: 'Unmatched (10)' }))
+    expect(pills()).toHaveLength(10)
+    expect(row(/Nov 18 · ALDER SUPPLY/)).toBeInTheDocument()
+    await user.click(screen.getByRole('tab', { name: 'All (24)' }))
+    if (row(/Nov 18 · ALDER SUPPLY/).getAttribute('aria-expanded') !== 'true') await user.click(row(/Nov 18 · ALDER SUPPLY/))
+    await user.click(screen.getByRole('button', { name: /Undo dismissing GL-1108/ }))
+    await user.click(screen.getByRole('tab', { name: 'Unmatched (8)' }))
+    expect(pills()).toHaveLength(8)
+    expect(screen.queryByRole('button', { name: /Nov 18 · ALDER SUPPLY/ })).not.toBeInTheDocument()
+  })
+
+  it('gives each bank transaction and ledger entry its own row and keeps pair statuses in sync', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const bankRow = screen.getByRole('button', { name: 'Bank transaction, Nov 03 · Stripe payout' })
+    const ledgerRow = screen.getByRole('button', { name: 'Ledger entry, Nov 03 · Stripe payout' })
+    const cells = (b: HTMLElement) => [...b.closest('tr')!.querySelectorAll('td')].map((td) => td.textContent!.replace('—None', '—'))
+    expect(cells(bankRow).slice(0, 3)).toEqual(['+$12,500.00', '—', '—'])
+    expect(cells(ledgerRow).slice(0, 3)).toEqual(['—', '+$12,500.00', 'GL-1100 · Nov 03'])
+    const status = (b: HTMLElement) => b.closest('tr')!.querySelector('[data-status]')!.getAttribute('data-status')
+    expect([status(bankRow), status(ledgerRow)]).toEqual(['auto-matched', 'auto-matched'])
+    // Expanding the ledger row shows the match and leaves the bank row in place.
+    await user.click(ledgerRow)
+    expect(within(detail()).getByText('The amount, date, and description match. Review the details below, then confirm.')).toBeInTheDocument()
+    expect(bankRow).toBeInTheDocument()
+    await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
+    expect([status(bankRow), status(ledgerRow)]).toEqual(['confirmed', 'confirmed'])
+    expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
+    // The bank amount clears once, not once per row.
+    expect(metric('Cleared balance')).toContain('$112,500.00')
+    await user.click(screen.getByRole('tab', { name: 'Confirmed (2)' }))
+    expect(screen.getAllByRole('button', { name: /Stripe payout/ })).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Bank transaction, Nov 03 · Stripe payout' }))
+    await user.click(within(detail()).getByRole('button', { name: 'Undo' }))
+    expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
+    expect(metric('Cleared balance')).toContain('$100,000.00')
+    await user.click(screen.getByRole('tab', { name: 'Auto-matched (10)' }))
+    expect([status(screen.getByRole('button', { name: /Bank transaction, Nov 03 · Stripe/ })), status(screen.getByRole('button', { name: /Ledger entry, Nov 03 · Stripe/ }))]).toEqual(['auto-matched', 'auto-matched'])
   })
 
   it('confirms a suggestion from the keyboard and offers Undo in the expanded row', async () => {
@@ -42,7 +127,7 @@ describe('Reconciliation prototype', () => {
     await user.keyboard('{Enter}')
     await user.click(within(detail()).getByRole('button', { name: 'Confirm match' }))
     expect(screen.getByRole('tab', { name: 'Confirmed (2)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (12)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
     expect(metric('Book balance')).toContain('$109,970.00')
     expect(metric('Cleared balance')).toContain('$97,600.00')
     // A later action elsewhere doesn't take away this row's Undo.
@@ -65,11 +150,12 @@ describe('Reconciliation prototype', () => {
     await user.click(row(/Nov 18 · ALDER SUPPLY/))
     await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
     expect(screen.getByRole('tab', { name: 'Suggested (4)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (10)' })).toBeInTheDocument()
     expect(screen.getByText('Suggestion dismissed')).toBeInTheDocument()
     expect(metric('Remaining difference')).toContain('$320.00')
     await user.click(screen.getByRole('button', { name: /Undo dismissing GL-1108/ }))
     expect(screen.getByRole('tab', { name: 'Suggested (6)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
   })
 
   it('searches with the keyboard, then confirms the selected entry', async () => {
@@ -165,11 +251,43 @@ describe('Reconciliation prototype', () => {
     const user = userEvent.setup()
     render(<App />)
     const button = row(/Nov 04 · ACH NORTH/)
-    await user.click(within(button.closest('tr')!).getByText('GL-1101 · Nov 03'))
+    await user.click(within(button.closest('tr')!).getByText(/2,400\.00/, { selector: 'td' }))
     expect(button).toHaveAttribute('aria-expanded', 'true')
-    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    await user.click(within(button.closest('tr')!).getAllByText(/2,400\.00/, { selector: 'td' })[0])
     expect(button).toHaveAttribute('aria-expanded', 'false')
     expect(button).toHaveFocus()
+    // The status pill is part of the row: one click toggles it once, with the tooltip showing.
+    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('tooltip')).toBeInTheDocument()
+    await user.click(within(button.closest('tr')!).getByText('Suggested'))
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('explains each status pill in a tooltip on hover and keyboard focus, and a click on it toggles the row once', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    const tr = row(/Nov 04 · ACH NORTH/).closest('tr')!
+    const pill = within(tr).getByText('Suggested').closest<HTMLElement>('[data-tooltip-trigger]')!
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    await user.hover(pill)
+    expect(screen.getByRole('tooltip')).toHaveTextContent('A possible match is ready for your review.')
+    expect(pill).toHaveAccessibleDescription('A possible match is ready for your review.')
+    await user.click(pill)
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'true')
+    await user.click(pill)
+    expect(row(/Nov 04 · ACH NORTH/)).toHaveAttribute('aria-expanded', 'false')
+    await user.unhover(pill)
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    // From the keyboard: Tab from the row's disclosure reaches the pill; Escape hides the tooltip.
+    row(/Nov 03 · Stripe payout/).focus()
+    await user.tab()
+    expect(screen.getByRole('tooltip')).toHaveTextContent('The system found a match. Review the details to confirm it.')
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+    expect(row(/Nov 03 · Stripe payout/)).toHaveAttribute('aria-expanded', 'false')
+    await user.hover(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched'))
+    expect(screen.getByRole('tooltip')).toHaveTextContent('This transaction still needs a match or an explanation.')
   })
 
   it('resets the demo to the original data and clears saved actions', async () => {
@@ -181,7 +299,7 @@ describe('Reconciliation prototype', () => {
     await user.click(screen.getByRole('button', { name: 'Reset demo' }))
     await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Reset demo' }))
     expect(screen.getByRole('tab', { name: 'Confirmed (0)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'Auto-matched (10)' })).toBeInTheDocument()
     expect(metric('Cleared balance')).toContain('$100,000.00')
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')
@@ -198,7 +316,7 @@ describe('Reconciliation prototype', () => {
     expect(row(/Outgoing wire fee/)).toHaveFocus()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(within(row(/Outgoing wire fee/).closest('tr')!).getByText('Unmatched')).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (14)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (8)' })).toBeInTheDocument()
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{"history":[]}').history).toHaveLength(0)
     expect(metric('Remaining difference')).toContain('$320.00')
     await user.click(row(/Outgoing wire fee/))
@@ -221,7 +339,7 @@ describe('Reconciliation prototype', () => {
     await user.click(stripe())
     await user.click(within(detail()).getByRole('button', { name: 'Dismiss suggestion' }))
     expect(screen.getByRole('tab', { name: 'Auto-matched (8)' })).toBeInTheDocument()
-    expect(screen.getByRole('tab', { name: 'Unmatched (16)' })).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Unmatched (10)' })).toBeInTheDocument()
     expect(within(detail()).getByText('Auto-match dismissed')).toBeInTheDocument()
     await user.click(within(detail()).getByRole('button', { name: /Undo dismissing GL-1100/ }))
     expect(screen.getByRole('tab', { name: 'Auto-matched (10)' })).toBeInTheDocument()
@@ -257,7 +375,8 @@ describe('Reconciliation prototype', () => {
     await user.click(screen.getByRole('button', { name: /Complete reconciliation/ }))
     const alert = screen.getByRole('alert')
     expect(alert).toHaveTextContent('10 of 24 records are auto-matched and still need your review')
-    expect(alert).toHaveTextContent('14 of 24 records are still unmatched (6 of them have a suggested match)')
+    expect(alert).toHaveTextContent('6 of 24 records have a suggested match that still needs your review')
+    expect(alert).toHaveTextContent('8 of 24 records are still unmatched')
     expect(alert).toHaveTextContent('The remaining difference is $320.00')
   })
 

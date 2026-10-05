@@ -12,6 +12,34 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Reserve the page scrollbar's space even when nothing scrolls, so it never shifts the layout sideways. */
+  scrollbar-gutter: stable;
+}
+
+/* Classic scrollbars hide while idle and show while scrolling or near their edge (scrollbars.ts sets the attributes).
+   Only the color changes: the width, dragging and keyboard scrolling stay native. Design addition: Figma draws no
+   scrollbar, so the thumb uses the suggested gray/400. A scroll area with its own Figma scrollbar
+   (data-scrollbar="figma", the allocation table) is left alone. */
+:root[data-scrollbar-fade],
+:root[data-scrollbar-fade] :not([data-scrollbar]) {
+  scrollbar-color: transparent transparent;
+}
+
+:root[data-scrollbar-fade][data-scrollbar-visible],
+:root[data-scrollbar-fade] [data-scrollbar-visible]:not([data-scrollbar]) {
+  scrollbar-color: var(--color-gray-400) transparent;
+}
+
+/* The page scrollbar fades where the browser animates scrollbar-color; inner ones switch, so components keep their own transitions. */
+/* scrollbar-color inherits, so reset it there (zero specificity, so the component's own rule still wins). */
+:where(:root[data-scrollbar-fade] [data-scrollbar]) {
+  scrollbar-color: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-scrollbar-fade] {
+    transition: scrollbar-color 200ms ease-out;
+  }
 }
 
 body {

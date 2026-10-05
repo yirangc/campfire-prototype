@@ -30,6 +30,9 @@ Start from a reset. The page opens with a $320.00 difference and 24 records in 1
 
 Other paths worth trying:
 
+- **One row per record.** Each bank transaction and ledger entry has its own row: *Nov 03 · Stripe payout* appears twice, once with the bank amount and once with the ledger amount and GL-1100. Both rows show the pair's status and change together, and expanding either shows the match. Created entries get their own row, tagged Created.
+- **Live table summary.** The line above the table describes only the rows on screen: switch tabs, search or confirm a match and it updates, for example *Showing 6 rows · 3 bank transactions · 3 ledger entries* on the Suggested tab.
+- **Status tooltips.** Hover over a status pill, or Tab to it, to read what the status means. Escape hides the tooltip. Clicking the pill expands or collapses its row like any other cell.
 - **Undo.** Expand a confirmed or outstanding row and use **Undo** at the right of its banner. It reverses that row's own action, even after later actions elsewhere. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).
 - **Leave unresolved.** Choose **Leave Unresolved** in any open case: the row collapses in place and keeps its status (Unmatched, Suggested or Auto-matched). Nothing else changes, and it still needs a resolution before you can complete. Click the row to continue.
@@ -80,7 +83,7 @@ The UI imports every component, icon and token from `../../src` (the shared desi
 
 The PRD wins where it conflicts with Figma. The main departures, all listed in `docs/design-flags.md` and `docs/figma-and-decisions.md`:
 
-- The Figma frames' eight-row November and "John Glasgow" are replaced by the PRD dataset and Maya. Tabs count records (24), not rows. The PRD's five background pairs are Auto-matched items in the main table that still need review (Yirang's design), so the cleared balance starts at $100,000.00. Unmatched counts every transaction not yet confirmed or documented, so it starts at 14 and includes the 6 records in suggested pairs (Suggested is a subset, listed in both tabs). The PRD splits them 6 / 8; this follows Yirang's request.
+- The Figma frames' eight-row November and "John Glasgow" are replaced by the PRD dataset and Maya. Tabs count records (24); the table shows one row per record, plus a row for each created entry. The PRD's five background pairs are Auto-matched items in the main table that still need review (Yirang's design), so the cleared balance starts at $100,000.00. Each tab lists and counts only its own status, as the PRD splits them: Suggested starts at 6 and Unmatched at 8. Suggested and auto-matched pairs appear in their own tabs and in All, not in Unmatched (Yirang, 2026-10-05).
 - The GL-1101 and GL-1105 memos read "ACH Northstar Hosting" and "DELTA PAY receipt" (PRD: "Northstar hosting", "Delta receipt") so the two correct suggestions look like close matches, at Yirang's request.
 - The register heading is "Transactions", following Figma and Yirang's design.
 - Expanded rows have no arrow between the bank and ledger cards (Figma draws a 32 px chevron column), at Yirang's request. Side by side, the two cards line up row by row so the amount, date, description and reference are at the same height and column.

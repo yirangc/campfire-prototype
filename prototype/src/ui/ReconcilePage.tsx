@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Button, Icon, MetricCard, Modal, Notice, Select, Tabs, type TabItem } from '../../../src/components'
-import { ACCOUNT, BANK_EXCEPTIONS, LEDGER_EXCEPTIONS, OPENING_BALANCE, PERIOD, STATEMENT_IMPORTED } from '../domain/fixture'
+import { ACCOUNT, OPENING_BALANCE, PERIOD, STATEMENT_IMPORTED } from '../domain/fixture'
 import { longDate, money, signed, timestamp } from '../domain/format'
 import {
   balances,
   completionBlockers,
   recordCounterparty,
+  registerSummary,
   reviewCases,
   statusCounts,
   type RecordStatus,
@@ -28,13 +29,12 @@ const DEFINITIONS = {
 function caseMatchesQuery(c: ReviewCase, query: string) {
   const q = query.trim().toLowerCase()
   if (!q) return true
-  const records = [c.bank, c.ledger].filter(Boolean)
-  return records.some((r) =>
-    [r!.description, recordCounterparty(r!), r!.reference ?? '', r!.id, r!.kind === 'ledger' ? r!.entryId : '', money(r!.amount)]
-      .join(' ')
-      .toLowerCase()
-      .includes(q),
-  )
+  // A row matches on its own record only, since it shows only that record.
+  const r = c.record
+  return [r.description, recordCounterparty(r), r.reference ?? '', r.id, r.kind === 'ledger' ? r.entryId : '', money(r.amount)]
+    .join(' ')
+    .toLowerCase()
+    .includes(q)
 }
 
 export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (message: string) => void }) {
@@ -50,8 +50,8 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const cases = useMemo(() => reviewCases(state), [state])
   const blockers = completionBlockers(state)
   const completed = state.completion.status === 'completed'
-  // Suggested pairs are still unmatched transactions, so the Unmatched tab lists them too.
-  const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab || (tab === 'unmatched' && c.status === 'suggested')
+  // Each tab lists only its own status; All lists every case.
+  const inTab = (c: (typeof cases)[number]) => tab === 'all' || c.status === tab
   const visible = cases.filter((c) => inTab(c) && caseMatchesQuery(c, query))
 
   // Tab order from Yirang's design (2026-10-04). Counts are records, derived from the current state.
@@ -97,6 +97,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
       `Confirmed records,${counts.confirmed}`,
       `Outstanding records,${counts.outstanding}`,
       `Auto-matched records awaiting review,${counts.autoMatched}`,
+      `Suggested records awaiting review,${counts.suggested}`,
       `Unmatched records,${counts.unmatched}`,
       '',
       'History',
@@ -113,9 +114,9 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
   const nextStep = () => {
     if (counts.unresolved === 0 && totals.difference === 0)
       return { title: 'Ready to complete', detail: `All ${counts.all} records are explained and the remaining difference is $0.00.` }
-    const autoPairs = cases.filter((c) => c.status === 'auto-matched').length
-    const suggestedPairs = cases.filter((c) => c.status === 'suggested').length
-    const noSuggestion = counts.unmatched - counts.suggested
+    const autoPairs = cases.filter((c) => c.status === 'auto-matched' && c.side === 'bank').length
+    const suggestedPairs = cases.filter((c) => c.status === 'suggested' && c.side === 'bank').length
+    const noSuggestion = counts.unmatched
     const parts = [
       autoPairs ? `review ${autoPairs} auto-matched ${autoPairs === 1 ? 'pair' : 'pairs'}` : '',
       suggestedPairs ? `review ${suggestedPairs} suggested ${suggestedPairs === 1 ? 'match' : 'matches'}` : '',
@@ -293,10 +294,7 @@ export function ReconcilePage({ recon, announce }: { recon: Recon; announce: (me
           </div>
           <div className={styles.registerFooter}>
             <p className="cf-text-caption cf-text-secondary">
-              {tab === 'auto-matched'
-                ? `${visible.length} auto-matched ${visible.length === 1 ? 'pair' : 'pairs'} · ${counts.autoMatched} ${counts.autoMatched === 1 ? 'record' : 'records'} awaiting review`
-                : `Showing ${visible.length} of ${cases.length} review cases · ${BANK_EXCEPTIONS.length} bank transactions / ${LEDGER_EXCEPTIONS.length} ledger entries · counts are records (${counts.all} in total)`}
-              {state.generated.length > 0 && ` · ${state.generated.length} created ${state.generated.length === 1 ? 'entry' : 'entries'}`}
+              {registerSummary(visible)}
             </p>
             <p className={styles.movement}>
               Net change in bank balance: <span className={styles.num}>{signed(totals.netBankMovement)}</span>

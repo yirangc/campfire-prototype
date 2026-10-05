@@ -68,9 +68,9 @@ export function recordStatus(state: ReconState, id: string): RecordStatus {
 export interface StatusCounts {
   /** Records in an automatic match awaiting review. Not counted as unmatched, but still unresolved. */
   autoMatched: number
-  /** Unmatched records that have an active suggested match (a subset of `unmatched`). */
+  /** Records in a suggested match awaiting review. Not counted as unmatched, but still unresolved. */
   suggested: number
-  /** Every record not yet confirmed or documented as outstanding, suggested pairs included. */
+  /** Records with no match, no active suggestion and no outstanding documentation. */
   unmatched: number
   confirmed: number
   outstanding: number
@@ -81,20 +81,17 @@ export interface StatusCounts {
 
 /**
  * Record-based counts over the 24 original records (14 PRD exceptions and the 10 records in auto-matched pairs).
- * Generated entries are never counted. Each transaction counts once: a suggested pair is two unmatched records
- * until it is confirmed, so `unmatched` includes the suggested records (Yirang's request; the PRD splits them
- * 6 / 8). Auto-matched records have their own count and are not unmatched, but they block completion until reviewed.
+ * Generated entries are never counted. Each record counts once, under its own status: suggested and auto-matched
+ * records are not unmatched (Yirang, 2026-10-05, as the PRD's 6 / 8 split), but they block completion until reviewed.
  */
 export function statusCounts(state: ReconState): StatusCounts {
   const counts = { 'auto-matched': 0, suggested: 0, unmatched: 0, confirmed: 0, outstanding: 0 }
   for (const id of ORIGINAL_EXCEPTION_IDS) counts[recordStatus(state, id)] += 1
   const { 'auto-matched': autoMatched, ...rest } = counts
-  const unmatched = counts.suggested + counts.unmatched
-  const unresolved = unmatched + autoMatched
+  const unresolved = counts.suggested + counts.unmatched + autoMatched
   return {
     ...rest,
     autoMatched,
-    unmatched,
     all: ORIGINAL_EXCEPTION_IDS.length,
     unresolved,
     explained: ORIGINAL_EXCEPTION_IDS.length - unresolved,
@@ -104,53 +101,63 @@ export function statusCounts(state: ReconState): StatusCounts {
 export type CaseStatus = RecordStatus
 
 export interface ReviewCase {
-  /** Stable key: the bank record id when the case has one, otherwise the ledger record id. */
+  /** Stable key: the id of the record this row shows. */
   key: string
   status: CaseStatus
+  /** Which record the row shows. Paired records get one row each, carrying the same pair details. */
+  side: 'bank' | 'ledger'
+  record: FinancialRecord
   bank?: BankRecord
   ledger?: LedgerEntry
   suggestion?: Suggestion
   match?: Match
   outstanding?: OutstandingDoc
-  /** Original exception records in this case (a generated entry is linked but not counted). */
+  /** Original exception records the row's action covers (both records of a pair; a generated entry is linked but not counted). */
   recordIds: string[]
   date: string
 }
 
-/** Groups the 24 records into review cases. Each record appears in exactly one case. */
+/**
+ * One row per record (Yirang, 2026-10-05): every bank transaction and ledger entry has its own row, including the
+ * entries created from a bank line. A suggested, auto-matched or confirmed pair gives two rows with the same status and
+ * pair details, so expanding either one shows the match. Rows sort by their own record's date.
+ */
 export function reviewCases(state: ReconState): ReviewCase[] {
   const cases: ReviewCase[] = []
   const used = new Set<string>()
+  const pair = (base: Omit<ReviewCase, 'key' | 'side' | 'record' | 'date'> & { bank: BankRecord; ledger: LedgerEntry }) => {
+    used.add(base.bank.id)
+    used.add(base.ledger.id)
+    cases.push({ ...base, key: base.bank.id, side: 'bank', record: base.bank, date: base.bank.date })
+    cases.push({ ...base, key: base.ledger.id, side: 'ledger', record: base.ledger, date: base.ledger.date })
+  }
 
   for (const match of state.matches) {
     const bank = bankRecord(match.bankId)!
     const ledger = ledgerRecord(state, match.ledgerId)!
-    const recordIds = [bank.id, ...(ledger.generatedFrom ? [] : [ledger.id])]
-    recordIds.forEach((id) => used.add(id))
-    cases.push({ key: bank.id, status: 'confirmed', bank, ledger, match, recordIds, date: bank.date })
+    pair({ status: 'confirmed', bank, ledger, match, recordIds: [bank.id, ...(ledger.generatedFrom ? [] : [ledger.id])] })
   }
   for (const suggestion of activeSuggestions(state)) {
     const bank = bankRecord(suggestion.bankId)!
     const ledger = ledgerRecord(state, suggestion.ledgerId)!
-    used.add(bank.id)
-    used.add(ledger.id)
-    const status = suggestion.kind === 'auto' ? 'auto-matched' : 'suggested'
-    cases.push({ key: bank.id, status, bank, ledger, suggestion, recordIds: [bank.id, ledger.id], date: bank.date })
+    pair({ status: suggestion.kind === 'auto' ? 'auto-matched' : 'suggested', bank, ledger, suggestion, recordIds: [bank.id, ledger.id] })
   }
   for (const doc of state.outstanding) {
     const ledger = ledgerRecord(state, doc.ledgerId)!
     used.add(ledger.id)
-    cases.push({ key: ledger.id, status: 'outstanding', ledger, outstanding: doc, recordIds: [ledger.id], date: ledger.date })
+    cases.push({ key: ledger.id, status: 'outstanding', side: 'ledger', record: ledger, ledger, outstanding: doc, recordIds: [ledger.id], date: ledger.date })
   }
   for (const bank of BANK_EXCEPTIONS) {
     if (used.has(bank.id)) continue
-    cases.push({ key: bank.id, status: 'unmatched', bank, recordIds: [bank.id], date: bank.date })
+    cases.push({ key: bank.id, status: 'unmatched', side: 'bank', record: bank, bank, recordIds: [bank.id], date: bank.date })
   }
   for (const ledger of LEDGER_EXCEPTIONS) {
     if (used.has(ledger.id)) continue
-    cases.push({ key: ledger.id, status: 'unmatched', ledger, recordIds: [ledger.id], date: ledger.date })
+    cases.push({ key: ledger.id, status: 'unmatched', side: 'ledger', record: ledger, ledger, recordIds: [ledger.id], date: ledger.date })
   }
-  return cases.sort((a, b) => a.date.localeCompare(b.date) || a.key.localeCompare(b.key))
+  // Same date: the two rows of a pair sit together, bank row first.
+  const group = (c: ReviewCase) => c.bank?.id ?? c.key
+  return cases.sort((a, b) => a.date.localeCompare(b.date) || group(a).localeCompare(group(b)) || a.side.localeCompare(b.side))
 }
 
 export interface Balances {
@@ -199,10 +206,14 @@ export function completionBlockers(state: ReconState): string[] {
       `${counts.autoMatched} of ${counts.all} records are auto-matched and still need your review. Confirm or dismiss each auto-matched pair.`,
     )
   }
-  if (counts.unmatched > 0) {
-    const suggested = counts.suggested ? ` (${counts.suggested} of them ${counts.suggested === 1 ? 'has' : 'have'} a suggested match)` : ''
+  if (counts.suggested > 0) {
     blockers.push(
-      `${counts.unmatched} of ${counts.all} records are still unmatched${suggested}. Every record needs a match or documented outstanding evidence.`,
+      `${counts.suggested} of ${counts.all} records have a suggested match that still needs your review. Confirm or dismiss each suggestion.`,
+    )
+  }
+  if (counts.unmatched > 0) {
+    blockers.push(
+      `${counts.unmatched} of ${counts.all} records are still unmatched. Every record needs a match or documented outstanding evidence.`,
     )
   }
   if (difference !== 0) {
@@ -332,4 +343,16 @@ export function counterpartyOptions(state: ReconState, recordId: string): string
 
 export function generatedEntryFor(state: ReconState, bankId: string): LedgerEntry | undefined {
   return state.generated.find((g) => g.generatedFrom === bankId)
+}
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
+
+/**
+ * The line above the register (Yirang, 2026-10-05): "Showing 16 rows · 12 bank transactions · 12 ledger entries".
+ * All three counts come from the rows on screen after the tab and the search, created entries included.
+ */
+export function registerSummary(rows: ReviewCase[]): string {
+  const bank = rows.filter((c) => c.side === 'bank').length
+  const ledger = rows.length - bank
+  return `Showing ${plural(rows.length, 'row', 'rows')} · ${plural(bank, 'bank transaction', 'bank transactions')} · ${plural(ledger, 'ledger entry', 'ledger entries')}`
 }
