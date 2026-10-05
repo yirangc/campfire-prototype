@@ -50,7 +50,8 @@ export function AllocationTable({
 }: AllocationTableProps) {
   return (
     <div className={[styles.wrap, className].filter(Boolean).join(' ')}>
-      <div className={styles.scroller}>
+      {/* Figma draws this track permanently, so it keeps its own scrollbar and never fades (see index.css). */}
+      <div className={styles.scroller} data-scrollbar="figma">
         <table className={styles.table}>
           <caption className="cf-visually-hidden">{caption}</caption>
           <colgroup>

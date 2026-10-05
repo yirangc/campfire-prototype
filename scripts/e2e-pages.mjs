@@ -284,6 +284,41 @@ check((await tabCount('Confirmed')) === 0, 'Reset survives a reload')
 check(page.problems.length === 0, `No errors during the flow${page.problems.length ? `: ${page.problems.join('; ')}` : ''}`)
 
 const version = browser.version()
+// ---------- 3. Scrollbars never shift the layout ----------
+// Chromium runs headless without scrollbars unless asked, so it gets a second launch that shows them.
+{
+  const shown = engine === 'chromium' ? await pw.chromium.launch({ ...(process.env.CI ? {} : { executablePath: localChromium }), ignoreDefaultArgs: ['--hide-scrollbars'] }) : browser
+  const page = await shown.newPage({ viewport: { width: 1440, height: 2000 } })
+  await page.goto(`${site}prototype/`)
+  await page.evaluate(() => localStorage.clear())
+  await page.reload()
+  const width = async () => (await page.locator('table').first().boundingBox()).width
+  const before = await width()
+  await page.getByRole('button', { name: /Stripe payout/ }).first().click()
+  const scrolls = await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)
+  check(scrolls && (await width()) === before, `The table keeps its width (${before}px) when the page starts to scroll`)
+  const fades = await page.evaluate(() => document.documentElement.hasAttribute('data-scrollbar-fade'))
+  if (fades) {
+    const visible = () => page.evaluate(() => document.documentElement.hasAttribute('data-scrollbar-visible'))
+    await page.setViewportSize({ width: 1440, height: 900 })
+    const idle = !(await visible())
+    await page.mouse.move(700, 400)
+    await page.mouse.wheel(0, 300)
+    await page.waitForFunction(() => document.documentElement.hasAttribute('data-scrollbar-visible'))
+    await page.waitForFunction(() => !document.documentElement.hasAttribute('data-scrollbar-visible'), null, { timeout: 3000 })
+    await page.evaluate(() => document.activeElement?.blur())
+    await page.keyboard.press('End')
+    const keyboard = await page
+      .waitForFunction(() => scrollY > 300 && document.documentElement.hasAttribute('data-scrollbar-visible'), null, { timeout: 2000 })
+      .then(() => true, () => false)
+    check(idle && keyboard, 'Classic scrollbars hide while idle and show while scrolling, by wheel or keyboard')
+  } else {
+    console.log('note Scrollbars here are overlay or hidden, so the fade is left to the system')
+  }
+  await page.close()
+  if (shown !== browser) await shown.close()
+}
+
 await browser.close()
 console.log(`\n${engine} ${version}: ${failures ? `${failures} check(s) failed` : 'all checks passed'}`)
 process.exit(failures ? 1 : 0)

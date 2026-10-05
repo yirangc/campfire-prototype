@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../../src/index.css'
+import { initScrollbars } from '../../src/scrollbars'
 import { App } from './App'
 
 createRoot(document.getElementById('root')!).render(
@@ -8,3 +9,5 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+initScrollbars()
