@@ -127,12 +127,18 @@ check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hostin
   const kept = (await row('Nov 20 · BIRCH STUDIO').getAttribute('aria-expanded')) === 'true' && (await search.inputValue()) === 'birch' && (await page.getByRole('listbox').count()) === 0
   await search.fill('')
   await row('Nov 20 · BIRCH STUDIO').click()
-  await outside()
-  // Keyboard focus: WebKit's Tab skips buttons by default (as Safari does), so focus the row after a key press,
-  // which browsers treat as keyboard focus.
-  await page.keyboard.press('Shift')
-  await row('Nov 27 · Account service charge').focus()
-  const keyboard = await ringOn('Nov 27 · Account service charge')
+  // Keyboard focus. WebKit's Tab skips buttons by default (Safari reaches them with Option+Tab or a setting), so
+  // there the row is focused as keyboard focus would be, with focusVisible; the other engines use Tab.
+  let ringed = 'Nov 20 · BIRCH STUDIO'
+  if (engine === 'webkit') {
+    await outside()
+    ringed = 'Nov 27 · Account service charge'
+    await row(ringed).evaluate((el) => el.focus({ focusVisible: true }))
+  } else {
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Tab')
+  }
+  const keyboard = await ringOn(ringed)
   await outside()
   check(before && !after && kept && keyboard, `Clicking outside clears the row focus ring and closes the search list, keeping the expanded row and its search text; keyboard focus still shows the ring ${JSON.stringify({ before, after, kept, keyboard })}`)
 }
