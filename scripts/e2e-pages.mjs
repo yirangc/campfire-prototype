@@ -80,7 +80,8 @@ const metric = (label) => page.getByRole('region', { name: 'Balances' }).getByRo
 const metricValue = async (label) => (await metric(label).textContent()).match(/-?\$[\d,]+\.\d\d$/)?.[0]
 const metricHas = async (label, value) => (await metricValue(label)) === value
 const row = (name) => page.getByRole('button', { name, exact: false }).and(page.locator('[aria-expanded]'))
-const detail = () => page.locator('td').filter({ has: page.getByRole('button', { name: 'Leave Unresolved' }) })
+// The open row's detail cell (one is open at a time).
+const detail = () => page.locator('td[id^="case-"]')
 const open = async (name) => {
   if ((await row(name).getAttribute('aria-expanded')) !== 'true') await row(name).click()
 }
@@ -102,8 +103,10 @@ check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hostin
 await open('Nov 04 · ACH NORTH')
 await detail().getByRole('button', { name: 'Confirm match' }).click()
 check((await tabCount('Confirmed')) === 2 && (await metricHas('Cleared balance', '$97,600.00')), 'Confirm match moves ACH NORTH to Confirmed')
-await page.getByRole('button', { name: 'Undo the last action on B01 and L01' }).click()
-check((await tabCount('Confirmed')) === 0 && (await metricHas('Cleared balance', '$100,000.00')), 'Undo reverses the match')
+check((await page.getByRole('columnheader', { name: 'Action', exact: true }).count()) === 0, 'The table has no Action column')
+await open('Nov 04 · ACH NORTH')
+await detail().getByRole('button', { name: 'Undo' }).click()
+check((await tabCount('Confirmed')) === 0 && (await metricHas('Cleared balance', '$100,000.00')), 'Undo in the expanded row reverses the match')
 await open('Nov 04 · ACH NORTH')
 await detail().getByRole('button', { name: 'Confirm match' }).click()
 await open('Nov 12 · DELTA PAY')

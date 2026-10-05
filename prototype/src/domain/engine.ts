@@ -56,7 +56,8 @@ export type Action =
       evidenceId: string | null
     }
   | { type: 'leave-unresolved'; recordId: string; note: string }
-  | { type: 'undo' }
+  /** Without recordId, undoes the latest accounting action; with it, the latest one on that record. */
+  | { type: 'undo'; recordId?: string }
   | { type: 'complete' }
   | { type: 'reopen' }
   | { type: 'set-draft'; key: string; draft: CaseDraft | null }
@@ -291,9 +292,14 @@ export function reduce(state: ReconState, action: Action, at: string): Result {
 
     case 'undo': {
       if (locked) return reject(state, 'Reopen the reconciliation before undoing accounting actions.')
-      const last = state.undoStack[state.undoStack.length - 1]
+      // Each record belongs to at most one live action, so any row's own action can be undone on its own
+      // (Yirang, 2026-10-05: Undo lives in each reviewed row's banner, not only on the latest action).
+      const index = action.recordId
+        ? state.undoStack.findLastIndex((u) => u.recordIds.includes(action.recordId!))
+        : state.undoStack.length - 1
+      const last = state.undoStack[index]
       if (!last) return reject(state, 'There is nothing to undo.')
-      let next: ReconState = { ...state, undoStack: state.undoStack.slice(0, -1) }
+      let next: ReconState = { ...state, undoStack: state.undoStack.filter((_, i) => i !== index) }
       if (last.op.type === 'match') {
         const { matchId } = last.op
         next = { ...next, matches: next.matches.filter((m) => m.id !== matchId) }

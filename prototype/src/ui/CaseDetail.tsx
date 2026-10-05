@@ -72,16 +72,16 @@ export function CaseDetail({ recon, reviewCase: c, onCollapse, announce }: CaseD
 
   const origin: FinancialRecord = c.bank ?? c.ledger!
   const candidates = c.status === 'unmatched' ? eligibleCandidates(state, origin.id) : []
-  const lastUndo = state.undoStack[state.undoStack.length - 1]
-  const canUndoHere =
-    !locked && !!lastUndo && lastUndo.recordIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId)
+  // The latest accounting action on this row's records, whatever was done elsewhere since.
+  const undoEntry = state.undoStack.findLast((u) => u.recordIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId))
+  const canUndoHere = !locked && !!undoEntry
   const dismissed = draft.dismissedSuggestionId ? PROPOSALS.find((s) => s.id === draft.dismissedSuggestionId) : undefined
   const showDismissed = c.status === 'unmatched' && !!dismissed && state.dismissed.includes(dismissed.id)
 
   // ----- actions -----
 
   const undo = () => {
-    const result = dispatch({ type: 'undo' })
+    const result = dispatch({ type: 'undo', recordId: undoEntry?.recordIds[0] })
     if (!result.ok) return fail(result)
     succeed(result.message ?? 'Undone.')
   }

@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type MouseEvent } from 'react'
-import { Button, Icon, StatusPill } from '../../../src/components'
+import { Icon, StatusPill } from '../../../src/components'
 import { shortDate, signed } from '../domain/format'
 import type { ReviewCase } from '../domain/selectors'
 import type { Recon } from '../useRecon'
@@ -13,19 +13,16 @@ export interface RegisterProps {
   onToggle: (key: string) => void
   onCollapse: () => void
   announce: (message: string) => void
-  /** Records touched by the most recent undoable action; that row shows Undo, as in 28:8442. */
-  lastUndoIds: string[]
-  onUndo: () => void
   emptyLabel: string
 }
 
 /**
  * Reconciliation register (49:687): 42 px header on surface/subtle, 40 px rows, 16 px insets, 24 px column gaps,
  * a 230 px transaction column and equal amount, entry and status columns. Each row is one review case; the
- * expanded detail opens inside the table (49:952). The Action column comes from the Resolve exception frame (28:8442).
+ * expanded detail opens inside the table (49:952). The Action column of 28:8442 is removed at Yirang's request
+ * (2026-10-05): Undo sits at the right of the expanded row's banner instead.
  */
-export function Register({ recon, cases, expanded, onToggle, onCollapse, announce, lastUndoIds, onUndo, emptyLabel }: RegisterProps) {
-  const completed = recon.state.completion.status === 'completed'
+export function Register({ recon, cases, expanded, onToggle, onCollapse, announce, emptyLabel }: RegisterProps) {
   // The row Maya last opened or closed keeps focus and the focus ring after it collapses, so she can see where she was.
   const [lastRow, setLastRow] = useState<string | null>(null)
   const refocus = useRef(false)
@@ -41,17 +38,10 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
     refocus.current = true
     onCollapse()
   }
-  // Undo collapses any open row (ReconcilePage) and returns focus to the row whose Undo was pressed.
-  const undo = (key: string) => {
-    setLastRow(key)
-    refocus.current = true
-    onUndo()
-  }
-
   // A confirmed match merges a ledger-only row into its bank row, so follow the record to the row that now holds it.
   const lastKey = lastRow ? (cases.find((c) => c.key === lastRow) ?? cases.find((c) => c.recordIds.includes(lastRow)))?.key : undefined
 
-  // Runs after every render: Undo can leave both the expanded row and lastKey unchanged.
+  // Runs after every render: collapsing after Undo can leave both the expanded row and lastKey unchanged.
   useEffect(() => {
     if (expanded !== null || !refocus.current || !lastKey) return
     refocus.current = false
@@ -69,7 +59,6 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
         <col />
         <col />
         <col className={styles.colStatus} />
-        <col className={styles.colAction} />
       </colgroup>
       <thead>
         <tr>
@@ -80,13 +69,12 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           <th scope="col">Ledger amount</th>
           <th scope="col">Ledger entry / date</th>
           <th scope="col">Status</th>
-          <th scope="col">Action</th>
         </tr>
       </thead>
       <tbody>
         {cases.length === 0 && (
           <tr>
-            <td colSpan={6} className={styles.empty}>
+            <td colSpan={5} className={styles.empty}>
               {emptyLabel}
             </td>
           </tr>
@@ -95,7 +83,6 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
           const open = expanded === c.key
           const primary = c.bank ?? c.ledger!
           const detailId = `case-${c.key}`
-          const showUndo = !completed && lastUndoIds.length > 0 && lastUndoIds.some((id) => c.recordIds.includes(id) || id === c.ledger?.entryId)
           return (
             <Fragment key={c.key}>
               <tr
@@ -139,17 +126,10 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                 <td className={styles.statusCell}>
                   <StatusPill status={c.status} />
                 </td>
-                <td className={styles.action}>
-                  {showUndo ? (
-                    <Button variant="link" className={styles.undo} onClick={() => undo(c.key)} aria-label={`Undo the last action on ${c.recordIds.join(' and ')}`}>
-                      Undo
-                    </Button>
-                  ) : null}
-                </td>
               </tr>
               {open && (
                 <tr className={styles.detailRow}>
-                  <td colSpan={6} id={detailId}>
+                  <td colSpan={5} id={detailId}>
                     <CaseDetail recon={recon} reviewCase={c} onCollapse={collapse} announce={announce} />
                   </td>
                 </tr>

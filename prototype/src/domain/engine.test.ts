@@ -313,6 +313,14 @@ describe('undo order and completion blockers', () => {
     expect(reduce(twice, { type: 'undo' }, AT).ok).toBe(false)
   })
 
+  it('undoes the action on a given record even when later actions exist', () => {
+    const s = run(initialState(), FINISH[0], FINISH[1])
+    const undone = run(s, { type: 'undo', recordId: 'B01' })
+    expect(undone.matches.map((m) => m.bankId)).toEqual(['B02'])
+    expect(undone.undoStack.map((u) => u.recordIds[0])).toEqual(['B02'])
+    expect(reduce(undone, { type: 'undo', recordId: 'B01' }, AT).ok).toBe(false)
+  })
+
   it('a zero difference with unresolved records is blocked', () => {
     // Expenses plus outstanding items bring the difference to zero while the Alder/Birch and suggested pairs remain open.
     const s = run(initialState(), ...FINISH.slice(5, 11))

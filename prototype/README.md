@@ -19,7 +19,7 @@ Progress is saved in this browser's localStorage (`campfire.reconciliation.chase
 
 Start from a reset. The page opens with a $320.00 difference and 24 records in 16 review cases: the PRD's 14 exceptions and 5 auto-matched pairs that still need review.
 
-1. **Confirm a suggestion.** Expand *Nov 04 · ACH NORTH*. The AI notice explains the suggestion, and the two cards show the amounts, dates, references and the 1-day date difference. Choose **Confirm match**. Cleared balance moves; book balance doesn't. An **Undo** link appears in the row's Action column.
+1. **Confirm a suggestion.** Expand *Nov 04 · ACH NORTH*. The AI notice explains the suggestion, and the two cards show the amounts, dates, references and the 1-day date difference. Choose **Confirm match**. Cleared balance moves; book balance doesn't. Expand the row again and its "Match confirmed" banner has **Undo** at the right.
 2. **Spot a wrong suggestion and dismiss it.** Expand *Nov 18 · ALDER SUPPLY*. The suggestion points at Birch Studio (GL-1108) and the notice says the reference and counterparty differ. Choose **Dismiss suggestion**. A compact notice says the suggestion was dismissed, with Undo, and both records become Unmatched. Nothing changes in the balances.
 3. **Search for the right entry.** In the same row, type `alder` or a date such as `Nov 17` or `11/17`, use the arrow keys and Enter to pick GL-1107, then **Confirm match**. Clicking the field lists every unmatched ledger entry, same-amount entries first; typing a keyword, date or amount (such as `12,500` or `-450`) narrows the list. Only an entry with the same signed amount, currency and account can be confirmed; picking another shows why it can't. Do the same for *BIRCH STUDIO* with GL-1108.
 4. **Create a missing expense.** Expand *Nov 30 · Monthly bank service fee* and choose **Create entry…**. Submit without a category to see field errors (focus moves to the first one). Pick *Bank Fees* and **Create and match**. GL-1115 is created and matched; book balance drops by $15.00. Repeat for the wire fee (GL-1116) and the account service charge (GL-1117).
@@ -30,7 +30,7 @@ Start from a reset. The page opens with a $320.00 difference and 24 records in 1
 
 Other paths worth trying:
 
-- **Undo in reverse order.** Use the row's Undo link (the latest action) or the Undo in a confirmed or outstanding row's details. Undoing a created expense removes the entry and its match together.
+- **Undo.** Expand a confirmed or outstanding row and use **Undo** at the right of its banner. It reverses that row's own action, even after later actions elsewhere. Undoing a created expense removes the entry and its match together.
 - **Blocked completion.** Click **Complete reconciliation** early: the reasons are listed (unresolved records, a non-zero difference, or both).
 - **Leave unresolved.** Choose **Leave Unresolved** in any open case: the row collapses in place and keeps its status (Unmatched, Suggested or Auto-matched). Nothing else changes, and it still needs a resolution before you can complete. Click the row to continue.
 - **Unreadable save.** In the browser console run `localStorage.setItem('campfire.reconciliation.chase-4821.2025-11.v1', '{')` and reload. A recovery screen explains the problem, shows the raw data, and offers Try again or Reset demo. Nothing is overwritten until you choose.
