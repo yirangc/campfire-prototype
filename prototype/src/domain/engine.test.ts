@@ -58,15 +58,21 @@ const FINISH: Action[] = [
 describe('initial fixture', () => {
   const state = initialState()
 
-  it('counts 24 records in 16 review cases, the 5 auto-matched pairs included once each', () => {
+  it('counts 24 records in 24 rows, one per record, with pairs sharing a status', () => {
     expect(statusCounts(state)).toMatchObject({ all: 24, autoMatched: 10, suggested: 6, unmatched: 8, confirmed: 0, outstanding: 0, unresolved: 24, explained: 0 })
     const cases = reviewCases(state)
-    expect(cases).toHaveLength(16)
-    expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(5)
-    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(8)
-    const ids = cases.flatMap((c) => c.recordIds)
-    expect(ids).toHaveLength(24)
+    expect(cases).toHaveLength(24)
+    expect(cases.filter((c) => c.status === 'auto-matched')).toHaveLength(10)
+    expect(cases.filter((c) => c.recordIds.length === 2)).toHaveLength(16)
+    expect(cases.filter((c) => c.side === 'bank')).toHaveLength(12)
+    const ids = cases.map((c) => c.record.id)
     expect(new Set(ids).size).toBe(24)
+    // Both rows of a pair show the same status and pair.
+    const stripe = cases.filter((c) => c.suggestion?.id === 'A1')
+    expect(stripe.map((c) => [c.side, c.status, c.record.amount])).toEqual([
+      ['bank', 'auto-matched', 1_250_000],
+      ['ledger', 'auto-matched', 1_250_000],
+    ])
   })
 
   it('derives the initial balances from the PRD', () => {
@@ -205,7 +211,7 @@ describe('dismissal and its undo', () => {
     let s = run(initialState(), { type: 'dismiss-suggestion', suggestionId: 'S3' })
     expect(recordStatus(s, 'B03')).toBe('unmatched')
     expect(recordStatus(s, 'L03')).toBe('unmatched')
-    expect(reviewCases(s)).toHaveLength(17)
+    expect(reviewCases(s)).toHaveLength(24)
     const restored = run(s, { type: 'restore-suggestion', suggestionId: 'S3' })
     expect(recordStatus(restored, 'B03')).toBe('suggested')
     s = run(s, { type: 'confirm-match', bankId: 'B04', ledgerId: 'L03', source: 'search' })

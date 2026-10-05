@@ -30,7 +30,8 @@ export interface RegisterProps {
 
 /**
  * Reconciliation register (49:687): 42 px header on surface/subtle, 40 px rows, 16 px insets, 24 px column gaps,
- * a 230 px transaction column and equal amount, entry and status columns. Each row is one review case; the
+ * a 230 px transaction column and equal amount, entry and status columns. Each row is one bank transaction or ledger
+ * entry (Yirang, 2026-10-05), so a pair takes two rows with the same status; the
  * expanded detail opens inside the table (49:952). The Action column of 28:8442 is removed at Yirang's request
  * (2026-10-05): Undo sits at the right of the expanded row's banner instead.
  */
@@ -93,7 +94,7 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
         )}
         {cases.map((c) => {
           const open = expanded === c.key
-          const primary = c.bank ?? c.ledger!
+          const primary = c.record
           const detailId = `case-${c.key}`
           return (
             <Fragment key={c.key}>
@@ -115,18 +116,19 @@ export function Register({ recon, cases, expanded, onToggle, onCollapse, announc
                   >
                     <Icon name={open ? 'chevron-down' : 'chevron-right'} size={12} />
                     <span className={styles.label}>
+                      <span className="cf-visually-hidden">{c.side === 'bank' ? 'Bank transaction,' : 'Ledger entry,'}</span>{' '}
                       {shortDate(primary.date)} · {primary.description}
                     </span>
                   </button>
                 </th>
                 <td className={styles.amountCell} data-label="Bank amount">
-                  {c.bank ? signed(c.bank.amount) : <Dash />}
+                  {c.side === 'bank' ? signed(c.record.amount) : <Dash />}
                 </td>
                 <td className={styles.amountCell} data-label="Ledger amount">
-                  {c.ledger ? signed(c.ledger.amount) : <Dash />}
+                  {c.side === 'ledger' ? signed(c.record.amount) : <Dash />}
                 </td>
                 <td className={styles.entry} data-label="Ledger entry / date">
-                  {c.ledger ? (
+                  {c.side === 'ledger' && c.ledger ? (
                     <>
                       {c.ledger.entryId} · {shortDate(c.ledger.date)}
                       {c.ledger.generatedFrom && <span className={styles.created}>Created</span>}

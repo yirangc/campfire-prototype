@@ -101,53 +101,63 @@ export function statusCounts(state: ReconState): StatusCounts {
 export type CaseStatus = RecordStatus
 
 export interface ReviewCase {
-  /** Stable key: the bank record id when the case has one, otherwise the ledger record id. */
+  /** Stable key: the id of the record this row shows. */
   key: string
   status: CaseStatus
+  /** Which record the row shows. Paired records get one row each, carrying the same pair details. */
+  side: 'bank' | 'ledger'
+  record: FinancialRecord
   bank?: BankRecord
   ledger?: LedgerEntry
   suggestion?: Suggestion
   match?: Match
   outstanding?: OutstandingDoc
-  /** Original exception records in this case (a generated entry is linked but not counted). */
+  /** Original exception records the row's action covers (both records of a pair; a generated entry is linked but not counted). */
   recordIds: string[]
   date: string
 }
 
-/** Groups the 24 records into review cases. Each record appears in exactly one case. */
+/**
+ * One row per record (Yirang, 2026-10-05): every bank transaction and ledger entry has its own row, including the
+ * entries created from a bank line. A suggested, auto-matched or confirmed pair gives two rows with the same status and
+ * pair details, so expanding either one shows the match. Rows sort by their own record's date.
+ */
 export function reviewCases(state: ReconState): ReviewCase[] {
   const cases: ReviewCase[] = []
   const used = new Set<string>()
+  const pair = (base: Omit<ReviewCase, 'key' | 'side' | 'record' | 'date'> & { bank: BankRecord; ledger: LedgerEntry }) => {
+    used.add(base.bank.id)
+    used.add(base.ledger.id)
+    cases.push({ ...base, key: base.bank.id, side: 'bank', record: base.bank, date: base.bank.date })
+    cases.push({ ...base, key: base.ledger.id, side: 'ledger', record: base.ledger, date: base.ledger.date })
+  }
 
   for (const match of state.matches) {
     const bank = bankRecord(match.bankId)!
     const ledger = ledgerRecord(state, match.ledgerId)!
-    const recordIds = [bank.id, ...(ledger.generatedFrom ? [] : [ledger.id])]
-    recordIds.forEach((id) => used.add(id))
-    cases.push({ key: bank.id, status: 'confirmed', bank, ledger, match, recordIds, date: bank.date })
+    pair({ status: 'confirmed', bank, ledger, match, recordIds: [bank.id, ...(ledger.generatedFrom ? [] : [ledger.id])] })
   }
   for (const suggestion of activeSuggestions(state)) {
     const bank = bankRecord(suggestion.bankId)!
     const ledger = ledgerRecord(state, suggestion.ledgerId)!
-    used.add(bank.id)
-    used.add(ledger.id)
-    const status = suggestion.kind === 'auto' ? 'auto-matched' : 'suggested'
-    cases.push({ key: bank.id, status, bank, ledger, suggestion, recordIds: [bank.id, ledger.id], date: bank.date })
+    pair({ status: suggestion.kind === 'auto' ? 'auto-matched' : 'suggested', bank, ledger, suggestion, recordIds: [bank.id, ledger.id] })
   }
   for (const doc of state.outstanding) {
     const ledger = ledgerRecord(state, doc.ledgerId)!
     used.add(ledger.id)
-    cases.push({ key: ledger.id, status: 'outstanding', ledger, outstanding: doc, recordIds: [ledger.id], date: ledger.date })
+    cases.push({ key: ledger.id, status: 'outstanding', side: 'ledger', record: ledger, ledger, outstanding: doc, recordIds: [ledger.id], date: ledger.date })
   }
   for (const bank of BANK_EXCEPTIONS) {
     if (used.has(bank.id)) continue
-    cases.push({ key: bank.id, status: 'unmatched', bank, recordIds: [bank.id], date: bank.date })
+    cases.push({ key: bank.id, status: 'unmatched', side: 'bank', record: bank, bank, recordIds: [bank.id], date: bank.date })
   }
   for (const ledger of LEDGER_EXCEPTIONS) {
     if (used.has(ledger.id)) continue
-    cases.push({ key: ledger.id, status: 'unmatched', ledger, recordIds: [ledger.id], date: ledger.date })
+    cases.push({ key: ledger.id, status: 'unmatched', side: 'ledger', record: ledger, ledger, recordIds: [ledger.id], date: ledger.date })
   }
-  return cases.sort((a, b) => a.date.localeCompare(b.date) || a.key.localeCompare(b.key))
+  // Same date: the two rows of a pair sit together, bank row first.
+  const group = (c: ReviewCase) => c.bank?.id ?? c.key
+  return cases.sort((a, b) => a.date.localeCompare(b.date) || group(a).localeCompare(group(b)) || a.side.localeCompare(b.side))
 }
 
 export interface Balances {

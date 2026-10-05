@@ -79,7 +79,8 @@ const metric = (label) => page.getByRole('region', { name: 'Balances' }).getByRo
 // The card's text is its label, the info tip's definition, then the value.
 const metricValue = async (label) => (await metric(label).textContent()).match(/-?\$[\d,]+\.\d\d$/)?.[0]
 const metricHas = async (label, value) => (await metricValue(label)) === value
-const row = (name) => page.getByRole('button', { name, exact: false }).and(page.locator('[aria-expanded]'))
+// A pair has a bank row and a ledger row; when both match, the bank row (listed first) is meant.
+const row = (name) => page.getByRole('button', { name, exact: false }).and(page.locator('[aria-expanded]')).first()
 // The open row's detail cell (one is open at a time).
 const detail = () => page.locator('td[id^="case-"]')
 const open = async (name) => {
@@ -98,6 +99,17 @@ const ledgerCardShowsCounterparty = async (name, counterparty) => {
 }
 check(await ledgerCardShowsCounterparty('Nov 03 · Stripe payout', 'Stripe'), 'Auto-matched ledger card shows Counterparty: Stripe, no Match status')
 check(await ledgerCardShowsCounterparty('Nov 04 · ACH NORTH', 'Northstar Hosting'), 'Suggested ledger card shows Counterparty: Northstar Hosting, no Match status')
+
+// One row per record: the Stripe pair is a bank row and a ledger row, each with its own amount column.
+{
+  const bankRow = page.getByRole('button', { name: 'Bank transaction, Nov 03 · Stripe payout', exact: true }).locator('xpath=ancestor::tr')
+  const ledgerRow = page.getByRole('button', { name: 'Ledger entry, Nov 03 · Stripe payout', exact: true }).locator('xpath=ancestor::tr')
+  const amounts = async (tr) => (await tr.locator('td').allInnerTexts()).slice(0, 2).map((t) => t.trim())
+  const statuses = async () => [await bankRow.locator('[data-status]').getAttribute('data-status'), await ledgerRow.locator('[data-status]').getAttribute('data-status')]
+  const [b, l] = [await amounts(bankRow), await amounts(ledgerRow)]
+  check(b[0] === '+$12,500.00' && b[1].startsWith('—') && l[0].startsWith('—') && l[1] === '+$12,500.00' && (await statuses()).join() === 'auto-matched,auto-matched',
+    'Stripe has a bank row and a ledger row, each with its own amount, both Auto-matched')
+}
 
 // Status pills explain themselves on hover and keyboard focus, and clicking one does not expand its row.
 {
